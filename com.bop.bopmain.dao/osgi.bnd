@@ -1,0 +1,4 @@
+Export-Package: com.bop.bopmain.dao;version=${project.version}
+Private-Package: com.bop.bopmain.dao.*
+DynamicImport-Package: *
+Bundle-Level: 12
