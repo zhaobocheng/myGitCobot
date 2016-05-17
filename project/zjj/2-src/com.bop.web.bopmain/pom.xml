@@ -1,0 +1,115 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>com.bop.framework</groupId>
+		<artifactId>app.project</artifactId>
+		<version>1.1.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.bop</groupId>
+	<artifactId>com.bop.web.bopmain</artifactId>
+	<packaging>bundle</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.bop</groupId>
+			<artifactId>com.bop.hibernate</artifactId>
+			<version>${framework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bop</groupId>
+			<artifactId>com.bop.bopmain.dao</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bop</groupId>
+			<artifactId>com.bop.json</artifactId>
+			<version>${framework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bop</groupId>
+			<artifactId>com.bop.event</artifactId>
+			<version>${framework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bop</groupId>
+			<artifactId>com.bop.web</artifactId>
+			<version>${framework.version}</version>
+		</dependency>
+		<dependency>
+            <groupId>com.bop.module</groupId>
+            <artifactId>com.bop.module.user</artifactId>
+            <version>${framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bop.module</groupId>
+            <artifactId>com.bop.module.author</artifactId>
+            <version>${framework.version}</version>
+        </dependency>
+        
+        <dependency>
+        	<groupId>com.bop.module</groupId>
+			<artifactId>com.bop.module.authorweb</artifactId>
+			<version>${framework.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.bop.module</groupId>
+            <artifactId>com.bop.module.function</artifactId>
+            <version>${framework.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.bop</groupId>
+            <artifactId>com.bop.domain</artifactId>
+            <version>${framework.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.bop.module</groupId>
+            <artifactId>com.bop.module.resources</artifactId>
+            <version>${framework.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.bop.module</groupId>
+            <artifactId>com.bop.module.log</artifactId>
+            <version>${framework.version}</version>
+        </dependency>
+        
+        <!-- ******************** -->
+        
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>com.springsource.org.apache.velocity.tools.view</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>com.springsource.javax.servlet</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>bdsoftRegCall</groupId>
+			<artifactId>bdsoftRegCall-1.0</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/bdsoftRegCall-1.0.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.sitemesh</groupId>
+			<artifactId>sitemesh</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.axis2</groupId>
+			<artifactId>org.apache.axis2.osgi</artifactId>
+			<version>1.6.3</version>
+		</dependency>
+	</dependencies>
+</project>

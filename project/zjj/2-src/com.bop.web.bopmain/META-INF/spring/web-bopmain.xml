@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgi="http://www.springframework.org/schema/osgi"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                      http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+	<osgi:reference id="ModuleService" interface="com.bop.domain.schema.ModuleService" />
+	<osgi:list id="moduleupgraders" interface="com.bop.hibernate.dbinit.ModuleUpgrader"
+		cardinality="0..N">
+		<osgi:listener bind-method="onBind" unbind-method="onUnbind"
+			ref="UpgradeExecutor" />
+	</osgi:list>
+
+	<bean id="UpgradeExecutor" class="com.bop.web.bopmain.internal.UpgradeExecutor">
+		<property name="jdbcTemplate" ref="JdbcTemplate" />
+		<property name="moduleService" ref="ModuleService" />
+	</bean>
+	
+	<bean name="mainPage" class="com.bop.web.bopmain.MainPage">
+		<property name="upgradeExecutor" ref="UpgradeExecutor" />
+		<property name="recordDao" ref="recordDao" />
+		<property name="userService" ref="UserService" />
+	</bean>
+	
+	<bean name="NavigationService" class="com.bop.web.bopmain.internal.NavigationService">
+		<property name="authorService" ref="AuthorService" />
+		<property name="functionService" ref="FunctionService" />
+		<property name="userSession" ref="userSessionImpl" />
+	</bean>
+	
+	<bean name="roleAjaxCommand" class="com.bop.web.bopmain.author.RoleAjaxCommand">
+		<property name="roleService" ref="RoleService" />
+	</bean>
+	
+	<bean name="authorAjaxCommand" class="com.bop.web.bopmain.author.AuthorAjaxCommand">
+		<property name="authorService" ref="AuthorService" />
+		<property name="functionService" ref="FunctionService" />
+		<property name="userService" ref="UserService" />
+		<property name="roleService" ref="RoleService" />
+		<property name="jdbcOperations" ref="JdbcTemplate" />
+	</bean>
+
+	<bean id="rygl" class="com.bop.web.bopmain.user.Rygl">
+    	<property name="deptDao" ref="DeptDao" />
+    	<property name="personDao" ref="PersonDao" />
+    	<property name="userDao" ref="UserDao" />
+    	<property name="userService" ref="UserService" />
+    </bean>
+
+<!--     <bean id="coder" class="com.bop.web.bopmain.encryption.Coder">
+    </bean> -->
+	
+	<bean name="userSessionImpl" class="com.bop.web.bopmain.internal.UserSessionImpl">
+		<property name="recordDao" ref="recordDao" />
+	</bean>
+	
+	<bean id="SemipEventHandler" class="com.bop.web.bopmain.internal.SemipEventHandler">
+		<property name="OpLoggerFactory" ref="OpLoggerFactory"></property>
+    </bean>
+    
+    <osgi:service id="EventListenerProcess" interface="org.osgi.service.event.EventHandler"
+		ref="SemipEventHandler">
+		<osgi:service-properties>
+			<entry key="event.topics">
+				<value>bopmain/*</value>
+			</entry>
+		</osgi:service-properties>
+	</osgi:service>
+	
+	<bean id="PersonDao" class="com.bop.hibernate.HibernateDaoBaseImpl">
+		<constructor-arg>
+			<value>com.bop.bopmain.dao.Person</value>
+		</constructor-arg>
+		<property name="sessionFactory">
+			<ref bean="SessionFactory" />
+		</property>
+	</bean>
+	
+	<bean id="UserDao" class="com.bop.hibernate.HibernateDaoBaseImpl">
+		<constructor-arg>
+			<value>com.bop.module.user.dao.User01</value>
+		</constructor-arg>
+		<property name="sessionFactory">
+			<ref bean="SessionFactory" />
+		</property>
+	</bean>
+	<bean id="DeptDao" class="com.bop.hibernate.HibernateDaoBaseImpl">
+		<constructor-arg>
+			<value>com.bop.bopmain.dao.Dept</value>
+		</constructor-arg>
+		<property name="sessionFactory">
+			<ref bean="SessionFactory" />
+		</property>
+	</bean>
+</beans>
