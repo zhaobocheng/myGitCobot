@@ -1,0 +1,6 @@
+Export-Package: com.bop.web.bopmain;version=${project.version},\
+ com.bop.web.bopmain.user;version=${project.version}
+Private-Package: com.bop.web.bopmain.*
+DynamicImport-Package: *
+Bundle-ClassPath: lib/bdsoftRegCall-1.0.jar,.
+Bundle-Level: 20

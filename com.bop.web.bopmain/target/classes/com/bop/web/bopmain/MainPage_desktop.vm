@@ -1,0 +1,55 @@
+<html>
+  <head>
+	<title>首页</title>
+	<meta name="decorator" content="miniui" >
+    <style type="text/css">
+        img { vertical-align:middle}
+        #functiondescArea td {
+        	font-size: 12px;
+        	padding-left:14px;
+        	line-height: 150%;
+        	border-bottom:solid #c2def8 1px;
+        	height:24px;
+        }
+        #functiondescArea tr {
+        	onmouseover: expression(onmouseover=function (){this.style.borderColor ='blue';this.style.color='#1d3768';this.style.backgroundColor ='#d7e9f0'}); 
+        	onmouseout: expression(onmouseout=function (){this.style.borderColor='';this.style.color='';this.style.backgroundColor =''});
+        }
+    </style>
+
+<script type="text/javascript">
+
+function fun(){
+    #if($ts !="" )
+    	mini.showTips('$ts');
+	#end
+  }
+
+window.onload = fun();
+</script>
+  </head>
+<body>
+
+
+<div style="background-repeat:no-repeat;background-color:white;height:100%;margin-left:20px;">
+	<div align="left" style="font-size: 14px; padding:12px 0px; color:#F30">
+		<b>
+			#if($sys.getName() != "" && $sys.getIconPath() != "")
+				<img src="$!sys.getIconPath()">$!sys.getName()
+			#elseif($sys.getName() != "" && $sys.getIconPath() == "")
+				<img src="/bopmain/images/function_empty.gif">$!sys.getName()
+			#end
+		</b>
+	</div>
+	<table id="functiondescArea" width="95%" border="0" cellpadding="0" cellspacing="0">
+		<tr>
+			<td width="26%">
+					<strong><b>产品功能</b></strong>
+			</td>
+			<td><strong><b>功能说明</b></strong></td>
+        </tr>
+		$html
+    </table>
+</div>
+</body>
+</html>

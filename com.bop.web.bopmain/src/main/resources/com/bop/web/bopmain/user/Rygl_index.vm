@@ -1,0 +1,259 @@
+<html>
+<head>
+    <title>人员管理</title>
+    <meta name="decorator" content="miniui" >
+	<style>
+		#mmjy{height:6px;width:120px;border:1px solid #ccc;padding:2px;} 
+			.strengthLv1{background:red;height:6px;width:40px;}
+			.strengthLv2{background:orange;height:6px;width:80px;}
+			.strengthLv3{background:green;height:6px;width:120px;}
+    </style>
+</head>
+<body>
+<div class="mini-splitter" style="width:100%;height:100%;">
+    <div size="19%"  minSize="250px" showCollapseButton="true" showRadioButton="true">
+        <div class="mini-fit">
+        	<div class="mini-toolbar" style="padding:2px;border-top:0;border-left:0;border-right:0;"> 
+        		<a class="mini-button" iconCls="icon-add" plain="true" onclick="onAddNode()">
+					新增
+				</a>
+            	<span class="separator"></span>
+            	<a class="mini-button" iconCls="icon-remove" plain="true" onclick="onDelNode()">
+					删除
+				</a>  
+            	<span class="separator"></span>
+            	<a class="mini-button" iconCls="icon-edit" plain="true" onclick="oneditNode()">
+					修改
+				</a>
+        	</div>
+            	<ul id="deptTree" class="mini-tree"  style="width:100%;height:95%;" 
+    				showTreeIcon="true" textField="text" idField="id" resultAsTree="true"  
+    				expandOnLoad="true" onnodeclick="onNodeClick" url="/bopmain/user/rygl/deptlist?theme=none">
+				</ul>
+        </div>
+    </div>
+    <div showCollapseButton="true">
+        <div class="mini-toolbar" style="padding:2px;border-top:0;border-left:0;border-right:0;">                
+            <a class="mini-button" iconCls="icon-add" plain="true" onclick="addRow()">
+				新增
+			</a>
+            <span class="separator"></span>
+            <a class="mini-button" iconCls="icon-remove" plain="true" onclick="removeRow()">
+				删除
+			</a>  
+            <span class="separator"></span>
+            <a class="mini-button" iconCls="icon-edit" plain="true" onclick="editRow()">
+				修改
+			</a>
+            	<span class="separator"></span>
+            	<input id="key"  name="key" class="mini-textbox" emptyText="员工姓名或登录名" onenter="onKeyEnter" />
+            	<a class="mini-button"  iconCls="icon-find" plain="true" onclick="findNode()">查询</a>
+            	<a class="mini-button" onclick="showAll()">显示所有人员</a>
+        </div>
+        <div class="mini-fit" >
+			<div class="mini-datagrid" id="rydatagrid" style="width:100%;height:100%;" pageSize="20" idField="id"  url="/bopmain/user/rygl/personList?theme=none" >
+                 <div property="columns">
+    				 <div type="indexcolumn"></div>
+					 <div field="id" width="100" allowSort="true"  visible = "false"></div>
+    				 <div field="loginname" headerAlign="center" allowSort="true" width="150" >登陆帐号</div>
+                     <div field="realname" width="100" allowSort="true" >员工姓名</div>
+				 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="userwin" class="mini-window" title="新增人员" style="width:360px;height:260px;"  
+    showModal="true" showCloseButton="false" showFooter="true" allowDrag="true">
+	<div property="footer" align="center" >
+		<a class="mini-button" iconCls="icon-ok"  onclick="addRowYes()">确定</a>
+            <span class="separator"></span>
+		<a class="mini-button" iconCls="icon-cancel"  onclick="addRowNo()">取消</a>  
+    </div>
+
+	<form id="userform" class="input_form" style="width:100%">
+        <table style="width:100%">
+            <tr >
+                <th width="35%">
+                    <label for="RY0103">员工姓名<font color="red">*</font>：</label>
+                </th>
+                <td width="65%">
+                    <input id="RY0103" name="RY0103" class="mini-textbox" required="true"/>
+                </td>
+            </tr>
+			<tr>
+                <th width="35%">
+                    <label for="RY0102">登录名<font color="red">*</font>：</label>
+                </th>
+                <td>
+                    <input id="RY0102"  name="RY0102" class="mini-textbox" required="true" onvaluechanged="checkLoginName('add')"/>
+                </td>
+            </tr>
+			<tr >
+                <th width="35%"> <label >密码<font color="red">*</font>：</label> </th>
+                <td>
+                    <input id="password" name="password" class="mini-password" required="true" onkeyup='keyUp(event)'/>
+                </td>
+            </tr>
+			<tr>
+                <th width="35%">
+                    <label for="rpassword">确认密码<font color="red">*</font>：</label>
+                </th>
+                <td>
+                    <input id="rpassword" name="rpassword" class="mini-password" required="true" onvaluechanged="checkPassword()"/>
+                </td>
+            </tr>
+			<tr >
+                <th width="35%">  <label for="usetime">密码有效时间：</label>  </th>
+                <td>  <input id="usetime" name="usetime" class="mini-textbox" vtype="int" required="true"/>月 </td>
+            </tr>
+			
+			<tr >
+                <th width="35%">  <label for="usetime">IP地址：</label>  </th>
+                <td>  <input id="ip" name="ip" class="mini-textbox" vtype="int" /> </td>
+            </tr>
+			<tr >
+                <th width="35%">  <label for="usetime">MAC地址：</label>  </th>
+                <td>  <input id="mac" name="mac" class="mini-textbox" vtype="int"/></td>
+            </tr>
+			
+			<tr >
+                <th width="35%">
+                    <label for="RY0104">描述：</label>
+                </th>
+                <td>
+                    <input id="RY0104" name="RY0104" class="mini-textbox" />
+                </td>
+            </tr>
+			<tr>
+                <th width="35%">
+                    <label for="RY0102ERROR">提示：</label>
+                </th>
+                <td>
+                    <input id="RY0102ERROR" name="RY0102ERROR" class="mini-textbox" width="100%" />
+                </td>
+            </tr>
+        </table>
+		<div id = "mmjy" width="10"></div>
+    </form>     	
+</div>
+
+
+<div id="edituserwin" class="mini-window" title="修改人员" style="width:360px;height:260px;"  
+    showModal="true" showCloseButton="false" showFooter="true" allowDrag="true">
+	<div property="footer" align="center" >
+		<a class="mini-button" iconCls="icon-ok"  onclick="editRowYes()">确定</a>
+            <span class="separator"></span>
+		<a class="mini-button" iconCls="icon-cancel"  onclick="editRowNo()">取消</a>
+    </div>
+
+	<form id="edituserform" class="input_form" style="width:100%">
+        <table style="width:100%">
+            <tr >
+                <th width="35%">
+                    <label for="ERY0103">员工姓名<font color="red">*</font>：</label>
+                </th>
+                <td width="65%">
+                    <input id="ERY0103" name="ERY0103" class="mini-textbox" required="true"/>
+                </td>
+            </tr>
+			<tr>
+                <th width="35%">
+                    <label for="ERY0102">登录名<font color="red">*</font>：</label>
+                </th>
+                <td>
+                    <input id="ERY0102"  name="ERY0102" class="mini-textbox" required="true" onvaluechanged="checkLoginName('edit')"/>
+                </td>
+            </tr>
+			<tr >
+                <th width="35%"> <label >密码<font color="red">*</font>：</label> </th>
+                <td>
+                    <input id="Epassword" name="Epassword" class="mini-password" required="true" onkeyup="keyUp('edit')"/>
+                </td>
+            </tr>
+			<tr>
+                <th width="35%">
+                    <label for="Erpassword">确认密码<font color="red">*</font>：</label>
+                </th>
+                <td>
+                    <input id="Erpassword" name="Erpassword" class="mini-password" required="true" onvaluechanged="checkPassword()"/>
+                </td>
+            </tr>
+			<tr >
+                <th width="35%">
+                    <label for="Eusetime">密码有效时间：</label>
+                </th>
+                <td>
+                    <input id="Eusetime" name="Eusetime" class="mini-textbox" vtype="int" required="true"/>月
+                </td>
+            </tr>
+			<tr >
+                <th width="35%">  <label for="Eusetime">IP地址：</label></th>
+                <td>  <input id="Eip" name="Eip" class="mini-textbox" vtype="int"/> </td>
+            </tr>
+			<tr >
+                <th width="35%">  <label for="EMAC">MAC地址：</label></th>
+                <td>  <input id="Emac" name="Emac" class="mini-textbox" vtype="int"/></td>
+            </tr>
+			<tr >
+                <th width="35%">
+                    <label for="ERY0104">描述：</label>
+                </th>
+                <td>
+                    <input id="ERY0104" name="ERY0104" class="mini-textbox" />
+                </td>
+            </tr>
+			<tr>
+                <th width="35%">
+                    <label for="ERY0102ERROR">提示：</label>
+                </th>
+                <td>
+                    <input id="ERY0102ERROR" name="ERY0102ERROR" class="mini-textbox" width="100%" />
+                </td>
+            </tr>
+        </table>
+		<div id = "Emmjy" width="10"></div>
+    </form>     	
+</div>
+
+<div id="win3" class="mini-window" title="部门信息" style="width:300px;height:200px;" showModal="true" showFooter="true">
+    <div property="footer" align="center">
+       <a class="mini-button" iconCls="icon-ok"  onclick="onAddNodeYes()">确定</a>
+            <span class="separator"></span>
+       <a class="mini-button" iconCls="icon-cancel"  onclick="onAddNodeNo()">取消</a>  
+    </div>
+    
+    <div id="deptform" class="input_form">
+        <table>
+            <tr >
+                <th width="25%">
+                    <label for="BM0101">部门名称<font color="red">*</font>：</label>
+                </th>
+                <td>
+					<!-- onvaluechanged="checkNode()-->
+                    <input id="BM0101" name="BM0101" class="mini-textbox" required="true" "/>
+                </td>
+            </tr>
+			<tr >
+				  <th width="25%">
+                    <label >提示：</label>
+                </th>
+                <td>
+                    <input id="BM01011EORROR" name="BM01011EORROR" class="mini-textbox"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script>
+mini.parse();
+var grid = mini.get("rydatagrid");
+grid.load({departmentId : 0});
+
+var tree = mini.get("deptTree");
+var win3 = mini.get("win3");
+var edituserform = new mini.Form("#edituserform");
+</script>
+<script type="text/javascript" src="/bopmain/user/rygl.js"></script>
+</body>
+</html>
