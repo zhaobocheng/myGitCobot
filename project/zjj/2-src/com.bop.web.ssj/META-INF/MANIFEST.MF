@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: com.bop.web.ssj
+Built-By: bdsoft
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1463467446685
+Bundle-Level: 71
+Bundle-Vendor: BOP
+Import-Package: com.bop.domain,com.bop.module.author,com.bop.module.fu
+ nction,com.bop.module.function.service,com.bop.module.log,com.bop.mod
+ ule.resources,com.bop.module.user,com.bop.web,com.bop.web.defaults,or
+ g.hibernate,org.springframework.jdbc.core;version="3.1"
+DynamicImport-Package: *
+Tool: Bnd-0.0.357
+Originally-Created-By: Apache Maven Bundle Plugin
+Bundle-Version: 1.1.0
+Bundle-Name: com.bop.web.ssj
+Created-By: Apache Maven Bundle Plugin
+Build-Jdk: 1.8.0_20
+
