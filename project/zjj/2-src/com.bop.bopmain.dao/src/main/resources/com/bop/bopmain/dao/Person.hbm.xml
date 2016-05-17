@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.bop.bopmain.dao.Person" table="RY01">
+		<id name="personId" type="java.lang.String">
+			<column length="36" name="PERSONID" unique="true" />
+			<generator class="uuid" />
+		</id>
+		<many-to-one class="com.bop.bopmain.dao.Dept" name="dept">
+			<column length="36" name="DEPTID" />
+		</many-to-one>
+
+		<property generated="never" lazy="false" name="loginName"
+			type="java.lang.String" >
+			<column length="100" name="RY0102" not-null="true" />
+		</property>
+		<property generated="never" lazy="false" name="userName"
+			type="java.lang.String">
+			<column length="100" name="RY0103" not-null="true" />
+		</property>
+		<property generated="never" lazy="false" name="description"
+			type="java.lang.String">
+			<column length="500" name="RY0104" />
+		</property>
+		<property generated="never" lazy="false" name="enabled"
+			type="java.lang.Boolean">
+			<column name="RY0105" not-null="true" />
+		</property>
+		<property generated="never" lazy="false" name="deleted"
+			type="java.lang.Boolean">
+			<column name="RY0106" not-null="true" />
+		</property>
+	</class>
+</hibernate-mapping>
