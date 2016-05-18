@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-SymbolicName: com.bop.bopmain.dao
 Built-By: bdsoft
 Bundle-ManifestVersion: 2
-Bnd-LastModified: 1463466245549
+Bnd-LastModified: 1463552305111
 Bundle-Level: 12
 Import-Package: com.bop.bopmain.dao;version="1.1",com.bop.hibernate;ve
  rsion="4.2"
