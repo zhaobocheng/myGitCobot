@@ -11,11 +11,29 @@
   <artifactId>com.bop.web.ssj</artifactId>
   <packaging>bundle</packaging>
   
+  
+  <modulVersion>
+  	<groupId>com.bop</groupId>
+  	<artifactId>com.bop.ssj</artifactId>
+  	<version>1.1.0</version>
+  </modulVersion>
+  
   <dependencies>
   	<dependency>
 	  	<groupId>com.bop</groupId>
 	  	<artifactId>com.bop.web.bopmain</artifactId>
 	  	<version>1.1.0</version>
   	</dependency>
+  	
+  	<dependency>
+	  	<groupId>com.bop</groupId>
+	  	<artifactId>com.bop.domain</artifactId>
+	  	<version>${framework.version}</version>
+  	</dependency>
+	<dependency>
+			<groupId>com.bop</groupId>
+			<artifactId>com.bop.web</artifactId>
+			<version>${framework.version}</version>
+		</dependency>
   </dependencies>
 </project>

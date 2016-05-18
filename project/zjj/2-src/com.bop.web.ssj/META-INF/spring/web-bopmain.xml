@@ -25,8 +25,10 @@
 			<ref bean="SessionFactory" />
 		</property>
 	</bean> -->
-	
-	
-	
-	
+
+	<bean id="createscheme" class="com.bop.web.ssj.ssjscheme.CreateScheme">
+    	<property name="jdbcTemplate" ref="JdbcTemplate" />
+    	<property name="recordDao" ref="recordDao" />
+    </bean>
+
 </beans>
