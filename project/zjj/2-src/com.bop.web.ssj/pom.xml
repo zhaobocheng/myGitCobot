@@ -11,13 +11,6 @@
   <artifactId>com.bop.web.ssj</artifactId>
   <packaging>bundle</packaging>
   
-  
-  <modulVersion>
-  	<groupId>com.bop</groupId>
-  	<artifactId>com.bop.ssj</artifactId>
-  	<version>1.1.0</version>
-  </modulVersion>
-  
   <dependencies>
   	<dependency>
 	  	<groupId>com.bop</groupId>
