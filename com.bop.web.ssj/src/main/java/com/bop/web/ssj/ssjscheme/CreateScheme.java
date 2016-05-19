@@ -80,14 +80,11 @@ public class CreateScheme {
 		
 	}
 	
-	
-	
+
 	public String [] getSJSData(){
 		String sjStr [] = null ;
 		
 		Random rd = new Random();
-		
-		
 		List lt = new ArrayList();
 		
 /*		lt.add("sss");

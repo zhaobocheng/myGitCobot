@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgi="http://www.springframework.org/schema/osgi"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                      http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+	<!-- <osgi:reference id="ModuleService" interface="com.bop.domain.schema.ModuleService" />
+	<osgi:list id="moduleupgraders" interface="com.bop.hibernate.dbinit.ModuleUpgrader"
+		cardinality="0..N">
+		<osgi:listener bind-method="onBind" unbind-method="onUnbind"
+			ref="UpgradeExecutor" />
+	</osgi:list>
+
+	<bean id="rygl" class="com.bop.web.bopmain.user.Rygl">
+    	<property name="deptDao" ref="DeptDao" />
+    	<property name="personDao" ref="PersonDao" />
+    	<property name="userDao" ref="UserDao" />
+    	<property name="userService" ref="UserService" />
+    </bean>
+ 
+	<bean id="DeptDao" class="com.bop.hibernate.HibernateDaoBaseImpl">
+		<constructor-arg>
+			<value>com.bop.bopmain.dao.Dept</value>
+		</constructor-arg>
+		<property name="sessionFactory">
+			<ref bean="SessionFactory" />
+		</property>
+	</bean> -->
+
+	<bean id="createscheme" class="com.bop.web.ssj.ssjscheme.CreateScheme">
+    	<property name="jdbcTemplate" ref="JdbcTemplate" />
+    	<property name="recordDao" ref="recordDao" />
+    </bean>
+
+</beans>
