@@ -12,16 +12,4 @@
 		</bean>
 	</osgi:service>
 
-	<!-- <osgi:service id="UserSession" interface="com.bop.web.bopmain.UserSession" ref="userSessionImpl">
-	</osgi:service>
-	
-	<osgi:service interface="javax.servlet.Filter">
-		<bean class="com.bop.web.bopmain.sitemesh.MyConfigurableSiteMeshFilter" />
-	</osgi:service>
-	
-	<osgi:list id="UserChangesFromPerson" interface="com.bop.module.user.UserChangedEvent"
-		cardinality="0..N">
-		<osgi:listener bind-method="onBind" unbind-method="onUnbind"
-			ref="rygl" />
-	</osgi:list> -->
 </beans>
