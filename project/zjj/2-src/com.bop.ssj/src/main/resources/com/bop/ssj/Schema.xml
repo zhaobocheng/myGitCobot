@@ -1,48 +1,48 @@
-<?xml version="1.0" encoding="UTF-8"?>
+ï»¿<?xml version="1.0" encoding="UTF-8"?>
 <bopdb>
 	<modules>
 		<module name="com.bop.ssj" version="1.0.1">
 			<codetables />
 			<codetablerows/>
 			<groups>
-				<group name="ORG" description="ÆóÒµÐÅÏ¢Èº" maintable="ORG01" pkeyname="ORG00">
+				<group name="ORG" description="ä¼ä¸šä¿¡æ¯ç¾¤" maintable="ORG01" pkeyname="ORG00">
 					<tables>
-						<table name="ORG01" description="»ú¹¹ÐÅÏ¢" singlerecord="true"
+						<table name="ORG01" description="æœºæž„ä¿¡æ¯" singlerecord="true"
 							groupname="ORG">
 							<fields>								
-								<field name="ORG_CODE" description="×éÖ¯»ú¹¹´úÂë" typeid="CHGSTRING"
+								<field name="ORG_CODE" description="ç»„ç»‡æœºæž„ä»£ç " typeid="CHGSTRING"
 									codetablename="" ismust="true" ispass="false" pindex="1"
 									realtype="NVARCHAR2(10)" />
-								<field name="ORG_NAME" description="×éÖ¯»ú¹¹Ãû³Æ" typeid="CHGSTRING"
+								<field name="ORG_NAME" description="ç»„ç»‡æœºæž„åç§°" typeid="CHGSTRING"
 									codetablename="" ismust="ture" ispass="false" pindex="2"
 									realtype="NVARCHAR2(2000)" />
-								<field name="ORG_TYPE_DIC" description="»ú¹¹ÀàÐÍ" typeid="CHGSTRING"
+								<field name="ORG_TYPE_DIC" description="æœºæž„ç±»åž‹" typeid="CHGSTRING"
 									codetablename="GBT20091" ismust="false" ispass="false" pindex="3"
 									realtype="NVARCHAR2(200)" />
-								<field name="REG_ADDR" description="×éÖ¯»ú¹¹µØÖ·" typeid="CHGSTRING"
+								<field name="REG_ADDR" description="ç»„ç»‡æœºæž„åœ°å€" typeid="CHGSTRING"
 									codetablename="" ismust="false" ispass="false" pindex="4"
 									realtype="NVARCHAR2(2000)" />
-								<field name="REG_NO" description="×¢²áºÅ" typeid="CHGSTRING"
+								<field name="REG_NO" description="æ³¨å†Œå·" typeid="CHGSTRING"
 									codetablename="" ismust="false" ispass="false" pindex="5"
 									realtype="NVARCHAR2(200)" />
-								<field name="REG_DISTRICT_DIC" description="ÐÐÕþÇø»®" typeid="CHGSTRING"
+								<field name="REG_DISTRICT_DIC" description="è¡Œæ”¿åŒºåˆ’" typeid="CHGSTRING"
 									codetablename="DB064" ismust="true" ispass="false" pindex="6"
 									realtype="NVARCHAR2(256)" />								
 							</fields>
 						</table>
-						<table name="ORG02" description="»ú¹¹ÊôÐÔ" singlerecord="false"
+						<table name="ORG02" description="æœºæž„å±žæ€§" singlerecord="false"
 							parentname="ORG01" groupname="ORG">
 							<fields>		
-								<field name="ORG0201" description="ÊÇ·ñÓÐÌØÉè" typeid="CHGSTRING"
+								<field name="ORG0201" description="æ˜¯å¦æœ‰ç‰¹è®¾" typeid="CHGSTRING"
 									codetablename="" ismust="ture" ispass="false" pindex="1"
 									realtype="NVARCHAR2(1)" />
-								<field name="ORG0202" description="ÊÇ·ñ¼ÆÁ¿" typeid="CHGSTRING"
+								<field name="ORG0202" description="æ˜¯å¦è®¡é‡" typeid="CHGSTRING"
 									codetablename="" ismust="true" ispass="false" pindex="2"
 									realtype="NVARCHAR2(1)" />
-								<field name="ORG0203" description="ÊÇ·ñÇ¿ÖÆÐÔÈÏÖ¤" typeid="CHGSTRING"
+								<field name="ORG0203" description="æ˜¯å¦å¼ºåˆ¶æ€§è®¤è¯" typeid="CHGSTRING"
 									codetablename="" ismust="true" ispass="false" pindex="3"
 									realtype="NVARCHAR2(1)" />
-								<field name="ORG0204" description="ÊÇ·ñ±ê×¼" typeid="CHGSTRING"
+								<field name="ORG0204" description="æ˜¯å¦æ ‡å‡†" typeid="CHGSTRING"
 									codetablename="" ismust="ture" ispass="false" pindex="4"
 									realtype="NVARCHAR2(1)" />							
 							</fields>
