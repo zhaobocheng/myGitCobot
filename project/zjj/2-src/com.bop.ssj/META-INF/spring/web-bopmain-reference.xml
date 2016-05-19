@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgi="http://www.springframework.org/schema/osgi"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                      http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+	<osgi:reference id="UserService" interface="com.bop.module.user.UserService" />
+	<osgi:reference id="AuthorService" interface="com.bop.module.author.AuthorService" />
+	<osgi:reference id="recordDao" interface="com.bop.domain.IRecordDao" />
+	<osgi:reference id="InfsetService" interface="com.bop.domain.InfsetService"  />
+	<osgi:reference id="RoleService" interface="com.bop.module.author.RoleService"  />
+	<osgi:reference id="JdbcTemplate" interface="org.springframework.jdbc.core.JdbcOperations"/>
+	<osgi:reference id="ResourceFiles" interface="com.bop.module.resources.ResourceFiles" />
+	<osgi:reference id="FunctionService" interface="com.bop.module.function.service.FunctionService" />
+	<osgi:reference id="LogonService" interface="com.bop.module.user.LogonService" />
+	<osgi:reference id="CommonSession" interface="com.bop.web.CommonSession"/>
+	<osgi:reference id="OpLoggerFactory" interface="com.bop.module.log.OpLoggerFactory" />
+	<osgi:reference id="SessionFactory" interface="org.hibernate.SessionFactory" />
+</beans>

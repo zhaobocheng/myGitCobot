@@ -24,9 +24,9 @@
 	  	<version>${framework.version}</version>
   	</dependency>
 	<dependency>
-			<groupId>com.bop</groupId>
-			<artifactId>com.bop.web</artifactId>
-			<version>${framework.version}</version>
-		</dependency>
+		<groupId>com.bop</groupId>
+		<artifactId>com.bop.web</artifactId>
+		<version>${framework.version}</version>
+	</dependency>
   </dependencies>
 </project>

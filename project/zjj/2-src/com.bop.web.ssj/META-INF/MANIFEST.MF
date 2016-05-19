@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-SymbolicName: com.bop.web.ssj
 Built-By: bdsoft
 Bundle-ManifestVersion: 2
-Bnd-LastModified: 1463552333557
+Bnd-LastModified: 1463637967611
 Bundle-Level: 71
 Bundle-Vendor: BOP
 Import-Package: com.bop.domain;version="4.2",com.bop.json;version="4.2
