@@ -11,5 +11,21 @@
 			</property>
 		</bean>
 	</osgi:service>
+	
+	<osgi:service id="dbShcema" interface="com.bop.domain.schema.DbSchema">
+		<bean class="com.bop.domain.schema.XmlDbSchema">
+			<property name="xmlPath">
+				<value>/com/bop/ssj/Schema.xml</value>
+			</property>
+			<property name="upgrader">
+				<bean class="com.bop.hibernate.dbinit.DefaultModuleUpgrader">
+					<property name="moduleUpgrader">
+						<set>
+						</set>
+					</property>
+				</bean>
+			</property>
+		</bean>
+	</osgi:service>
 
 </beans>
