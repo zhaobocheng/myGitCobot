@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bopdb>
+	<modules>
+		<module name="com.bop.ssj" version="1.0.1">
+			<codetables />
+			<codetablerows/>
+			<groups>
+				<group name="ORG" description="企业信息群" maintable="ORG01" pkeyname="ORG00">
+					<tables>
+						<table name="ORG01" description="机构信息" singlerecord="true"
+							groupname="ORG">
+							<fields>								
+								<field name="ORG_CODE" description="组织机构代码" typeid="CHGSTRING"
+									codetablename="" ismust="true" ispass="false" pindex="1"
+									realtype="NVARCHAR2(10)" />
+								<field name="ORG_NAME" description="组织机构名称" typeid="CHGSTRING"
+									codetablename="" ismust="ture" ispass="false" pindex="2"
+									realtype="NVARCHAR2(2000)" />
+								<field name="ORG_TYPE_DIC" description="机构类型" typeid="CHGSTRING"
+									codetablename="GBT20091" ismust="false" ispass="false" pindex="3"
+									realtype="NVARCHAR2(200)" />
+								<field name="REG_ADDR" description="组织机构地址" typeid="CHGSTRING"
+									codetablename="" ismust="false" ispass="false" pindex="4"
+									realtype="NVARCHAR2(2000)" />
+								<field name="REG_NO" description="注册号" typeid="CHGSTRING"
+									codetablename="" ismust="false" ispass="false" pindex="5"
+									realtype="NVARCHAR2(200)" />
+								<field name="REG_DISTRICT_DIC" description="行政区划" typeid="CHGSTRING"
+									codetablename="DB064" ismust="true" ispass="false" pindex="6"
+									realtype="NVARCHAR2(256)" />								
+							</fields>
+						</table>
+						<table name="ORG02" description="机构属性" singlerecord="false"
+							parentname="ORG01" groupname="ORG">
+							<fields>		
+								<field name="ORG0201" description="是否有特设" typeid="CHGSTRING"
+									codetablename="" ismust="ture" ispass="false" pindex="1"
+									realtype="NVARCHAR2(1)" />
+								<field name="ORG0202" description="是否计量" typeid="CHGSTRING"
+									codetablename="" ismust="true" ispass="false" pindex="2"
+									realtype="NVARCHAR2(1)" />
+								<field name="ORG0203" description="是否强制性认证" typeid="CHGSTRING"
+									codetablename="" ismust="true" ispass="false" pindex="3"
+									realtype="NVARCHAR2(1)" />
+								<field name="ORG0204" description="是否标准" typeid="CHGSTRING"
+									codetablename="" ismust="ture" ispass="false" pindex="4"
+									realtype="NVARCHAR2(1)" />							
+							</fields>
+						</table>						
+					</tables>
+				</group>
+			</groups>
+		</module>
+	</modules>
+</bopdb>
