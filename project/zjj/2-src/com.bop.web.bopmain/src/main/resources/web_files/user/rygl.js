@@ -265,17 +265,16 @@ function addRow(){
 
 function addRowYes(){
 	checkLoginName("add");
-	debugger;
 	var newPwd = mini.get("password").getValue();
     userform.validate();
     if (userform.isValid() == false) return false;
 
     var prompt = checkConfigpassWord(newPwd);
 
-/*    if(prompt!="yes"){
+    if(prompt!="yes"){
     	mini.alert(prompt);
     	return ;
-    }*/
+    }
 
 	var data = userform.getData();
 	var json = mini.decode(data);

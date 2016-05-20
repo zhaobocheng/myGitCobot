@@ -29,7 +29,6 @@ import com.bop.module.function.MenuCommand;
 import com.bop.module.function.MenuItem;
 import com.bop.module.function.service.FunctionService;
 import com.bop.module.user.UserService;
-import com.bop.module.user.dao.User01;
 import com.bop.web.command.AutoNamedWebCommandImpl;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.Controller;

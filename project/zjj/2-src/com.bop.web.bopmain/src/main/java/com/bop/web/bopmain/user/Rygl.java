@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -393,7 +392,7 @@ public class Rygl implements UserProvider {
 		User01 user = this.userService.getByLoginName(id);
 		
 		if(oldpassword.equals(user.getPassword())) {
-			//this.userService.changePassword(id, pwd);
+			this.userService.changePassword(id, pwd);
 		} else {
 			ero.add("success", false);
 			ero.add("info", "旧密码输入有误");
