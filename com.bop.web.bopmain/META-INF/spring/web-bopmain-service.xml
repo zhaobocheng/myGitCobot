@@ -30,8 +30,6 @@
 	
 	 -->
 	
-	
-	
 	<osgi:service interface="com.bop.web.command.AutoNamedWebCommand" ref="authorAjaxCommand">
 	</osgi:service>
 	
@@ -46,4 +44,6 @@
 		<osgi:listener bind-method="onBind" unbind-method="onUnbind"
 			ref="rygl" />
 	</osgi:list>
+	
+	<bean id="DecoratorPage" class="com.bop.web.bopmain.DecoratorPage" />
 </beans>

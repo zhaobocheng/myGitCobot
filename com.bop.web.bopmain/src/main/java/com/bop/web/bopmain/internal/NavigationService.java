@@ -2,14 +2,7 @@ package com.bop.web.bopmain.internal;
 
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.JdbcOperations;
-
-import com.bop.common.StringUtility;
-import com.bop.domain.IRecordDao;
 import com.bop.module.author.AuthorService;
-import com.bop.module.function.MenuItem;
 import com.bop.module.function.service.FunctionService;
 import com.bop.module.function.service.FunctionTree;
 import com.bop.web.bopmain.UserSession;

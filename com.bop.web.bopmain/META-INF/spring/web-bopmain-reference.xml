@@ -8,6 +8,7 @@
 	<osgi:reference id="recordDao" interface="com.bop.domain.IRecordDao" />
 	<osgi:reference id="InfsetService" interface="com.bop.domain.InfsetService"  />
 	<osgi:reference id="RoleService" interface="com.bop.module.author.RoleService"  />
+	<osgi:reference id="UserChangedEvent" interface="com.bop.module.user.UserChangedEvent" />
 	<osgi:reference id="JdbcTemplate" interface="org.springframework.jdbc.core.JdbcOperations"/>
 	<osgi:reference id="ResourceFiles" interface="com.bop.module.resources.ResourceFiles" />
 	<osgi:reference id="FunctionService" interface="com.bop.module.function.service.FunctionService" />
