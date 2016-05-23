@@ -9,26 +9,23 @@
 		<osgi:listener bind-method="onBind" unbind-method="onUnbind"
 			ref="UpgradeExecutor" />
 	</osgi:list>
-
-	<bean id="rygl" class="com.bop.web.bopmain.user.Rygl">
-    	<property name="deptDao" ref="DeptDao" />
-    	<property name="personDao" ref="PersonDao" />
-    	<property name="userDao" ref="UserDao" />
-    	<property name="userService" ref="UserService" />
-    </bean>
- 
-	<bean id="DeptDao" class="com.bop.hibernate.HibernateDaoBaseImpl">
-		<constructor-arg>
-			<value>com.bop.bopmain.dao.Dept</value>
-		</constructor-arg>
-		<property name="sessionFactory">
-			<ref bean="SessionFactory" />
-		</property>
-	</bean> -->
+ -->
 
 	<bean id="createscheme" class="com.bop.web.ssj.ssjscheme.CreateScheme">
     	<property name="jdbcTemplate" ref="JdbcTemplate" />
     	<property name="recordDao" ref="recordDao" />
+    	<property name="commontSession" ref="CommonSession" />
+    	<property name="userService" ref="UserService" />
     </bean>
-
+	<bean id="personmanage" class="com.bop.web.ssj.personmanage.PersonManage">
+    	<property name="jdbcTemplate" ref="JdbcTemplate" />
+    	<property name="recordDao" ref="recordDao" />
+    </bean>
+    <bean id="companymanage" class="com.bop.web.ssj.companymanage.CompanyManage">
+    	<property name="jdbcTemplate" ref="JdbcTemplate" />
+    	<property name="recordDao" ref="recordDao" />
+   		<property name="commontSession" ref="CommonSession" />
+    	<property name="userService" ref="UserService" />
+    </bean>
+    
 </beans>
