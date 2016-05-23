@@ -30,7 +30,7 @@
 		<div type="checkcolumn" width="10"></div>
 		<div type="indexcolumn" width="10">序号</div>
 		<div field="id" name="id"  width="100" visible="false">方案id</div>
-		<div field="zftime" name="zftime" width="100" headerAlign="center" dateFormat="yyyy-MM-dd" allowSort="true">执法日期</div>
+		<div field="zftime" name="zftime" width="100" headerAlign="center"   allowSort="true">执法日期</div>
 		<div field="cjtime" name="cjtime" width="100" headerAlign="center" dateFormat="yyyy-MM-dd" allowSort="true">创建时间</div>
 		<div field="zt" name="zt" width="100" headerAlign="center"  >状态</div>
 	</div>
@@ -71,8 +71,30 @@ datagrid.url = '/ssj/ssjscheme/CreateScheme/getGridData?theme=none';
  */
  datagrid.load();
 
-var yearData = "[{id:'2015',text:'2015年'},{id:'2016',text:'2016年'},{id:'2017',text:'2017年'}]";
-var monthData = "[{id:'1',text:'1月'},{id:'2',text:'2月'},{id:'3',text:'3月'},{id:'3',text:'3月'},{id:'4',text:'4月'},{id:'5',text:'5月'},{id:'6',text:'6月'},{id:'7',text:'7月'}]";
+
+//得到年月下拉框数据
+getMonthCombox = function(){
+	var monthData = "[";
+	for(var i=1;i<12;i++){
+		var jj = "{id:'"+i+"',text:'"+i+"月'},";
+		monthData+=jj;
+	}
+	monthData+="{id:'12',text:'12月'}]"
+	return monthData;
+}
+
+var monthData = getMonthCombox();
+
+//拼接年份下拉框数据
+getYearCombox = function(){
+	var d = new Date();
+	var nowYear = d.getFullYear();
+	var nextYear = nowYear+1;
+	var next2Year = nowYear+2;
+	var comboxdata = "[{id:'"+nowYear+"',text:'"+nowYear+"年'},{id:'"+nextYear+"',text:'"+nextYear+"年'},{id:'"+next2Year+"',text:'"+next2Year+"年'}]";
+	return comboxdata;
+}
+var yearData = getYearCombox();
 year.setData(yearData);
 
 
@@ -80,25 +102,25 @@ addRow = function(){
 	//控件初始化值
 	var addYearcom = mini.get("addYearcom");
 	var addMonthcom = mini.get("addMonthcom");
+	var nowTime = new Date();
+
 	addYearcom.setData(yearData);
-	addYearcom.setValue("2016");
+	addYearcom.setValue(nowTime.getFullYear());
 	addMonthcom.setData(monthData);
-	addMonthcom.setValue("6");
+	addMonthcom.setValue(nowTime.getMonth()+1);
 
 	newwin.show();
 }
-
+//删除记录
 removeRow = function(){
-	debugger;
 	var selected = datagrid.getSelected();
 	if(selected){
 		//请求后台 传参对应的记录ID，
-		// var id = selected.id;
-		var id = "";
+		var id = selected.id;
 		jQuery.ajax({
 			url:'/ssj/ssjscheme/createscheme/deleteScheme?theme=none',
 			type:'post',
-			data:{param:id},
+			data:{id:id},
 			seccess:function(e){
 				if(e=="success"){
 					alert("删除成功！");
@@ -109,7 +131,6 @@ removeRow = function(){
 		});
 		datagrid.reload();
 	}else{
-	//	mini.showTips("请先选择一条记录");
 		mini.showTips({content:"请先选择一条记录",state:"default",x:"center",y:"top"});
 	}
 
@@ -132,14 +153,14 @@ function commitWindow(){
  	if(!formdata.isValid()){
  		return;	
  	}
- 	
+
 	var data = formdata.getData();
-	var json = mini.encode(data);
+	var json = mini.decode(data);
 
 	$.ajax({
-		url:'/ssj/ssjscheme/CreateScheme/addScheme/'+data+'?theme=none',
+		url:'/ssj/ssjscheme/CreateScheme/addScheme/'+json+'?theme=none',
 		type:'post',
-		data:{params:json},
+		data:json,
 		success:function(e){
 			if(e=="seccess"){
 				alert("保存成功！");

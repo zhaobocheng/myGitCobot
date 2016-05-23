@@ -3,9 +3,188 @@
 <html>
 <head>
 <meta name="decorator" content="miniui">
-<title>企业管理</title>
+<title>随机企业权重管理</title>
 </head>
 <body>
-<div>企业管理页面</div>
+<div style="padding:5px;10px;5px;0">
+	<span>方案时间：</span><input class="mini-combobox" id="zftime" name="zftime" value="e53aa6aa-a9c5-4ef1-bb8d-f64190e7fb78" style="width:150px;" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getZfcData?theme=none"/>
+	<a class="mini-button" iconCls="icon-upload" onclick="setAuthenRow()">设置权限</a>
+</div>
+
+<div style="padding:5px;10px;5px;0">
+	<span>随机结果规则：至少特设：</span><input class="mini-textbox" id="zsts" style="width:150px;"/>
+	<span>&nbsp;&nbsp;至少计量：</span><input class="mini-textbox" id="zsjl" style="width:150px;"/>
+</div>
+
+
+<div class="mini-fit">
+ <!-- 数据列表 -->
+<div id="griddata" class="mini-datagrid" style="width:100%;height:90%" url="/ssj/companymanage/CompanyManage/getGridData?theme=none" 
+ idFiled="id"  showPageInfo="false" multiSelect="true" allowCellEdit="true" allowCellSelect="true"  editNextOnEnterKey="true"  editNextRowCell="true" oncellvalidation="onCellValidation(e)" >
+	<div property="columns">
+		<div type="checkcolumn" width="10"></div>
+		<div type="indexcolumn" width="10">序号</div>
+		<div field="id" name="id"  width="100" visible="false">id</div>
+		<div field="qxid" name="qxid"  width="100" visible="false">qxid</div>
+		<div field="qx" name="qx" width="100" headerAlign="center" align="center" allowSort="true">区县</div>
+		<div field="cyqys" name="cyqys" width="100" headerAlign="center" align="center" allowSort="true">参与企业数</div>
+		<div field="cyzfrys" name="cyzfrys" width="100" headerAlign="center" align="center" allowSort="true">参与执法人员数</div>
+		<div field="sjqyzs" name="sjqyzs" vtype="required;int"  width="100" headerAlign="center"  allowSort="true">随机企业总数
+		 	<input property="editor" class="mini-spinner"  minValue="0" maxValue="200" value="4" style="width:100%;"/>
+		</div>
+	</div>
+</div>
+
+ <div class="mini-toolbar" style="border-bottom:0;padding:0px;">
+     <table style="width:100%;">
+         <tr>
+             <td style="text-align:right">
+                 <a class="mini-button" onclick="mommit()">提交</a>
+             </td>
+         </tr>
+     </table>
+ </div>
+
+</div>
+<!-- 权限设置窗口 -->
+<div id="newWin" class="mini-window" title="设置权限" style="width:500px;height:300px;" showToolbar="true" showFooter="true" >
+ 	<div property="toolbar" style="padding:5px;">
+        <label>企业权重规则</label>
+        <!-- <input type='button' value='' onclick="hideWindow()" style='vertical-align:middle;'/> -->
+    </div>
+    <div property="footer" style="text-align:right;padding:5px;padding-right:15px;">
+    	<input type='button' value="确定" onclick="commitWindow()" style='vertical-align:middle;'/>
+        <input type='button' value="取消" onclick="hideWindow()" style='vertical-align:middle;'/>
+    </div>
+
+    <div id="newForm" class="input_form" style="width:100%;">
+		<table style="width:100%;text-align:center;">
+			<tr>
+				<td width="15%"> <label>序号</label></td>
+				<td width="25%"><label>企业特性</label></td>
+				<td width="30%"><label>权重值</label></td>
+				<td width="20%"><label></label></td>
+			</tr>
+			<tr>
+				<td>1</td>
+				<th ><label>特设<font color="red">*</font>：</label></th>
+				<td><input id="ts" name="ts" class="mini-textbox" style="width:100%" required="true"/></td>
+				<td><input id="bzsy" name="bzsy" class="mini-checkbox"  style="width:100%" text="不适用" required="true"/></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<th width="20%"><label>计量<font color="red">*</font>：</label></th>
+				<td><input id="jl" name="jl" class="mini-textbox"  style="width:100%"  required="true"/></td>
+				<td><input id="jlsy" name="jlsy" class="mini-checkbox"  style="width:100%" text="不适用" required="true"/></td>
+			</tr>
+			<tr>
+				<td>3</td>
+				<th width="20%"><label>强制性认证<font color="red">*</font>：</label></th>
+				<td><input id="qzrz" name="qzrz" class="mini-textbox"  style="width:100%"  required="true"/></td>
+				<td><input id="qzrzsy" name="qzrzsy" class="mini-checkbox"  style="width:100%" text="不适用" required="true"/></td>
+			</tr>
+			<tr>
+				<td>4</td>
+				<th width="20%"><label>标准<font color="red">*</font>：</label></th>
+				<td><input id="bz" name="bz" class="mini-textbox"  style="width:100%"  required="true"/></td>
+				<td><input id="bzsy" name="bzsy" class="mini-checkbox"  style="width:100%" text="不适用" required="true"/></td>
+			</tr>
+		</table>
+    </div>
+</div>
+
+<script >
+mini.parse();
+var newwin = mini.get("newWin");
+var grid = mini.get("griddata");
+grid.load();
+
+
+setAuthenRow =function(){
+	newwin.show();
+}
+
+//提交权重
+function commitWindow(){
+	var formdata = new mini.Form("#newForm");
+	//验证表单
+
+	formdata.validate();
+ 	if(!formdata.isValid()){
+ 		return;	
+ 	}
+
+	var data = formdata.getData();
+	var zfid = mini.get("zftime").value;
+	var json = mini.decode(data);
+
+	$.ajax({
+		url:'/ssj/companymanage/companymanage/addWeightCon/'+zfid+'?theme=none',
+		type:'post',
+		data:json,
+		success:function(e){
+			if(e=="success"){
+				alert("保存成功！");
+				datagrid.reload();
+			}else{
+				alert("保存失败！");
+				datagrid.reload();
+			}
+			newwin.hide();
+		}
+	})
+}
+function hideWindow() {
+    var win = mini.get("newWin");
+    win.hide();
+}
+
+//提交按钮触发
+function mommit(){
+	
+	grid.validate();
+	if(grid.isValid()==false){
+		 var error = grid.getCellErrors()[0];
+         grid.beginEditCell(error.record, error.column);
+		return;
+	}
+    var data = grid.getChanges();
+    var json = mini.encode(data);
+    var zfid = mini.get("zftime").value;
+    var zsts = mini.get("zsts").value;
+    var zsjl = mini.get("zsjl").value;
+    
+    grid.loading("保存中，请稍后......");
+    $.ajax({
+        url: "/ssj/companymanage/companymanage/addSJResult/"+zfid+"?theme=none",
+        data: { data: json,zsts:zsts,zsjl:zsjl},
+        type: "post",
+        success: function (text) {
+            grid.reload();
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert(jqXHR.responseText);
+        }
+    });
+}
+//每次数值校验企业的数量不能为空
+grid.on("cellcommitedit", function (e) {
+	if (e.field == "sjqyzs") {
+	  if (e.value == "") {
+	      alert("企业总数不能设置为空！");
+	      e.cancel = true;
+	  }
+	}
+});
+
+function onCellValidation(e) {
+    if (e.field == "sjqyzs") {
+        if (e.value = "") {
+            e.isValid = false;
+            e.errorText = "随机总人数不能为空！";
+        }
+    }
+}
+</script>
 </body>
 </html>
