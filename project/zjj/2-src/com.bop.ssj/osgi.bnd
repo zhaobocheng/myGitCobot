@@ -1,4 +1,0 @@
-Export-Package: com.bop.ssj;version=${project.version}
-Private-Package: com.bop.ssj.*
-DynamicImport-Package: *
-Bundle-Level: 62
