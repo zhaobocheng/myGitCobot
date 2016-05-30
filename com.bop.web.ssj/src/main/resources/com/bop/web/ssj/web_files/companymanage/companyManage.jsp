@@ -7,7 +7,7 @@
 </head>
 <body>
 <div style="padding:5px;10px;5px;0">
-	<span>方案时间：</span><input class="mini-combobox" id="zftime" name="zftime" value="e53aa6aa-a9c5-4ef1-bb8d-f64190e7fb78" style="width:150px;" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getZfcData?theme=none"/>
+	<span>方案时间：</span><input class="mini-combobox" id="zftime" name="zftime"  onvaluechanged="valueChange" style="width:150px;" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getZfcData?theme=none"/>
 	<a class="mini-button" iconCls="icon-upload" onclick="setAuthenRow()">设置权限</a>
 </div>
 
@@ -16,11 +16,10 @@
 	<span>&nbsp;&nbsp;至少计量：</span><input class="mini-textbox" id="zsjl" style="width:150px;"/>
 </div>
 
-
 <div class="mini-fit">
  <!-- 数据列表 -->
-<div id="griddata" class="mini-datagrid" style="width:100%;height:90%" url="/ssj/companymanage/CompanyManage/getGridData?theme=none" 
- idFiled="id"  showPageInfo="false" multiSelect="true" allowCellEdit="true" allowCellSelect="true"  editNextOnEnterKey="true"  editNextRowCell="true" oncellvalidation="onCellValidation(e)" >
+<div id="griddata" class="mini-datagrid" style="width:100%;height:90%" url="/ssj/companymanage/CompanyManage/getGridData/ss?theme=none" idFiled="id"  showPageInfo="false"
+ multiSelect="true" allowCellEdit="true" allowCellSelect="true"  editNextOnEnterKey="true"  editNextRowCell="true" oncellvalidation="onCellValidation(e)" >
 	<div property="columns">
 		<div type="checkcolumn" width="10"></div>
 		<div type="indexcolumn" width="10">序号</div>
@@ -69,7 +68,7 @@
 				<td>1</td>
 				<th ><label>特设<font color="red">*</font>：</label></th>
 				<td><input id="ts" name="ts" class="mini-textbox" style="width:100%" required="true"/></td>
-				<td><input id="bzsy" name="bzsy" class="mini-checkbox"  style="width:100%" text="不适用" required="true"/></td>
+				<td><input id="tssy" name="tssy" class="mini-checkbox"  style="width:100%" text="不适用" required="true"/></td>
 			</tr>
 			<tr>
 				<td>2</td>
@@ -96,9 +95,20 @@
 <script >
 mini.parse();
 var newwin = mini.get("newWin");
+var zfcom = mini.get("zftime");
+zfcom.select(0);
+
 var grid = mini.get("griddata");
+var url = "/ssj/companymanage/CompanyManage/getGridData/"+zfcom.value+"?theme=none";
+grid.setUrl(url);
 grid.load();
 
+
+valueChange = function(e){
+	url = "/ssj/companymanage/CompanyManage/getGridData/"+e.value+"?theme=none";
+	grid.setUrl(url);
+	grid.reload();
+}
 
 setAuthenRow =function(){
 	newwin.show();
@@ -108,7 +118,6 @@ setAuthenRow =function(){
 function commitWindow(){
 	var formdata = new mini.Form("#newForm");
 	//验证表单
-
 	formdata.validate();
  	if(!formdata.isValid()){
  		return;	

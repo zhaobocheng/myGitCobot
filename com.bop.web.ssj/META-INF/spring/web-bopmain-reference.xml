@@ -15,4 +15,5 @@
 	<osgi:reference id="CommonSession" interface="com.bop.web.CommonSession"/>
 	<osgi:reference id="OpLoggerFactory" interface="com.bop.module.log.OpLoggerFactory" />
 	<osgi:reference id="SessionFactory" interface="org.hibernate.SessionFactory" />
+	<osgi:reference id="UserSession" interface="com.bop.web.bopmain.UserSession" />
 </beans>

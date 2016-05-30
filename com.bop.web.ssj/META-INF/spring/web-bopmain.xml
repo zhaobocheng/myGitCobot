@@ -14,18 +14,17 @@
 	<bean id="createscheme" class="com.bop.web.ssj.ssjscheme.CreateScheme">
     	<property name="jdbcTemplate" ref="JdbcTemplate" />
     	<property name="recordDao" ref="recordDao" />
-    	<property name="commontSession" ref="CommonSession" />
-    	<property name="userService" ref="UserService" />
+    	<property name="userSession" ref="UserSession" />
     </bean>
 	<bean id="personmanage" class="com.bop.web.ssj.personmanage.PersonManage">
     	<property name="jdbcTemplate" ref="JdbcTemplate" />
     	<property name="recordDao" ref="recordDao" />
+    	<property name="userSession" ref="UserSession" />
     </bean>
     <bean id="companymanage" class="com.bop.web.ssj.companymanage.CompanyManage">
     	<property name="jdbcTemplate" ref="JdbcTemplate" />
     	<property name="recordDao" ref="recordDao" />
-   		<property name="commontSession" ref="CommonSession" />
-    	<property name="userService" ref="UserService" />
+   		<property name="userSession" ref="UserSession" />
     </bean>
     
 </beans>
