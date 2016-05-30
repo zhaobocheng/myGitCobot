@@ -16,6 +16,7 @@ import com.bop.hibernate.HibernateDaoBaseImpl;
 import com.bop.json.ExtFormObject;
 import com.bop.json.ExtGrid;
 import com.bop.json.ExtGridRow;
+import com.bop.json.ExtObject;
 import com.bop.json.ExtObjectCollection;
 import com.bop.json.ExtResultObject;
 import com.bop.json.ExtTreeNode;
@@ -439,6 +440,9 @@ public class Rygl implements UserProvider {
 
 	@Action
 	public String checkPassword() {
-		return "";
+		ExtObject eo = new ExtObject();
+		eo.add("info", true);
+		
+		return eo.toString();
 	}
 }

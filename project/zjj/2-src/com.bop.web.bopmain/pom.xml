@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
-		<groupId>com.bop.framework</groupId>
-		<artifactId>app.project</artifactId>
+		<groupId>com.bop.bjzjj</groupId>
+		<artifactId>app</artifactId>
 		<version>1.1.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
@@ -110,6 +110,12 @@
 			<groupId>org.apache.axis2</groupId>
 			<artifactId>org.apache.axis2.osgi</artifactId>
 			<version>1.6.3</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.audit4j</groupId>
+		    <artifactId>audit4j-core</artifactId>
+		    <version>2.4.1</version>
 		</dependency>
 	</dependencies>
 </project>

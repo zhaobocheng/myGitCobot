@@ -39,6 +39,7 @@ import com.bop.web.rest.ActionContext;
 import com.bop.web.rest.Controller;
 import com.bop.web.rest.renderer.Renderer;
 import com.bop.web.rest.renderer.TemplateRenderer;
+import com.bop.web.rest.renderer.TextRenderer;
 
 @Controller
 public class MainPage {
@@ -64,9 +65,9 @@ public class MainPage {
 		HttpServletRequest req = ActionContext.getActionContext().getHttpServletRequest();
 		HttpServletResponse resp = ActionContext.getActionContext().getHttpServletResponse();
 		
-		if(this.upgraderExecutor.isNeedUpgrader()) {
-			ActionContext.getActionContext().getHttpServletResponse().sendRedirect("/bopmain/autoUpdate2.jsp?theme=none");
-		}
+//		if(this.upgraderExecutor.isNeedUpgrader()) {
+//			ActionContext.getActionContext().getHttpServletResponse().sendRedirect("/bopmain/autoUpdate2.jsp?theme=none");
+//		}
 
 		log.debug("logon system");
 
@@ -110,7 +111,7 @@ public class MainPage {
 		if(username!=null){
 			int configPromptTime = Integer.parseInt(System.getProperty("bop.safety.exceedTimePromptDays","7"));   //系统配置距离密码到期提醒天数 如设置为7 ，则在密码小于7天到期的时间内一直提醒
 			int sysPromptTime = this.outDate(username.toString());						 //系统记录密码到期的天数    从 密码上次修的有效时间段内到今天的天数
-			if(sysPromptTime > 0){
+			if(sysPromptTime > 0) {
 				if(sysPromptTime<configPromptTime){
 					ts += "密码还有" +sysPromptTime+ "天过期，为保护密码安全，请及时修改！";
 				}
@@ -129,6 +130,12 @@ public class MainPage {
 		
 		ActionContext.getActionContext().getHttpServletRequest().getSession().invalidate();
 		ActionContext.getActionContext().getHttpServletResponse().sendRedirect(PathUtil.getLogonUrl());
+	}
+	
+	@Action
+	public Renderer unauthorized() throws IOException {
+		log.debug("无权访问");
+		return new TextRenderer("您无访问此功能的权限");
 	}
 	
 	@Action
@@ -207,6 +214,7 @@ public class MainPage {
 		
 		// 最后一次修改密码的时间
 		Date d = u.getChangeDate();
+		if(d == null) d = new Date();
 		
 		//密码有效的天数
 		Integer i = u.getUserforTime();
