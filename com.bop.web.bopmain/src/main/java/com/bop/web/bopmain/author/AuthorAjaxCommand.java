@@ -742,7 +742,7 @@ public class AuthorAjaxCommand extends AutoNamedWebCommandImpl {
 		for(int i = 0; i < uids.size(); i ++) {
 			String id = uids.get(i);
 			User01 user = this.userService.getByLoginName(id);
-			users.add(user);
+			if(user != null) users.add(user);
 		}
 		
 		int total = this.userService.getUsers().size();

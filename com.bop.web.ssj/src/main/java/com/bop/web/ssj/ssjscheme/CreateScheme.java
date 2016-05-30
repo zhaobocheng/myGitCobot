@@ -1,6 +1,5 @@
 package com.bop.web.ssj.ssjscheme;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,14 +11,10 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 import org.springframework.jdbc.core.JdbcOperations;
 
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
-import com.bop.domain.dao.DmCodetabledefine;
 import com.bop.domain.dao.DmCodetables;
 import com.bop.domain.dao.IRecord;
 import com.bop.json.ExtObject;

@@ -19,7 +19,7 @@
 		<module>com.bop.bopmain.dao</module>
 		<module>com.bop.web.bopmain</module>
 		<module>com.bop.web.ssj</module>
-		<module>com.bop.ssj</module>
+		
 	</modules>	
 	<build>
 		<plugins>
