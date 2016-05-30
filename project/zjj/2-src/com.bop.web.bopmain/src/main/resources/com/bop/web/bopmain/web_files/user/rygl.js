@@ -271,10 +271,10 @@ function addRowYes(){
 
     var prompt = checkConfigpassWord(newPwd);
 
-    if(prompt!="yes"){
+/*    if(prompt!="yes"){
     	mini.alert(prompt);
     	return ;
-    }
+    }*/
 
 	var data = userform.getData();
 	var json = mini.decode(data);

@@ -29,6 +29,7 @@ import com.bop.module.function.MenuCommand;
 import com.bop.module.function.MenuItem;
 import com.bop.module.function.service.FunctionService;
 import com.bop.module.user.UserService;
+import com.bop.module.user.dao.User01;
 import com.bop.web.command.AutoNamedWebCommandImpl;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.Controller;
@@ -762,7 +763,7 @@ public class AuthorAjaxCommand extends AutoNamedWebCommandImpl {
 //		int total = this.roleUserService.getUsersForRole(rid, filter, 0, 0).size();
 //		return this.getUsersGrid(users, total);
 //	}
-	
+
 	@Action
 	public String getUsersForRole(String rid) {
 		List<User01> users = this.userService.getUsers();

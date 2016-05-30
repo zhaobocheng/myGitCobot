@@ -65,14 +65,14 @@ public class UpgradeExecutor implements InitializingBean {
 		log.debug("处理系统升级完毕");
 		
 		log.debug("得到所有的升级");
-		List<ModuleUpgrader> upgraders = this.moduleService.getUpgraders();
+	//	List<ModuleUpgrader> upgraders = this.moduleService.getUpgraders();
 		
 		log.debug("当前得到的升级服务");
-		for(ModuleUpgrader mu : upgraders) {
+	/*	for(ModuleUpgrader mu : upgraders) {
 			log.debug("module:" + mu.getModuleName());
  			ExecutableUpgrader[] us = this.getUpgraders(mu);
 			if(us.length > 0) cachedUpgraders.put(mu.getModuleName(), us);
-		}
+		}*/
 		
 		log.debug("处理系统升级结束，需升级的个数为" + cachedUpgraders.size());
 		

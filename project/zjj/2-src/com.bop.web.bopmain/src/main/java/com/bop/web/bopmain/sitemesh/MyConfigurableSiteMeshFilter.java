@@ -2,9 +2,11 @@ package com.bop.web.bopmain.sitemesh;
 
 import java.io.IOException;
 
+import org.sitemesh.DecoratorSelector;
 import org.sitemesh.SiteMeshContext;
 import org.sitemesh.builder.SiteMeshFilterBuilder;
 import org.sitemesh.config.ConfigurableSiteMeshFilter;
+import org.sitemesh.config.MetaTagBasedDecoratorSelector;
 import org.sitemesh.config.PathBasedDecoratorSelector;
 import org.sitemesh.config.PathMapper;
 import org.sitemesh.content.Content;
@@ -30,12 +32,12 @@ public class MyConfigurableSiteMeshFilter extends ConfigurableSiteMeshFilter {
 				.addExcludedPath("/GridWebServlet*")
 				.addExcludedPath("/ResourceFiles/**");
 
-		builder.addDecoratorPath("/*", "/theme/main/main_miniui.jsp");
+		builder.addDecoratorPath("/*", "/bopmain/main/main_miniui.jsp");
 		MyMetaTagBasedDecoratorSelector<WebAppContext> selector = new MyMetaTagBasedDecoratorSelector<WebAppContext>();
 		
-		selector.put("miniui", "/theme/main/main_miniui.jsp");
-		selector.put("clean", "/theme/main/main_miniui.jsp?decorator=clean");
-		selector.put("extwithbdsoft", "/theme/main/main_miniui.jsp?decorator=extwithbdsoft");
+		selector.put("miniui", "/bopmain/main/main_miniui.jsp");
+		selector.put("clean", "/bopmain/main/main_miniui.jsp?decorator=clean");
+		selector.put("extwithbdsoft", "/bopmain/main/main_miniui.jsp?decorator=extwithbdsoft");
 		
 		builder.setCustomDecoratorSelector(selector);
 	}
@@ -64,4 +66,5 @@ public class MyConfigurableSiteMeshFilter extends ConfigurableSiteMeshFilter {
 	        return super.selectDecoratorPaths(content, siteMeshContext);
 	    }
 	}
+
 }
