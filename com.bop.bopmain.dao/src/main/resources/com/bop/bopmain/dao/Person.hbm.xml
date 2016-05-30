@@ -31,5 +31,9 @@
 			type="java.lang.Boolean">
 			<column name="RY0106" not-null="true" />
 		</property>
+		<property generated="never" lazy="false" name="zone"
+			type="java.lang.String">
+			<column name="RY0107"  length="8"/>
+		</property>
 	</class>
 </hibernate-mapping>
