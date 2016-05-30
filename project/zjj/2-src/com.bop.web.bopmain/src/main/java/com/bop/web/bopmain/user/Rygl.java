@@ -412,7 +412,6 @@ public class Rygl implements UserProvider {
 		u.setUserName(p.getUserName());
 		u.setDescription(p.getDescription());
 		u.setValidate(p.getEnabled());
-		u.setZone(p.getZone());
 		return u;
 	}
 
