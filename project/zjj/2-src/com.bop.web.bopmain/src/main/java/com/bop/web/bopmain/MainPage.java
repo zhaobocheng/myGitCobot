@@ -85,7 +85,7 @@ public class MainPage {
         } else if(errorClassName != null) {
             req.setAttribute("error", "未知错误：" + errorClassName);  
         }
-        req.getRequestDispatcher("/bopmain/logon.jsp").forward(req, resp);
+        req.getRequestDispatcher("/theme/logon.jsp").forward(req, resp);
 	}
 
 	@Action
