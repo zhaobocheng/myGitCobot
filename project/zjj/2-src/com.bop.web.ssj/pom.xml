@@ -1,56 +1,51 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
 		<groupId>com.bop.bjzjj</groupId>
 		<artifactId>app</artifactId>
-		<version>1.1.0</version>
+		<version>1.1.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.bop</groupId>
-  <artifactId>com.bop.web.ssj</artifactId>
-  <packaging>bundle</packaging>
-  
-  <dependencies>
-  	<dependency>
-	  	<groupId>${project.parent.groupId}</groupId>
-	  	<artifactId>com.bop.web.bopmain</artifactId>
-	  	<version>${project.version}</version>
-  	</dependency>
-  	
-	<dependency>
-        <groupId>com.bop.module</groupId>
-        <artifactId>com.bop.module.user</artifactId>
-        <version>${framework.version}</version>
-    </dependency>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.bop</groupId>
+	<artifactId>com.bop.web.ssj</artifactId>
+	<packaging>bundle</packaging>
 
-      <dependency>
-          <groupId>com.bop.module</groupId>
-          <artifactId>com.bop.module.author</artifactId>
-          <version>${framework.version}</version>
-      </dependency>
-<!-- 
-  	<dependency>
-	  	<groupId>com.bop</groupId>
-	  	<artifactId>com.bop.module.user.dao</artifactId>
-	  	<version>4.2.2</version>
-  	</dependency> -->
-  	<dependency>
-	  	<groupId>com.bop</groupId>
-	  	<artifactId>com.bop.domain</artifactId>
-	  	<version>${framework.version}</version>
-  	</dependency>
-	<dependency>
-		<groupId>com.bop</groupId>
-		<artifactId>com.bop.web</artifactId>
-		<version>${framework.version}</version>
-	</dependency>
+	<dependencies>
+		<dependency>
+			<groupId>com.bop</groupId>
+			<artifactId>com.bop.web.bopmain</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-	<dependency>
-		<groupId>net.sourceforge.json</groupId>
-		<artifactId>com.springsource.net.sf.json</artifactId>
-		<version>2.2.2</version>
-	</dependency>
-	
-  </dependencies>
+		<dependency>
+			<groupId>com.bop.module</groupId>
+			<artifactId>com.bop.module.user</artifactId>
+			<version>${framework.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.bop.module</groupId>
+			<artifactId>com.bop.module.author</artifactId>
+			<version>${framework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bop</groupId>
+			<artifactId>com.bop.domain</artifactId>
+			<version>${framework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bop</groupId>
+			<artifactId>com.bop.web</artifactId>
+			<version>${framework.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sourceforge.json</groupId>
+			<artifactId>com.springsource.net.sf.json</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+
+	</dependencies>
 </project>
