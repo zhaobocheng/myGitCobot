@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-SymbolicName: com.bop.web.bopmain
-Built-By: Administrator
+Built-By: bdsoft
 Bundle-ManifestVersion: 2
-Bnd-LastModified: 1463640577291
+Bnd-LastModified: 1464242003706
 Bundle-Level: 20
-Import-Package: com.bop.bopmain.dao;version="1.0",com.bop.common;versi
+Import-Package: com.bop.bopmain.dao;version="1.1",com.bop.common;versi
  on="4.2",com.bop.domain;version="4.2",com.bop.domain.dao;version="4.2
  ",com.bop.domain.schema;version="4.2",com.bop.event;version="4.2",com
  .bop.hibernate;version="4.2",com.bop.hibernate.dbinit;version="4.2",c
@@ -14,40 +14,31 @@ Import-Package: com.bop.bopmain.dao;version="1.0",com.bop.common;versi
  ice;version="4.2",com.bop.module.log;version="4.2",com.bop.module.res
  ources;version="4.2",com.bop.module.user;version="4.2",com.bop.module
  .user.dao;version="4.2",com.bop.module.user.defaults;version="4.2",co
- m.bop.web;version="4.2",com.bop.web.bopmain;version="1.0",com.bop.web
- .bopmain.internal;version="1.0",com.bop.web.bopmain.user;version="1.0
- ",com.bop.web.command;version="4.2",com.bop.web.defaults;version="4.2
- ",com.bop.web.rest;version="4.2",com.bop.web.rest.renderer;version="4
- .2",javax.crypto,javax.crypto.spec,javax.servlet;version="2.5",javax.
- servlet.http;version="2.5",org.apache.commons.codec.binary,org.apache
- .shiro.authc;version="1.2",org.apache.shiro.authz;version="1.2",org.d
- om4j;version="1.6",org.dom4j.io;version="1.6",org.hibernate;version="
- 4.2",org.osgi.framework;version="1.5",org.osgi.service.event;version=
- "1.2",org.sitemesh,org.sitemesh.builder,org.sitemesh.config,org.sitem
- esh.content,org.slf4j;version="1.4",org.springframework.beans.factory
- ;version="3.1",org.springframework.jdbc.core;version="3.1"
+ m.bop.web;version="4.2",com.bop.web.bopmain;version="1.1",com.bop.web
+ .bopmain.user;version="1.1",com.bop.web.command;version="4.2",com.bop
+ .web.defaults;version="4.2",com.bop.web.rest;version="4.2",com.bop.we
+ b.rest.renderer;version="4.2",javax.crypto,javax.crypto.spec,javax.se
+ rvlet;version="2.5",javax.servlet.http;version="2.5",org.apache.commo
+ ns.codec.binary,org.apache.shiro.authc;version="1.2",org.apache.shiro
+ .authz;version="1.2",org.dom4j;version="1.6",org.dom4j.io;version="1.
+ 6",org.hibernate;version="4.2",org.osgi.framework;version="1.5",org.o
+ sgi.service.event;version="1.2",org.sitemesh,org.sitemesh.builder,org
+ .sitemesh.config,org.sitemesh.content,org.slf4j;version="1.4",org.spr
+ ingframework.beans.factory;version="3.1",org.springframework.jdbc.cor
+ e;version="3.1"
 DynamicImport-Package: *
 Tool: Bnd-0.0.357
 Originally-Created-By: Apache Maven Bundle Plugin
-Export-Package: com.bop.web.bopmain;uses:="com.bop.web.rest,org.slf4j,
- org.apache.shiro.authc,com.bop.module.function,javax.servlet.http,com
- .bop.module.function.service,com.bop.web,com.bop.json,javax.servlet,o
+Export-Package: com.bop.web.bopmain;uses:="org.slf4j,org.apache.shiro.
+ authc,com.bop.module.function,javax.servlet.http,com.bop.module.funct
+ ion.service,com.bop.web,com.bop.json,com.bop.web.rest,javax.servlet,o
  rg.apache.shiro.authz,com.bop.domain,com.bop.hibernate.dbinit,com.bop
  .common,com.bop.module.user,com.bop.module.user.dao,com.bop.web.rest.
- renderer,com.bop.web.bopmain.internal";version="1.0.0.SNAPSHOT",com.b
- op.web.bopmain.user;uses:="javax.servlet.http,com.bop.json,com.bop.bo
- pmain.dao,com.bop.web.rest,com.bop.common,com.bop.module.user,com.bop
- .module.user.dao,com.bop.module.user.defaults,com.bop.web.rest.render
- er,com.bop.hibernate,org.springframework.beans.factory,com.bop.module
- .author";version="1.0.0.SNAPSHOT",com.bop.web.bopmain.internal;uses:=
- "com.bop.module.function,com.bop.module.function.service,com.bop.comm
- on,com.bop.json,com.bop.module.author,com.bop.web.bopmain,org.osgi.se
- rvice.event,com.bop.module.log,com.bop.event,org.osgi.framework,org.s
- lf4j,com.bop.hibernate.dbinit,org.springframework.beans.factory,org.s
- pringframework.jdbc.core,com.bop.domain.schema,com.bop.domain,com.bop
- .module.authorweb,javax.servlet.http,com.bop.domain.dao";version="1.0
- .0.SNAPSHOT"
-Bundle-Version: 1.0.0.SNAPSHOT
+ renderer";version="1.1.0",com.bop.web.bopmain.user;uses:="javax.servl
+ et.http,com.bop.json,com.bop.bopmain.dao,com.bop.web.rest,com.bop.com
+ mon,com.bop.module.user,com.bop.module.user.dao,com.bop.module.user.d
+ efaults,com.bop.web.rest.renderer,com.bop.hibernate";version="1.1.0"
+Bundle-Version: 1.1.0
 Bundle-Name: com.bop.web.bopmain
 Bundle-ClassPath: lib/bdsoftRegCall-1.0.jar,.
 Created-By: Apache Maven Bundle Plugin

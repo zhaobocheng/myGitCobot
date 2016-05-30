@@ -46,6 +46,9 @@
     	<property name="userService" ref="UserService" />
     </bean>
 
+<!--     <bean id="coder" class="com.bop.web.bopmain.encryption.Coder">
+    </bean> -->
+	
 	<bean name="userSessionImpl" class="com.bop.web.bopmain.internal.UserSessionImpl">
 		<property name="recordDao" ref="recordDao" />
 	</bean>
@@ -87,11 +90,5 @@
 		<property name="sessionFactory">
 			<ref bean="SessionFactory" />
 		</property>
-	</bean>
-	
-	<bean id="UserOperation" class="com.bop.web.bopmain.user.UserOperation" >
-		<property name="roleService" ref="RoleService" />
-		<property name="userService" ref="UserService" />
-		<property name="userChangedEvent" ref="UserChangedEvent" />
 	</bean>
 </beans>

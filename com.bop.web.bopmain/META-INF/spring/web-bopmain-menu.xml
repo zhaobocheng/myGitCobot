@@ -20,7 +20,6 @@
 			<property name="url" value="/bopmain/user/rygl/index" />
 		</bean>
 	</osgi:service>
-	
 	<!-- <osgi:service id="MenuItem9001V" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="9001V" />
