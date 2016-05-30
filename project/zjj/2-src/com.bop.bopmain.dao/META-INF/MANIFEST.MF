@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-SymbolicName: com.bop.bopmain.dao
-Built-By: Administrator
+Built-By: bdsoft
 Bundle-ManifestVersion: 2
-Bnd-LastModified: 1463971256907
+Bnd-LastModified: 1464194213799
 Bundle-Level: 12
 Import-Package: com.bop.bopmain.dao;version="1.1",com.bop.hibernate;ve
  rsion="4.2"
@@ -10,8 +10,8 @@ DynamicImport-Package: *
 Tool: Bnd-0.0.357
 Originally-Created-By: Apache Maven Bundle Plugin
 Export-Package: com.bop.bopmain.dao;version="1.1.0"
-Bundle-Name: com.bop.bopmain.dao
 Bundle-Version: 1.1.0
+Bundle-Name: com.bop.bopmain.dao
 Created-By: Apache Maven Bundle Plugin
 Build-Jdk: 1.8.0_20
 

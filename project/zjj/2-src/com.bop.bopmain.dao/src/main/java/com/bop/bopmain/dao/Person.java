@@ -8,6 +8,8 @@ public class Person {
 	private String description;
 	private Boolean enabled;
 	private Boolean deleted;
+	private String zone;
+
 
 	public Person() {
 		
@@ -67,6 +69,14 @@ public class Person {
 
 	public void setDeleted(Boolean deleted) {
 		this.deleted = deleted;
+	}
+
+	public String getZone() {
+		return zone;
+	}
+
+	public void setZone(String zone) {
+		this.zone = zone;
 	}
 
 }
