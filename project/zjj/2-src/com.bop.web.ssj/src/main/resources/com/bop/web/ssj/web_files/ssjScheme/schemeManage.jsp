@@ -8,13 +8,13 @@
 <body>
 
 <div style="padding:5px;10px;5px;0">
-	<span>抽查方案：</span><input class="mini-combobox" id="faid" style="width:150px;" textField="text" valueField="id" value="e53aa6aa-a9c5-4ef1-bb8d-f64190e7fb78" url="/ssj/personmanage/personmanage/getZfcData?theme=none"/>
+	<span>抽查方案：</span><input class="mini-combobox" id="faid" style="width:150px;" textField="text" valueField="id" onvaluechanged="valueChange" url="/ssj/personmanage/personmanage/getZfcData?theme=none"/>
 	<a class="mini-button" iconCls = "icon-goto"  onclick="createFa()" >生成随机方案</a>
 	<a class="mini-button" iconCls = "icon-save" onclick="commitFa()" >提交随机方案</a>
 	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
 </div>
-   
-<div id="treegrid" class="mini-treegrid" style="width:100%;height:100%;" url="/ssj/ssjScheme/CreateScheme/getSchemeDate?theme=none" showTreeIcon="true" 
+
+<div id="treegrid" class="mini-treegrid" style="width:100%;height:100%;" url="" showTreeIcon="true" 
     treeColumn="dq" idField="dqid" parentField="ParentDqId" resultAsTree="false"  allowResize="true" expandOnLoad="true">
     <div property="columns">
         <div type="indexcolumn"></div>
@@ -27,7 +27,7 @@
         <div field="jcnr" width="80" >检查内容</div>
         <div field="jcr" width="80" >检查人</div> 
          <div field="jcrid" width="80" visible="false" >检查人id</div> 
-        <div field="sjly" width="80" >涉及领域</div>                  
+        <div field="sjly" width="80" >涉及事项</div>                  
     </div>
 </div>
 
@@ -35,8 +35,19 @@
 <script >
 mini.parse();
 
+var zfcom = mini.get("faid");
+zfcom.select(0);
+
+
 var grid = mini.get("treegrid");
-grid.load();
+var url = '/ssj/ssjScheme/CreateScheme/getSchemeDate/'+zfcom.value+'?theme=none';
+grid.load(url);
+
+valueChange = function(e){
+	url = "/ssj/ssjScheme/CreateScheme/getSchemeDate/"+e.value+"?theme=none";
+	grid.setUrl(url);
+	grid.reload();
+}
 
 createFa=function(){
 	var faid = mini.get("faid").value;
@@ -47,7 +58,7 @@ createFa=function(){
 		success:function(e){
 			if(e=="seccess"){
 				alert("生成完毕！");
-				gird.reload();	
+				gird.reload();
 			}
 		}
 	});
@@ -56,7 +67,7 @@ commitFa = function(){
 	var faid = mini.get("faid").value;
 
 	$.ajax({
-		url:'/ssj/ssjScheme/CreateScheme/commitSchemeDate/'+faid,
+		url:'/ssj/ssjscheme/CreateScheme/commitSchemeDate/'+faid+"?theme=none",
 		type:'get',
 		success:function(e){
 			if(e=="seccess"){
@@ -70,6 +81,33 @@ commitFa = function(){
 importExc = function(){
 	alert("导出Excle");
 	//参考对应的民政部的导出
+}
+
+
+
+function exportExcel() {
+    $('#ziduan').val(ziduan_t1);
+    $('#table_index').attr("value","1");
+  // 拿到查询条件
+  var ggsclbFormData = ggsclb.getData();
+  var ggsclbFormJson = mini.encode([ ggsclbFormData ]);
+  var temp1 = $("#cxtj1Data").val();
+  var temp2 = $("#cxtj2Data").val();
+  if(temp1){
+    $("#cxtjForm").attr("action","/gjxfj/common/dcservice/exportexcel/xfjcxlist/民政部信访件信息.xls?theme=none");
+  }else if(temp2){
+    $("#cxtjForm").attr("action","/gjxfj/common/dcservice/exportexcel/xfjgjlist/民政部信访件信息.xls?theme=none");
+  }
+
+  //var data1 = $("#cxtj1Data").val();
+  //var data2 = $("#cxtj2Data").val();
+  if (mini.get("#ggscgrid").totalCount < 1) {
+    mini.alert("数据为空");
+    return;
+  }
+  
+  $("#cxtjForm").submit();
+  showTipsMsgSuccess("导出文件准备中，请稍后下载！");
 }
 
 </script>

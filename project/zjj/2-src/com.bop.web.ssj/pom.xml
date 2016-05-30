@@ -23,7 +23,7 @@
         <artifactId>com.bop.module.user</artifactId>
         <version>${framework.version}</version>
     </dependency>
-    
+
       <dependency>
           <groupId>com.bop.module</groupId>
           <artifactId>com.bop.module.author</artifactId>

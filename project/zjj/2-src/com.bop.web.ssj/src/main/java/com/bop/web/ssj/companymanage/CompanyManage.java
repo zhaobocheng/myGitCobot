@@ -1,5 +1,6 @@
 package com.bop.web.ssj.companymanage;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import com.bop.json.ExtObjectCollection;
 import com.bop.module.user.UserService;
 import com.bop.module.user.dao.User01;
 import com.bop.web.CommonSession;
+import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
 import com.bop.web.rest.Controller;
@@ -29,9 +31,12 @@ public class CompanyManage {
 
 	private JdbcOperations jdbcTemplate;
 	private IRecordDao recordDao;
-	private CommonSession commontSession;
-	private UserService userService;
+	private UserSession userSession;
 	
+	public void setUserSession(UserSession userSession) {
+		this.userSession = userSession;
+	}
+
 	public void setJdbcTemplate(JdbcOperations jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
@@ -40,20 +45,16 @@ public class CompanyManage {
 		this.recordDao = recordDao;
 	}
 	
-	public void setCommontSession(CommonSession commontSession) {
-		this.commontSession = commontSession;
-	}
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
 
 	@Action
-	public String getGridData(){
+	public String getGridData(String fzid){
 		ExtObjectCollection eoc = new ExtObjectCollection();
-		String sql= "select t.cid,t.caption,org.orgnum,per.pernum from dm_codetable_data t "+
-					" left join (select count(*) orgnum,org_code  from ORG01 group by ORG_CODE ) org on org.org_code = t.cid"+
+
+		String sql= "select t.cid,t.caption,org.orgnum,per.pernum,p6.plan0602 from dm_codetable_data t "+
+					" left join (select count(*) orgnum,reg_district_dic  from ORG01 group by reg_district_dic ) org on org.reg_district_dic = t.cid"+
 					" left join (select count(*) pernum,DEPARTMENT_ID from A01 group by DEPARTMENT_ID ) per on per.DEPARTMENT_ID = t.cid"+
-					" where t.codetablename = 'DB064' and t.cid <> '110000' order by t.cid ";
+					" left join plan06 p6 on p6.plan0601 = t.cid and p6.parentid = '"+ fzid+
+					"' where t.codetablename = 'DB064' and  t.cid not in ('110302','110000') order by t.cid ";
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
 
 		if(resultList.size()>0){
@@ -65,18 +66,33 @@ public class CompanyManage {
 				eo.add("qxid", map.get("cid"));
 				eo.add("cyqys", map.get("orgnum"));
 				eo.add("cyzfrys", map.get("pernum"));
+				eo.add("sjqyzs", map.get("plan0602"));
 				eoc.add(eo);
 			}
 		}
 		return eoc.toString();
 	}
+	
+	/**
+	 * 根据方案列表时间得到对应的方案ID
+	 */
+	private String getP1ReocrdId(String fzid){
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+		Date dt = new Date();
+		String faid = sdf.format(dt);
+		String year = faid.substring(0, 4);
+		String month = faid.substring(5);
 
+		Records p1rds = this.recordDao.queryRecord("PLAN01", "plan0101 ="+year+" and plan0102 ="+month);
+		return p1rds.get(0).getRecordId().toString();
+	}
 	/**
 	 * 设置权重
 	 * @return
 	 */
 	@Action
-	public String addWeightCon(String zfid){
+	public String addWeightCon(String fzid){
 		//PLAN08
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 
@@ -90,14 +106,16 @@ public class CompanyManage {
 		String qzrzsy = request.getParameter("qzrzsy").toString();
 		String bzsy = request.getParameter("bzsy").toString();
 		
-		this.saveWeightConfig("ts",ts,tssy,zfid);
-		this.saveWeightConfig("jl",jl,jlsy,zfid);
-		this.saveWeightConfig("qzrz",qzrz,qzrzsy,zfid);
-		this.saveWeightConfig("bz",bz,bzsy,zfid);
+		//String zfid = getP1ReocrdId(faid);
+		
+		this.saveWeightConfig("ts",ts,tssy,fzid);
+		this.saveWeightConfig("jl",jl,jlsy,fzid);
+		this.saveWeightConfig("qzrz",qzrz,qzrzsy,fzid);
+		this.saveWeightConfig("bz",bz,bzsy,fzid);
 
 
 		//当得到权重的时候要向随机库中放对应的随机基数
-		String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid <> '110000'";
+		String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid not in ('110302','110000')";
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
 	
 		if(resultList.size()>0){
@@ -106,29 +124,54 @@ public class CompanyManage {
 				UUID rand1ID = UUID.randomUUID();
 				IRecord ran1 = this.recordDao.createNew("RAND01", rand1ID, rand1ID);
 				ran1.put("RAND0102", map.get("cid"));
-				ran1.put("RAND0101", zfid);
+				ran1.put("RAND0101", fzid);
 				this.recordDao.saveObject(ran1);
 
+				
+				
+			    //建立序列号的语句
+				String sequencesSql = "CREATE SEQUENCE emp_sequence  INCREMENT BY 1   START WITH 1  NOMAXVALUE   NOCYCLE  CACHE 10";
+				String isSwq = "SELECT count(*) FROM All_Sequences where sequence_name='EMP_SEQUENCE'";
+				int swq = this.jdbcTemplate.queryForInt(isSwq);
+
+				if(swq>0){
+					//删除序列函数
+					String dropSeqSql = "DROP SEQUENCE emp_sequence";
+					this.jdbcTemplate.execute(dropSeqSql);
+				}
+
+				this.jdbcTemplate.execute(sequencesSql);
+				int ssss = this.jdbcTemplate.queryForInt("select count(*) from ORG01 tt where tt.REG_DISTRICT_DIC = '"+map.get("cid")+"'");
+
+				//这种情况不考虑权重，既所有设置的权重都是1
+				String exeSql = "insert into RAND02 select get_uuid,get_uuid,'"+rand1ID+"',null,emp_sequence.nextval,"+
+								" t.parentid,t.org0201,t.org0202,t.org0203,t.org0204 "+
+								" from org02 t where t.parentid in (select tt.org00 from ORG01 tt where tt.REG_DISTRICT_DIC = '"+map.get("cid")+"')";
+				this.jdbcTemplate.execute(exeSql);
+				
+				//一下是适合多权重的，sql和程序还需要优化一下
 				//生成对应的rand02记录，随机基础数据
-				Records orgRec = this.recordDao.queryRecord("ORG01", "org_code='"+map.get("cid")+"'");//得到该地区所有的企业记录
-				for(IRecord org:orgRec){
-					IRecord org2 = this.recordDao.queryTopOneRecord("ORG02", "parentid='"+org.getRecordId()+"'", "parenid");//得到企业对应的权重特性
+				//Records orgRec = this.recordDao.queryRecord("ORG01", "REG_DISTRICT_DIC='"+map.get("cid")+"'");//得到该地区所有的企业记录
+
+				/*
+				   for(IRecord org:orgRec){
+					IRecord org2 = this.recordDao.queryTopOneRecord("ORG02", "parentid='"+org.getRecordId()+"'", "parentid");//得到企业对应的权重特性
 					boolean flag = true;
 					//企业是特设
-					if("0".equals(org2.get("ORG0201"))){
+					if("1".equals(org2.get("ORG0201"))){
 						this.createRandBase(ts,org2,rand1ID);
 						flag = false;
 					}
 					//企业是计量
-					if("0".equals(org2.get("ORG0202"))){
+					if("1".equals(org2.get("ORG0202"))){
 						this.createRandBase(jl,org2,rand1ID);
 						flag = false;
 					}
-					if("0".equals(org2.get("ORG0203"))){
+					if("1".equals(org2.get("ORG0203"))){
 						this.createRandBase(qzrz,org2,rand1ID);
 						flag = false;
 					}
-					if("0".equals(org2.get("ORG0204"))){
+					if("1".equals(org2.get("ORG0204"))){
 						this.createRandBase(bz,org2,rand1ID);
 						flag = false;
 					}
@@ -136,7 +179,7 @@ public class CompanyManage {
 					if(flag){
 						this.createRandBase(1,org2,rand1ID);
 					}
-				}
+				}*/
 			}
 		}
 		return "success";
@@ -164,7 +207,7 @@ public class CompanyManage {
 			this.recordDao.saveObject(rand2);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param weightType 权重类型
@@ -188,20 +231,21 @@ public class CompanyManage {
 	 * @return
 	 */
 	@Action
-	public String addSJResult(String zfid){
+	public String addSJResult(String fzid){
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String data = request.getParameter("data");
 		String zsts = request.getParameter("zsts");//至少特设
 		String zsjl = request.getParameter("zsjl");//至少计量
-		User01 u1 = this.userService.getByLoginName(this.commontSession.getCurrentUserName());
+		
+		Records u1 = this.recordDao.queryRecord("USER01", "user0101 = '"+this.userSession.getCurrentUserId()+"'");
+		
 		JSONArray array = JSONArray.fromObject(data);
-
 		for(int i=0;i<array.size();i++){
 			JSONObject jsonObject = (JSONObject) array.get(i);
-			IRecord ird = this.recordDao.createNew("PLAN06", UUID.fromString(jsonObject.get("id").toString()), UUID.fromString(zfid));
+			IRecord ird = this.recordDao.createNew("PLAN06", UUID.fromString(jsonObject.get("id").toString()), UUID.fromString(fzid));
 			ird.put("PLAN0601", jsonObject.get("qxid"));
 			ird.put("PLAN0602", jsonObject.get("sjqyzs"));
-			ird.put("PLAN0603", u1.getUser00());
+			ird.put("PLAN0603", u1.get(0).get("user00"));
 			ird.put("PLAN0604", new Date());
 			this.recordDao.saveObject(ird);
 		}

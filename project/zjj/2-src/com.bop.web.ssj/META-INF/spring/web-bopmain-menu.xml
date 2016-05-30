@@ -7,34 +7,35 @@
 <!-- 	<osgi:service id="MenuItem1101" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1101" />
-			<property name="name" value="启动随机方案" />
-			<property name="description" value="启动随机方案" />
+			<property name="name" value="双随机任务管理" />
+			<property name="description" value="双随机任务管理" />
 			<property name="url" value="/bopmain/encryption/baseEncryption.jsp" />
 		</bean>
 	</osgi:service> 
 	-->
 
+	
 	<osgi:service id="MenuItem1101" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1101" />
-			<property name="name" value="启动随机方案" />
-			<property name="description" value="启动随机方案" />
+			<property name="name" value="任务管理" />
+			<property name="description" value="任务管理" />
 			<property name="url" value="/ssj/ssjScheme/startScheme.jsp" />
 		</bean>
 	</osgi:service>
 	<osgi:service id="MenuItem1102" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1102" />
-			<property name="name" value="随机执法人员管理" />
-			<property name="description" value="随机执法人员管理" />
+			<property name="name" value="执法人员确认" />
+			<property name="description" value="执法人员确认" />
 			<property name="url" value="/ssj/personmanage/personManage.jsp" />
 		</bean>
 	</osgi:service>
 	<osgi:service id="MenuItem1103" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1103" />
-			<property name="name" value="随机企业权重管理" />
-			<property name="description" value="随机企业权重管理" />
+			<property name="name" value="随机规则管理" />
+			<property name="description" value="随机规则管理" />
 			<property name="url" value="/ssj/companymanage/companyManage.jsp" />
 		</bean>
 	</osgi:service>
@@ -42,17 +43,54 @@
 	<osgi:service id="MenuItem1104" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1104" />
-			<property name="name" value="随机方案管理" />
-			<property name="description" value="随机方案管理" />
+			<property name="name" value="方案生成" />
+			<property name="description" value="方案生成" />
 			<property name="url" value="/ssj/ssjScheme/schemeManage.jsp" />
 		</bean>
 	</osgi:service>
 	<osgi:service id="MenuItem1105" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1105" />
-			<property name="name" value="随机方案浏" />
-			<property name="description" value="随机方案浏览" />
+			<property name="name" value="方案浏览" />
+			<property name="description" value="方案浏览" />
 			<property name="url" value="/ssj/ssjScheme/viewScheme.jsp" />
+		</bean>
+	</osgi:service>
+	
+	
+	<osgi:service id="MenuItem1106" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="1106" />
+			<property name="name" value="年度计划制定" />
+			<property name="description" value="年度计划制定" />
+			<property name="url" value="/ssj/ssjScheme/temp.jsp" />
+		</bean>
+	</osgi:service>
+	
+	<osgi:service id="MenuItem1107" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="1107" />
+			<property name="name" value="随机执法结果查询" />
+			<property name="description" value="随机执法结果查询" />
+			<property name="url" value="/ssj/ssjScheme/temp.jsp" />
+		</bean>
+	</osgi:service>
+	
+	<osgi:service id="MenuItem1108" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="1108" />
+			<property name="name" value="统计分析" />
+			<property name="description" value="统计分析" />
+			<property name="url" value="/ssj/ssjScheme/temp.jsp" />
+		</bean>
+	</osgi:service>
+	
+	<osgi:service id="MenuItem1109" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="1109" />
+			<property name="name" value="随机事项管理" />
+			<property name="description" value="随机事项管理" />
+			<property name="url" value="/ssj/ssjScheme/temp.jsp" />
 		</bean>
 	</osgi:service>
 </beans>

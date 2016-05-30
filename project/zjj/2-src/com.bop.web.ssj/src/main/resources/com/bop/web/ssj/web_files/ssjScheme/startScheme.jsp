@@ -71,7 +71,6 @@ datagrid.url = '/ssj/ssjscheme/CreateScheme/getGridData?theme=none';
  */
  datagrid.load();
 
-
 //得到年月下拉框数据
 getMonthCombox = function(){
 	var monthData = "[";
@@ -92,6 +91,7 @@ getYearCombox = function(){
 	var nextYear = nowYear+1;
 	var next2Year = nowYear+2;
 	var comboxdata = "[{id:'"+nowYear+"',text:'"+nowYear+"年'},{id:'"+nextYear+"',text:'"+nextYear+"年'},{id:'"+next2Year+"',text:'"+next2Year+"年'}]";
+	year.setValue(nowYear);
 	return comboxdata;
 }
 var yearData = getYearCombox();
@@ -135,8 +135,36 @@ removeRow = function(){
 	}
 
 }
+
 qdRow = function(){
-	//启动功能,需要明确对应的业务
+	var selectRows = datagrid.getSelecteds();
+
+	if(selectRows.length>0){
+		if(selectRows[0].zt == "已启用"){
+			alert("该方案已启用！");
+			return;
+		}
+		debugger;
+		var json = mini.encode(selectRows);
+		$.ajax({
+			url:'/ssj/ssjscheme/CreateScheme/goStart?theme=none',
+			type:'post',
+			data:{data:json},
+			success:function(e){
+				if(e=="success"){
+					alert("启用成功！");
+					datagrid.reload();
+				}else{
+					alert("启用失败！");
+				}
+			}
+		})
+	}else{
+		alert("请选择要启用的方案！");
+	}
+	
+	
+	
 }
 
 //窗口函数
@@ -162,11 +190,12 @@ function commitWindow(){
 		type:'post',
 		data:json,
 		success:function(e){
-			if(e=="seccess"){
+			var obj = mini.decode(e);
+			if(obj.inf=="true"){
 				alert("保存成功！");
 				datagrid.reload();
 			}else{
-				alert("保存失败！");
+				alert(obj.text);
 			}
 			newwin.hide();
 		}

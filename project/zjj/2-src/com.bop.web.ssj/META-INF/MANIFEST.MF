@@ -2,17 +2,17 @@ Manifest-Version: 1.0
 Bundle-SymbolicName: com.bop.web.ssj
 Built-By: bdsoft
 Bundle-ManifestVersion: 2
-Bnd-LastModified: 1463733518645
+Bnd-LastModified: 1464243564633
 Bundle-Level: 71
-Bundle-Vendor: BOP
 Import-Package: com.bop.domain;version="4.2",com.bop.domain.dao;versio
  n="4.2",com.bop.json;version="4.2",com.bop.module.author;version="4.2
  ",com.bop.module.function;version="4.2",com.bop.module.function.servi
  ce;version="4.2",com.bop.module.log;version="4.2",com.bop.module.reso
- urces,com.bop.module.user;version="4.2",com.bop.module.user.dao;versi
- on="4.2",com.bop.web;version="4.2",com.bop.web.defaults;version="4.2"
- ,com.bop.web.rest;version="4.2",javax.servlet.http;version="3.1",org.
- hibernate;version="4.2",org.springframework.jdbc.core;version="3.1"
+ urces,com.bop.module.user;version="4.2",com.bop.web;version="4.2",com
+ .bop.web.bopmain;version="1.1",com.bop.web.defaults;version="4.2",com
+ .bop.web.rest;version="4.2",javax.servlet.http;version="3.1",net.sf.j
+ son;version="2.2",org.hibernate;version="4.2",org.springframework.jdb
+ c.core;version="3.1"
 DynamicImport-Package: *
 Tool: Bnd-0.0.357
 Originally-Created-By: Apache Maven Bundle Plugin
