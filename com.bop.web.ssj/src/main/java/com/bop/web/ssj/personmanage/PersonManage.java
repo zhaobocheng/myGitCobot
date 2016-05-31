@@ -85,9 +85,9 @@ public class PersonManage {
 		String zone = this.userSession.getCurrentUserZone();
 		String whereSql = null;
 		if(zone==null||"".equals(zone)){
-			whereSql = "plan0204 = '0' and parentid = '"+faid+"'";
+			whereSql = "plan0204 <> '1' and parentid = '"+faid+"'";
 		}else{
-			whereSql = "plan0204 = '0' and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
+			whereSql = "plan0204 <> '1' and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 		}
 		
 		Records rds = this.recordDao.queryRecord("PLAN02", whereSql);
@@ -156,4 +156,33 @@ public class PersonManage {
 		}
 		return "success";
 	}
+	/**
+	 * 处理上报人员逻辑
+	 * @return
+	 */
+	@Action
+	public String upShow(String faid){
+		String zone = this.userSession.getCurrentUserZone();
+		String upSql = "select count(*) from plan02 where plan0204 = 0 and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
+		
+		int allUpCount = this.jdbcTemplate.queryForInt(upSql);
+		if(allUpCount>0){
+		String updataSql = "update plan02 set plan0204 = 2 where plan0204 = 0 and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
+		this.jdbcTemplate.execute(updataSql);
+		
+
+		UUID uid = UUID.randomUUID();
+		IRecord plan3 = this.recordDao.createNew("PLAN03", uid, UUID.fromString(faid));
+		
+		plan3.put("PLAN0301", zone);
+		plan3.put("PLAN0302", 1);
+		this.recordDao.saveObject(plan3);
+
+		return "success";
+		}else{
+			//没有选中人员
+			return "select";
+		}
+	}
+
 }

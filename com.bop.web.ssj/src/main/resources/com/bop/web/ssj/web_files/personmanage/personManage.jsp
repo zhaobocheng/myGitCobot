@@ -101,7 +101,19 @@ valueChange = function(e){
 
 //上报
 function sbRow(){
-	alert("已上报");
+	
+	var zfid = mini.get("zftime").value;
+	jQuery.ajax({
+		url:'/ssj/personmanage/personmanage/upShow/'+zfid+'?theme=none',
+		type:'post',
+		success:function(e){
+			if(e=="success"){
+				alert("上报成功！");
+			}else if(e=="select"){
+				alert("请先选择随机人员在上报！");
+			}
+		}
+	});
 }
 
 allRightMove=function(){
