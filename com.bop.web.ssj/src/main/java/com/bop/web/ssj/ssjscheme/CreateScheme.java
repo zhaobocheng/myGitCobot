@@ -116,11 +116,15 @@ public class CreateScheme {
 	public String deleteScheme(){
 		ExtResultObject ero = new ExtResultObject();
 		String id = ActionContext.getActionContext().getHttpServletRequest().getParameter("id");
-		//做数据库查询工作
-		//一种返回方式，这里直接用第二种了
-		this.recordDao.deleteObject("PLAN01", UUID.fromString(id));
-		ero.add("result", true);
-		return "success";
+
+		IRecord p1 = this.recordDao.getRecord("PLAN01", UUID.fromString(id));
+		if(p1.get("PLAN0105")!=null && "1".equals(p1.get("PLAN0105").toString())){
+			return "false";
+		}else{
+			this.recordDao.deleteObject("PLAN01", UUID.fromString(id));
+			ero.add("result", true);
+			return "success";
+		}
 	}
 
 	/**
@@ -176,7 +180,7 @@ public class CreateScheme {
 
 		if(zone==null||"".equals(zone)){
 			whereSql = "parentid = '"+fzid+"'";
-			querySql = "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid not in ('110302','110000')";
+			querySql = "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid <> '110000'";
 		}else{
 			whereSql = "parentid = '"+fzid+"' and PLAN1204 = '"+zone+"'";
 			querySql = "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid = '"+zone+"'";
@@ -213,7 +217,7 @@ public class CreateScheme {
 				eo.add("jcrid", personInf[0]);
 				eo.add("jcr",  personInf[1]);
 				
-				eo.add("sjly", ire.get("PLAN09")==null?"":ire.get("PLAN1209",DmCodetables.class).getCaption());
+				eo.add("sjly", this.getJSLY(ire.get("PLAN1202").toString()));
 				eo.add("ParentDqId", ire.get("PLAN1204",DmCodetables.class).getId());
 				eo.add("dqid",  null);
 				eoc.add(eo);
@@ -230,17 +234,17 @@ public class CreateScheme {
 	@Action
 	public String createSchemeDate(String fzid){
 		
-		
+
 		//先判断是否设置了人员和企业数由plan0302来判断
-/*		List<IRecord> plan3List = this.recordDao.getByParentId("PLAN03", UUID.fromString(fzid));
+		List<IRecord> plan3List = this.recordDao.getByParentId("PLAN03", UUID.fromString(fzid));
 		
 		for(int i=0;i<plan3List.size();i++){
 			IRecord plan3 = plan3List.get(i);
 			Object flag = plan3.get("PLAN0302");
-			if(flag==null || !"2".equals(flag.toString())){
+			if(flag==null || 3 > Integer.parseInt(flag.toString())){
 				return "false";
 			}
-		}*/
+		}
 
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		//String faid = this.getP1ReocrdId(fzid);
@@ -281,20 +285,112 @@ public class CreateScheme {
 	 * @param orglist	存放抽取的企业code的容器
 	 */
 	private void getQxCqOrg(int allCqOrg,IRecord rand01,Map<String,ArrayList> orgmap){
-		List<String> dqOrglist = new ArrayList<String>();
 		
+		List<String> dqOrglist = new ArrayList<String>();
 		List<String> dqPersonlist = new ArrayList<String>();
 		Random rd = new Random();
-		Random prd = new Random();
+		
 		//得到一个区县的总人数
 		//Records personRds = this.recordDao.queryRecord("PLAN02", "PLAN0204 = 0 and PLAN0205 = '"+rand01.get("RAND0102",DmCodetables.class).getId()+"'");
-		
-		String personSql = "select * from plan02 t where PLAN0204 = 2 and PLAN0205 = '"+rand01.get("RAND0102",DmCodetables.class).getId()+"'";
+		String personSql = "select * from plan02 t where PLAN0204 = 2 and parentid = '"+rand01.get("rand0101")+"' and  PLAN0205 = '"+rand01.get("RAND0102",DmCodetables.class).getId()+"'";
 		List<Map<String,Object>> personMap = this.jdbcTemplate.queryForList(personSql);
+		List<Map<String,Object>> OrdypersonMap2= new ArrayList<Map<String,Object>>();
+		int personmapLc = 0;
+		int ordypersonmapLc = 0;
 		
-		List<IRecord> rand02s = this.recordDao.getByParentId("RAND02", rand01.getRecordId());//得到该区县所有的企业信息
-		//循环对应的企业
+		
+		Map<Integer ,ArrayList<String>> zhMap = new HashMap<Integer,ArrayList<String>>();  //存放按企业数随机好人员的map
 		for(int i=0;i<allCqOrg;i++){
+
+			ArrayList<String> personIreList = new ArrayList<String>();
+			Random prd = new Random();
+			
+			//抽取先以轮次为主，如果是personmapLc>=ordypersonmapLc 说明以personMap集合为主，反之以OrdypersonMap2集合为主，要考虑当集合为一个元素，而要抽取连个的情况
+			if(personmapLc>=ordypersonmapLc&&personMap.size()>=2){
+				int p= prd.nextInt(personMap.size());
+				int p2= prd.nextInt(personMap.size());
+
+				Map<String,Object> ire = personMap.get(p);
+				Map<String,Object> ire2 = personMap.get(p2);
+
+				personIreList.add(ire.get("PLAN0201").toString());
+				personIreList.add(ire2.get("PLAN0201").toString());
+
+				OrdypersonMap2.add(ire);
+				OrdypersonMap2.add(ire2);
+				personMap.remove(ire2);
+				personMap.remove(ire);
+				if(personMap.size()==0){
+					ordypersonmapLc+=1;
+				}
+			}else if(personmapLc>=ordypersonmapLc&&personMap.size()>0){
+				//这是当personMap集合只剩下一个元素的情况
+				//现将personmap抽完，再将ordypersonmap的抽取轮次变大，最后再将ordypersonmap中抽取过的人放到personmap中
+				int p2= prd.nextInt(OrdypersonMap2.size());
+				
+				Map<String,Object> ire = personMap.get(0);
+				Map<String,Object> ire2 = OrdypersonMap2.get(p2);
+				personIreList.add(ire.get("PLAN0201").toString());
+				personIreList.add(ire2.get("PLAN0201").toString());
+				
+				personMap.remove(ire);
+				OrdypersonMap2.add(ire);
+				OrdypersonMap2.remove(ire2);
+				personMap.add(ire2);
+				ordypersonmapLc+=1;
+			}else if(personmapLc<ordypersonmapLc&&OrdypersonMap2.size()>=2){
+				int p= prd.nextInt(OrdypersonMap2.size());
+				int p2= prd.nextInt(OrdypersonMap2.size());
+
+				Map<String,Object> ire = OrdypersonMap2.get(p);
+				Map<String,Object> ire2 = OrdypersonMap2.get(p2);
+
+				personIreList.add(ire.get("PLAN0201").toString());
+				personIreList.add(ire2.get("PLAN0201").toString());
+
+				personMap.add(ire);
+				personMap.add(ire2);
+				OrdypersonMap2.remove(ire2);
+				OrdypersonMap2.remove(ire);
+				if(OrdypersonMap2.size()==0){
+					personmapLc+=1;
+				}
+			}else if(personmapLc<ordypersonmapLc&&OrdypersonMap2.size()>0){
+				
+				int p2= prd.nextInt(personMap.size());
+				Map<String,Object> ire = OrdypersonMap2.get(0);
+				Map<String,Object> ire2 = personMap.get(p2);
+				personIreList.add(ire.get("PLAN0201").toString());
+				personIreList.add(ire2.get("PLAN0201").toString());
+				
+				OrdypersonMap2.remove(ire);
+				personMap.add(ire);
+				personMap.remove(ire2);
+				OrdypersonMap2.add(ire2);
+				personmapLc+=1;
+			}
+			zhMap.put(i, personIreList);
+		}
+		
+
+		List<IRecord> rand02s = this.recordDao.getByParentId("RAND02", rand01.getRecordId());//得到该区县所有的企业信息
+		
+		//计量或特设至少为一的情况
+		//该区县计量总数
+		
+		Records jlIre = this.recordDao.queryRecord("RAND02", "parentid = '"+rand01.getRecordId()+"' and RAND0204 = 1");
+		Records tsIre = this.recordDao.queryRecord("RAND02", "parentid = '"+rand01.getRecordId()+"' and RAND0203 = 1");
+		
+		int jlorgindex = rd.nextInt(jlIre.size());
+		int tsorgindex = rd.nextInt(tsIre.size());
+		
+		System.out.println("sssss-----------"+zhMap.size());
+		
+		orgmap.put(jlIre.get(jlorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(0));
+		orgmap.put(tsIre.get(tsorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(1));
+		
+		//循环对应的企业
+		for(int i=2;i<allCqOrg;i++){
 			boolean doubleflag = false;
 
 			int orgindex = rd.nextInt(rand02s.size());
@@ -311,10 +407,11 @@ public class CreateScheme {
 			}
 
 			if(doubleflag){
-				allCqOrg--;
+				//allCqOrg--;
+				i--;
 			}else{
 				dqOrglist.add(orgCode.toString());
-				orgmap.put(orgCode.toString(), this.getCqPerson(prd,personMap));
+				orgmap.put(orgCode.toString(), zhMap.get(i));
 			}
 		}
 	}
@@ -342,13 +439,43 @@ public class CreateScheme {
 			eo.add("jcnr", null);
 			eo.add("jcr", this.getJCRData(list)[1]);  //检查人
 			eo.add("jcrid", this.getJCRData(list)[0]);
-			eo.add("sjly", null);
+			eo.add("sjly", this.getJSLY(informIRe.get("ORG_CODE").toString()));
 			eo.add("ParentDqId", informIRe.get("REG_DISTRICT_DIC"));
 			eo.add("dqid", informIRe.get("REG_DISTRICT_DIC",DmCodetables.class).getId());
 			this.saveTempPlan12(informIRe,list,faid);
 		}
 		eoc.add(eo);
 	}
+	
+	//得到设计领域
+	private String getJSLY(String jgdm){
+		String sql = "select * from org02 where  parentid =(select org01.org00 from org01 where org01.org_code = '"+jgdm+"')";
+		List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);
+		
+		String retStr = "";
+		if(org2List.size()>0){
+			Map<String,Object> map = org2List.get(0);
+			if(map.get("ORG0201")!=null&&"1".equals(map.get("ORG0201").toString())){
+				retStr+="特设，";
+			}
+			if(map.get("ORG0202")!=null&&"1".equals(map.get("ORG0202").toString())){
+				retStr+="计量，";
+			}
+			if(map.get("ORG0203")!=null&&"1".equals(map.get("ORG0203").toString())){
+				retStr+="3C，";
+			}
+			if(map.get("ORG0204")!=null&&"1".equals(map.get("ORG0204").toString())){
+				retStr+="标准，";
+			}
+			if(map.get("ORG0205")!=null&&"1".equals(map.get("ORG0205").toString())){
+				retStr+="产品，";
+			}
+		}
+		return retStr.substring(0, retStr.length()-1);
+	}
+	
+	
+	//格式化检查人信息
 	private String [] getJCRData(ArrayList list){
 		String ids = null;
 		String names = null;
@@ -434,11 +561,28 @@ public class CreateScheme {
 	 */
 	@Action
 	public String commitSchemeDate(String faid){
-		String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"'";
-		String plan1201UpSql = "update plan1201 set plan120104 = '提交' where parentid in (select recorid from plan12 where t.parentid = '"+faid+"')";
+		String zone = this.userSession.getCurrentUserZone();
 		
-		this.jdbcTemplate.execute(plan1201UpSql);
-		this.jdbcTemplate.execute(plan12UpSql);
+		
+		if(zone==null||"".equals(zone)){
+			String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"'";
+			String plan1201UpSql = "update plan1201 set plan120104 = '提交' where parentid in (select t.recordid from plan12 t where t.parentid = '"+faid+"')";
+			
+			this.jdbcTemplate.execute(plan1201UpSql);
+			this.jdbcTemplate.execute(plan12UpSql);
+			
+			String plan03Sql = "update plan03 set plan0302 = 5 where parentid = '"+faid+"'";
+			this.jdbcTemplate.execute(plan03Sql);
+		}else{
+			String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
+			String plan1201UpSql = "update plan1201 set plan120104 = '提交' where parentid in (select t.recordid from plan12 t where t.parentid = '"+faid+"') and t.plan1204 = '"+zone+"'";
+			
+			this.jdbcTemplate.execute(plan1201UpSql);
+			this.jdbcTemplate.execute(plan12UpSql);
+			String plan03Sql = "update plan03 set plan0302 = 5 where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
+			this.jdbcTemplate.execute(plan03Sql);
+		}
+
 		return "success";
 	}
 
@@ -597,7 +741,6 @@ public class CreateScheme {
             style.setBorder(BorderType.RIGHT_BORDER, CellBorderType.THIN, Color.getBlack());
             style.setHorizontalAlignment(TextAlignmentType.CENTER);
             int stratRow = 0;
-
 
             // 写入表头
             for (int ti = 0; ti < titleList.size(); ti++) {
@@ -763,11 +906,22 @@ public class CreateScheme {
         
         return rtnlist;
     }
-
     
-    
-    
-    
+	@Action
+	public String getZT(String faid){
+		String zone = this.userSession.getCurrentUserZone();
+		
+		if(zone==null||"".equals(zone)){
+			return "all";
+		}else{
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"'");
+			if(rds.size()>0){
+				return rds.get(0).get("plan0302").toString();  //以上报
+			}else{
+				return "select";   //需要选择对象
+			}
+		}
+	}
     
     
 }

@@ -9,8 +9,8 @@
 
 <div style="padding:5px;10px;5px;0">
 	<span>抽查方案：</span><input class="mini-combobox" id="faid" style="width:150px;" textField="text" valueField="id" onvaluechanged="valueChange" url="/ssj/personmanage/personmanage/getZfcData?theme=none"/>
-	<a class="mini-button" iconCls = "icon-goto"  onclick="createFa()" >生成随机方案</a>
-	<a class="mini-button" iconCls = "icon-save" onclick="commitFa()" >提交随机方案</a>
+	<a class="mini-button" id="createBut" iconCls = "icon-goto"  onclick="createFa()" >生成随机方案</a>
+	<a class="mini-button" id="commitBut" iconCls = "icon-save" onclick="commitFa()" >提交随机方案</a>
 	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
 </div>
 
@@ -43,10 +43,34 @@ var grid = mini.get("treegrid");
 var url = '/ssj/ssjScheme/CreateScheme/getSchemeDate/'+zfcom.value+'?theme=none';
 grid.load(url);
 
+
+function isup(e){
+	var createBut = mini.get("createBut");
+	var mommitBut = mini.get("mommitBut");
+	
+	jQuery.ajax({
+		url:'/ssj/ssjScheme/CreateScheme/getZT/'+e+'?theme=none',
+		type:'post',
+		success:function(e){
+			if(e=="5"){
+				mommitBut.setEnabled(false);
+				setWeigBut.setEnabled(false);
+			}else if(e=="4" || e=="3"){
+				mommitBut.setEnabled(true);
+				setWeigBut.setEnabled(true);
+			}
+		}	
+	});
+};
+
+isup(zfcom.value);
+
+
 valueChange = function(e){
 	url = "/ssj/ssjScheme/CreateScheme/getSchemeDate/"+e.value+"?theme=none";
 	grid.setUrl(url);
 	grid.reload();
+	isup(e.value);
 }
 
 createFa=function(){
@@ -60,7 +84,7 @@ createFa=function(){
 				alert("生成完毕！");
 				gird.reload();
 			}else if(e=="false"){
-				alert("有为设置人员或企业数的区县请先设置！");
+				alert("有未设置人员或企业数的区县请先设置！");
 			}
 		}
 	});
@@ -73,8 +97,8 @@ commitFa = function(){
 		type:'get',
 		success:function(e){
 			if(e=="seccess"){
-				alert("生成完毕！");
-				gird.reload();	
+				alert("提交完毕！");
+				gird.reload();
 			}
 		}
 	});
@@ -86,7 +110,6 @@ importExc = function(){
 		url:'/ssj/ssjscheme/CreateScheme/exportExcel/'+faid+"?theme=none",
 		type:'get',
 		success:function(e){
-			debugger;
 			var inf = mini.decode(e);
 			if(inf.flag){
 				location.href = decodeURI("/ResourceFiles"+inf.path);
@@ -95,32 +118,6 @@ importExc = function(){
 			}
 		}
 	});
-}
-
-
-function exportExcel() {
-    $('#ziduan').val(ziduan_t1);
-    $('#table_index').attr("value","1");
-  // 拿到查询条件
-  var ggsclbFormData = ggsclb.getData();
-  var ggsclbFormJson = mini.encode([ ggsclbFormData ]);
-  var temp1 = $("#cxtj1Data").val();
-  var temp2 = $("#cxtj2Data").val();
-  if(temp1){
-    $("#cxtjForm").attr("action","/gjxfj/common/dcservice/exportexcel/xfjcxlist/民政部信访件信息.xls?theme=none");
-  }else if(temp2){
-    $("#cxtjForm").attr("action","/gjxfj/common/dcservice/exportexcel/xfjgjlist/民政部信访件信息.xls?theme=none");
-  }
-
-  //var data1 = $("#cxtj1Data").val();
-  //var data2 = $("#cxtj2Data").val();
-  if (mini.get("#ggscgrid").totalCount < 1) {
-    mini.alert("数据为空");
-    return;
-  }
-  
-  $("#cxtjForm").submit();
-  showTipsMsgSuccess("导出文件准备中，请稍后下载！");
 }
 
 </script>

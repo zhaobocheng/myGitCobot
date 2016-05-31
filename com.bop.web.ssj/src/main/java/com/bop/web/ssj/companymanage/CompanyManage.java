@@ -52,9 +52,9 @@ public class CompanyManage {
 
 		String sql= "select t.cid,t.caption,org.orgnum,per.pernum,p6.plan0602 from dm_codetable_data t "+
 					" left join (select count(*) orgnum,reg_district_dic  from ORG01 group by reg_district_dic ) org on org.reg_district_dic = t.cid"+
-					" left join (select count(*) pernum,plan0205 from plan02 where plan0204 = 1 group by plan0205) per on per.plan0205 = t.cid"+
+					" left join (select count(*) pernum,plan0205 from plan02 where plan0204 = 2 and parentid = '"+fzid+"' group by plan0205) per on per.plan0205 = t.cid"+
 					" left join plan06 p6 on p6.plan0601 = t.cid and p6.parentid = '"+ fzid+
-					"' where t.codetablename = 'DB064' and  t.cid != '110000' order by t.cid ";
+					"' where t.codetablename = 'DB064' and  t.cid != '110000'  order by t.cid ";
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
 
 		if(resultList.size()>0){
@@ -179,8 +179,23 @@ public class CompanyManage {
 						this.createRandBase(1,org2,rand1ID);
 					}
 				}*/
+				
+				String upSql = "update plan03 set plan0302 = 2 where parentid = '"+fzid+"' and plan0301 = '"+map.get("cid").toString()+"'";
+				this.jdbcTemplate.execute(upSql);
+				
+/*				IRecord p3Ire = this.recordDao.queryTopOneRecord("plan03", "parentid = '"+fzid+"' and plan0301 = '"+map.get("cid").toString()+"'", "plan0301");
+				if(p3Ire!=null){
+					p3Ire.put("PLAN0302", 2);
+					this.recordDao.saveObject(p3Ire);
+				}*/
 			}
 		}
+		
+/*		IRecord p3Ire = this.recordDao.queryTopOneRecord("plan03", "parentid = '"+fzid+"' and plan0301 = '"+this.userSession.getCurrentUserZone()+"'", "pindex");
+		if(p3Ire!=null){
+			p3Ire.put("plan0302", "2");
+		}*/
+		
 		return "success";
 	}
 	
@@ -248,14 +263,33 @@ public class CompanyManage {
 			ird.put("PLAN0604", new Date());
 			this.recordDao.saveObject(ird);
 
-			IRecord plan3Ire = this.recordDao.queryTopOneRecord("PLAN03", "PARENTID='"+fzid+"' and plan0301 = '"+jsonObject.get("qxid")+"'", "pindex");
+
+			String upSql = "update plan03 set plan0302 = 3 where parentid = '"+fzid+"' and plan0301 = '"+jsonObject.get("qxid")+"'";
+			this.jdbcTemplate.execute(upSql);
+
+			/*IRecord plan3Ire = this.recordDao.queryTopOneRecord("PLAN03", "PARENTID='"+fzid+"' and plan0301 = '"+jsonObject.get("qxid")+"'", "pindex");
 			if(plan3Ire!=null){
-				plan3Ire.put("PLAN0302", 2);
+				plan3Ire.put("PLAN0302", 3);
 				this.recordDao.saveObject(plan3Ire);
+			}*/
+		}
+		return "success";
+	}
+	
+	
+	@Action
+	public String getZT(String faid){
+		String zone = this.userSession.getCurrentUserZone();
+		
+		if(zone==null||"".equals(zone)){
+			return "all";
+		}else{
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"'");
+			if(rds.size()>0){
+				return rds.get(0).get("plan0302").toString();  //以上报
+			}else{
+				return "select";   //需要选择对象
 			}
 		}
-		
-
-		return "success";
 	}
 }
