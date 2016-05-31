@@ -220,10 +220,6 @@ public class PersonManage {
 				return "select";   //需要选择对象
 			}
 		}
-		
-		
-		
-		
 	}
 
 }

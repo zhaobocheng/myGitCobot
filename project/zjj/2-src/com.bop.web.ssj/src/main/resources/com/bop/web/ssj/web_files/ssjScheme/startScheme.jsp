@@ -124,6 +124,8 @@ removeRow = function(){
 			seccess:function(e){
 				if(e=="success"){
 					alert("删除成功！");
+				}else if(e=="false"){
+					alert("该记录已经启动不能删除！");
 				}else{
 					alert("删除失败！");
 				}

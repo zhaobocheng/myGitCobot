@@ -14,17 +14,17 @@
 				<tr>
 					<td>
 						<span>&nbsp;&nbsp;方案时间：</span><input class="mini-combobox" id="zftime"
-							name="zftime" onvaluechanged="valueChange" "
+							name="zftime" onvaluechanged="valueChange"
 							textField="text" valueField="id"
-							url="/ssj/personmanage/personmanage/getZfcData?theme=none" /> <a
-							class="mini-button" iconCls="icon-upload" onclick="setAuthenRow()">设置权重</a>
+							url="/ssj/personmanage/personmanage/getZfcData?theme=none" />
+							 <a class="mini-button" iconCls="icon-upload" id="setWeigBut" onclick="setAuthenRow()">设置权重</a>
 					</td>					
 					<td>
 						<span>&nbsp;&nbsp;随机结果规则：至少特设：</span><input class="mini-textbox" id="zsts"
 							style="width: 150px;" /> <span>&nbsp;&nbsp;至少计量：</span><input
 							class="mini-textbox" id="zsjl" style="width: 150px;" />
 					</td>
-					<td><a class="mini-button" onclick="mommit()">提交</a></td>
+					<td><a class="mini-button" id="mommitBut" onclick="mommit()">提交</a></td>
 				</tr>
 			</table>
 		</div>
@@ -133,11 +133,38 @@
 		grid.setUrl(url);
 		grid.load();
 
+		
+
+		function isup(e){
+			var setWeigBut = mini.get("setWeigBut");
+			var mommitBut = mini.get("mommitBut");
+			
+			jQuery.ajax({
+				url:'/ssj/companymanage/CompanyManage/getZT/'+e+'?theme=none',
+				type:'post',
+				success:function(e){
+					if(e=="2"){
+						mommitBut.setEnabled(true);
+						setWeigBut.setEnabled(false);
+					}else if(e=="1" || e=="select" || e=="all"){
+						mommitBut.setEnabled(true);
+						setWeigBut.setEnabled(true);
+					}else{
+						mommitBut.setEnabled(false);
+						setWeigBut.setEnabled(false);
+					}
+				}	
+			});
+		};
+
+		isup(zfcom.value);
+		
 		valueChange = function(e) {
 			url = "/ssj/companymanage/CompanyManage/getGridData/" + e.value
 					+ "?theme=none";
 			grid.setUrl(url);
 			grid.reload();
+			isup(e.value);
 		}
 
 		setAuthenRow = function() {
@@ -166,6 +193,7 @@
 					if (e == "success") {
 						alert("保存成功！");
 						datagrid.reload();
+						newwin.hide();
 					} else {
 						alert("保存失败！");
 						datagrid.reload();
