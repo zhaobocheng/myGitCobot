@@ -46,18 +46,18 @@ grid.load(url);
 
 function isup(e){
 	var createBut = mini.get("createBut");
-	var mommitBut = mini.get("mommitBut");
+	var mommitBut = mini.get("commitBut");
 	
 	jQuery.ajax({
 		url:'/ssj/ssjScheme/CreateScheme/getZT/'+e+'?theme=none',
 		type:'post',
 		success:function(e){
 			if(e=="5"){
+				createBut.setEnabled(false);
 				mommitBut.setEnabled(false);
-				setWeigBut.setEnabled(false);
-			}else if(e=="4" || e=="3"){
+			}else{
 				mommitBut.setEnabled(true);
-				setWeigBut.setEnabled(true);
+				createBut.setEnabled(true);
 			}
 		}	
 	});

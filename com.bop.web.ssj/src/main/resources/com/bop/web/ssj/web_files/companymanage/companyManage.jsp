@@ -146,7 +146,7 @@
 					if(e=="2"){
 						mommitBut.setEnabled(true);
 						setWeigBut.setEnabled(false);
-					}else if(e=="1" || e=="select" || e=="all"){
+					}else if(e=="1" || e=="select"){
 						mommitBut.setEnabled(true);
 						setWeigBut.setEnabled(true);
 					}else{
@@ -233,7 +233,12 @@
 				},
 				type : "post",
 				success : function(text) {
-					grid.reload();
+					if(text=="false"){
+						grid.reload();
+						alert("请先设置权重");
+					}else{
+						grid.reload();
+					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
 					alert(jqXHR.responseText);

@@ -211,7 +211,12 @@ public class PersonManage {
 		String zone = this.userSession.getCurrentUserZone();
 		
 		if(zone==null||"".equals(zone)){
-			return "all";
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"'");
+			if(rds.size()==17){
+				return "ups";  //以上报
+			}else{
+				return "select";   //需要选择对象
+			}
 		}else{
 			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"'");
 			if(rds.size()>0){

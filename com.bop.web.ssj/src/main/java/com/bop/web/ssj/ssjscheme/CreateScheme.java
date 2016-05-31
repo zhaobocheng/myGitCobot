@@ -910,15 +910,20 @@ public class CreateScheme {
 	@Action
 	public String getZT(String faid){
 		String zone = this.userSession.getCurrentUserZone();
-		
+
 		if(zone==null||"".equals(zone)){
-			return "all";
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0302 = 5");
+			if(rds.size()==17){
+				return rds.get(0).get("plan0302").toString();
+			}else{
+				return "select"; 
+			}
 		}else{
 			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"'");
 			if(rds.size()>0){
 				return rds.get(0).get("plan0302").toString();  //以上报
 			}else{
-				return "select";   //需要选择对象
+				return "select";
 			}
 		}
 	}
