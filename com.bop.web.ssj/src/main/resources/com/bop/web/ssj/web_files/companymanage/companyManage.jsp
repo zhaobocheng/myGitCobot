@@ -13,14 +13,14 @@
 			<table>
 				<tr>
 					<td>
-						<span>方案时间：</span><input class="mini-combobox" id="zftime"
-							name="zftime" onvaluechanged="valueChange" style="width: 150px;"
+						<span>&nbsp;&nbsp;方案时间：</span><input class="mini-combobox" id="zftime"
+							name="zftime" onvaluechanged="valueChange" "
 							textField="text" valueField="id"
 							url="/ssj/personmanage/personmanage/getZfcData?theme=none" /> <a
-							class="mini-button" iconCls="icon-upload" onclick="setAuthenRow()">设置权限</a>
-					</td>
+							class="mini-button" iconCls="icon-upload" onclick="setAuthenRow()">设置权重</a>
+					</td>					
 					<td>
-						<span>随机结果规则：至少特设：</span><input class="mini-textbox" id="zsts"
+						<span>&nbsp;&nbsp;随机结果规则：至少特设：</span><input class="mini-textbox" id="zsts"
 							style="width: 150px;" /> <span>&nbsp;&nbsp;至少计量：</span><input
 							class="mini-textbox" id="zsjl" style="width: 150px;" />
 					</td>
@@ -59,7 +59,7 @@
 	</div>
 
 	<!-- 权限设置窗口 -->
-	<div id="newWin" class="mini-window" title="设置权限"
+	<div id="newWin" class="mini-window" title="设置权重"
 		style="display: none; width: 500px; height: 300px;" showToolbar="true"
 		showFooter="true">
 		<div property="toolbar" style="padding: 5px;">
