@@ -14,10 +14,10 @@
             <table style="width:100%;">
                 <tr>
                     <td style="width:100%;">
-                        <a class="mini-button" iconCls="icon-add" onclick="addRow()" plain="true" tooltip="">增加</a>
-                        <a class="mini-button" iconCls="icon-remove" onclick="removeRow()" plain="true">删除</a>
+                        <a class="mini-button" iconCls="icon-add" onclick="addRow()"  tooltip="">增加</a>
+                        <a class="mini-button" iconCls="icon-remove" onclick="removeRow()">删除</a>
                         <span class="separator"></span>
-                        <a class="mini-button" iconCls="icon-save" onclick="qdRow()" plain="true">启动</a>            
+                        <a class="mini-button" iconCls="icon-save" onclick="qdRow()">启动</a>            
                     </td>
                 </tr>
             </table>           
