@@ -115,7 +115,7 @@ public class CompanyManage {
 
 
 		//当得到权重的时候要向随机库中放对应的随机基数
-		String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid not in ('110302','110000')";
+		String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid <> '110000'";
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
 	
 		if(resultList.size()>0){
@@ -127,8 +127,7 @@ public class CompanyManage {
 				ran1.put("RAND0101", fzid);
 				this.recordDao.saveObject(ran1);
 
-				
-				
+
 			    //建立序列号的语句
 				String sequencesSql = "CREATE SEQUENCE emp_sequence  INCREMENT BY 1   START WITH 1  NOMAXVALUE   NOCYCLE  CACHE 10";
 				String isSwq = "SELECT count(*) FROM All_Sequences where sequence_name='EMP_SEQUENCE'";
@@ -248,7 +247,15 @@ public class CompanyManage {
 			ird.put("PLAN0603", u1.get(0).get("user00"));
 			ird.put("PLAN0604", new Date());
 			this.recordDao.saveObject(ird);
+
+			IRecord plan3Ire = this.recordDao.queryTopOneRecord("PLAN03", "PARENTID='"+fzid+"' and plan0301 = '"+jsonObject.get("qxid")+"'", "pindex");
+			if(plan3Ire!=null){
+				plan3Ire.put("PLAN0302", 2);
+				this.recordDao.saveObject(plan3Ire);
+			}
 		}
+		
+
 		return "success";
 	}
 }

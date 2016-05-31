@@ -59,6 +59,8 @@ createFa=function(){
 			if(e=="seccess"){
 				alert("生成完毕！");
 				gird.reload();
+			}else if(e=="false"){
+				alert("有为设置人员或企业数的区县请先设置！");
 			}
 		}
 	});
