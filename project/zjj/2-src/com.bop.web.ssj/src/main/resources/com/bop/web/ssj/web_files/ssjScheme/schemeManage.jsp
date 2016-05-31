@@ -81,10 +81,21 @@ commitFa = function(){
 }
 
 importExc = function(){
-	alert("导出Excle");
-	//参考对应的民政部的导出
+	var faid = mini.get("faid").value;
+	$.ajax({
+		url:'/ssj/ssjscheme/CreateScheme/exportExcel/'+faid+"?theme=none",
+		type:'get',
+		success:function(e){
+			debugger;
+			var inf = mini.decode(e);
+			if(inf.flag){
+				location.href = decodeURI("/ResourceFiles"+inf.path);
+			}else{
+				alert("导出失败咧！");
+			}
+		}
+	});
 }
-
 
 
 function exportExcel() {

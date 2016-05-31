@@ -2,16 +2,18 @@ Manifest-Version: 1.0
 Bundle-SymbolicName: com.bop.web.ssj
 Built-By: bdsoft
 Bundle-ManifestVersion: 2
-Bnd-LastModified: 1464598228132
+Bnd-LastModified: 1464687951196
 Bundle-Level: 71
-Import-Package: com.bop.domain;version="4.2",com.bop.domain.dao;versio
- n="4.2",com.bop.json;version="4.2",com.bop.module.author;version="4.2
- ",com.bop.module.function;version="4.2",com.bop.module.function.servi
- ce;version="4.2",com.bop.module.log;version="4.2",com.bop.module.reso
- urces;version="4.2",com.bop.module.user;version="4.2",com.bop.web;ver
- sion="4.2",com.bop.web.bopmain;version="1.1",com.bop.web.defaults;ver
- sion="4.2",com.bop.web.rest;version="4.2",org.hibernate;version="4.2"
- ,org.springframework.jdbc.core;version="3.1"
+Import-Package: com.aspose.cells,com.bop.domain;version="4.2",com.bop.
+ domain.dao;version="4.2",com.bop.json;version="4.2",com.bop.module.au
+ thor;version="4.2",com.bop.module.function;version="4.2",com.bop.modu
+ le.function.service;version="4.2",com.bop.module.log;version="4.2",co
+ m.bop.module.resources,com.bop.module.user;version="4.2",com.bop.web;
+ version="4.2",com.bop.web.bopmain;version="1.1",com.bop.web.defaults;
+ version="4.2",com.bop.web.rest;version="4.2",javax.servlet.http;versi
+ on="3.1",net.sf.json;version="2.2",org.apache.commons.lang;version="2
+ .1",org.hibernate;version="4.2",org.springframework.jdbc.core;version
+ ="3.1"
 DynamicImport-Package: *
 Tool: Bnd-0.0.357
 Originally-Created-By: Apache Maven Bundle Plugin
