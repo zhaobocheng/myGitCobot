@@ -9,7 +9,7 @@
 
 <div style="padding:5px;10px;5px;0">
 	<span>方案时间：</span><input class="mini-combobox" id="zftime" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getZfcData?theme=none"/>
-	<a class="mini-button" iconCls="icon-upload" onclick="sbRow()">上报</a>
+	<a class="mini-button" id = "upbur" iconCls="icon-upload" onclick="sbRow()">上报</a>
 </div>
 <div class="mini-fit">
 <div id="layout" class="mini-layout" style="width:100%;height:100%;"  borderStyle="border:solid 1px #aaa;">
@@ -48,22 +48,22 @@
 	            <table style="width:100%;">
 	                <tr>
 	                    <td style="width:100%;" align="center">
-	                        <a class="mini-button"  onclick="leftMove()"  >左移</a>
+	                        <a class="mini-button" id="left" onclick="leftMove()"  >左移</a>
 	                    </td>
 	                </tr>
 	                <tr>
 	                    <td style="width:100%;" align="center">
-	                        <a class="mini-button"  onclick="allLeftMove()" >全部左移</a>
+	                        <a class="mini-button" id="leftall" onclick="allLeftMove()" >全部左移</a>
 	                    </td>
 	                </tr>
 	                <tr>
 	                    <td style="width:100%;" align="center">
-	                        <a class="mini-button"  onclick="rightMove()"  >右移</a>
+	                        <a class="mini-button" id="right" onclick="rightMove()"  >右移</a>
 	                    </td>
 	                </tr>
 	                <tr>
 	                    <td style="width:100%;" align="center">
-	                        <a class="mini-button"   onclick="allRightMove()"  >全部右移</a>
+	                        <a class="mini-button"  id="rightall" onclick="allRightMove()"  >全部右移</a>
 	                    </td>
 	                </tr>
 	            </table>
@@ -90,6 +90,36 @@ grid.load();
 ungrid.load(); 
 
 
+function isup(e){
+	var upButton = mini.get("upbur");
+	var left = mini.get("left");
+	var leftall = mini.get("leftall");
+	var right = mini.get("right");
+	var rightall = mini.get("rightall");
+	jQuery.ajax({
+		url:'/ssj/personmanage/personmanage/getZT/'+e+'?theme=none',
+		type:'post',
+		success:function(e){
+			if(e=="ups"){
+				 upButton.setEnabled(false);
+				 left.setEnabled(false);
+				 leftall.setEnabled(false);
+				 right.setEnabled(false);
+				 rightall.setEnabled(false);
+			}else{
+				 upButton.setEnabled(true);
+				 left.setEnabled(true);
+				 leftall.setEnabled(true);
+				 right.setEnabled(true);
+				 rightall.setEnabled(true);
+			}
+		}	
+	});
+};
+
+isup(zfcom.value);
+
+
 valueChange = function(e){
 	url = "/ssj/personmanage/PersonManage/getSelectedGridData/"+e.value+"?theme=none";
 	url2 = "/ssj/personmanage/PersonManage/getUnSelectedGridData/"+e.value+"?theme=none";
@@ -97,11 +127,11 @@ valueChange = function(e){
 	ungrid.setUrl(url2);
 	grid.load();
 	ungrid.load();
+	isup(e.value);
 }
 
 //上报
 function sbRow(){
-	
 	var zfid = mini.get("zftime").value;
 	jQuery.ajax({
 		url:'/ssj/personmanage/personmanage/upShow/'+zfid+'?theme=none',
@@ -111,6 +141,10 @@ function sbRow(){
 				alert("上报成功！");
 			}else if(e=="select"){
 				alert("请先选择随机人员在上报！");
+			}else if(e=="selects"){
+				alert("有为选择人员的区县，请查看！");
+			}else{
+				alert("该区县以上报！");
 			}
 		}
 	});
@@ -153,8 +187,6 @@ move = function(selectplan,fro){
 			}
 		}
 	});
-	
-	
 }
 </script>
 
