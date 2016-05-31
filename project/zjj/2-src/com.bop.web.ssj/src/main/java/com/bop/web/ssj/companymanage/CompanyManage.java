@@ -246,6 +246,24 @@ public class CompanyManage {
 	 */
 	@Action
 	public String addSJResult(String fzid){
+		
+		//校验有没有设置权重
+		
+		String zone = this.userSession.getCurrentUserZone();
+		if(zone==null||"".equals(zone)){
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+fzid+"' and plan0302 = 2");
+			if(rds.size()==17){
+			}else{
+				return "false";
+			}
+		}else{
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+fzid+"' and plan0301 = '"+zone+"'");
+			if(rds.size()>0){
+			}else{
+				return  "false";
+			}
+		}
+		
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String data = request.getParameter("data");
 		String zsts = request.getParameter("zsts");//至少特设
@@ -282,7 +300,17 @@ public class CompanyManage {
 		String zone = this.userSession.getCurrentUserZone();
 		
 		if(zone==null||"".equals(zone)){
-			return "all";
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0302 >= 3");
+			if(rds.size()==17){
+				return "3";  //以上报
+			}else{
+				Records rds2 = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0302 >= 2");
+				if(rds2.size()==17){
+					return "2";
+				}else{
+					return "select";
+				}
+			}
 		}else{
 			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"'");
 			if(rds.size()>0){
