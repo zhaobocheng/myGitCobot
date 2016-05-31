@@ -1,5 +1,8 @@
 package com.bop.web.ssj.ssjscheme;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,12 +14,30 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.JdbcOperations;
 
+import com.aspose.cells.BorderType;
+import com.aspose.cells.Cell;
+import com.aspose.cells.CellBorderType;
+import com.aspose.cells.Color;
+import com.aspose.cells.License;
+import com.aspose.cells.Row;
+import com.aspose.cells.RowCollection;
+import com.aspose.cells.Style;
+import com.aspose.cells.TextAlignmentType;
+import com.aspose.cells.Workbook;
+import com.aspose.cells.Worksheet;
+import com.aspose.cells.XlsSaveOptions;
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
 import com.bop.domain.dao.DmCodetables;
 import com.bop.domain.dao.IRecord;
+import com.bop.json.ExtGrid;
+import com.bop.json.ExtGridRow;
 import com.bop.json.ExtObject;
 import com.bop.json.ExtObjectCollection;
 import com.bop.json.ExtResultObject;
@@ -28,8 +49,6 @@ import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
 import com.bop.web.rest.Controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 @Controller
 public class CreateScheme {
@@ -113,7 +132,7 @@ public class CreateScheme {
 		//查询数据库
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		Records rds = this.recordDao.queryRecord("PLAN01");
-		
+
 		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
 		for(IRecord rd :rds){
 			ExtObject eo = new ExtObject();
@@ -213,8 +232,7 @@ public class CreateScheme {
 		
 		
 		//先判断是否设置了人员和企业数由plan0302来判断
-		
-		List<IRecord> plan3List = this.recordDao.getByParentId("PLAN03", UUID.fromString(fzid));
+/*		List<IRecord> plan3List = this.recordDao.getByParentId("PLAN03", UUID.fromString(fzid));
 		
 		for(int i=0;i<plan3List.size();i++){
 			IRecord plan3 = plan3List.get(i);
@@ -222,7 +240,7 @@ public class CreateScheme {
 			if(flag==null || !"2".equals(flag.toString())){
 				return "false";
 			}
-		}
+		}*/
 
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		//String faid = this.getP1ReocrdId(fzid);
@@ -271,7 +289,7 @@ public class CreateScheme {
 		//得到一个区县的总人数
 		//Records personRds = this.recordDao.queryRecord("PLAN02", "PLAN0204 = 0 and PLAN0205 = '"+rand01.get("RAND0102",DmCodetables.class).getId()+"'");
 		
-		String personSql = "select * from plan02 t where PLAN0204 = 0 and PLAN0205 = '"+rand01.get("RAND0102",DmCodetables.class).getId()+"'";
+		String personSql = "select * from plan02 t where PLAN0204 = 2 and PLAN0205 = '"+rand01.get("RAND0102",DmCodetables.class).getId()+"'";
 		List<Map<String,Object>> personMap = this.jdbcTemplate.queryForList(personSql);
 		
 		List<IRecord> rand02s = this.recordDao.getByParentId("RAND02", rand01.getRecordId());//得到该区县所有的企业信息
@@ -462,4 +480,294 @@ public class CreateScheme {
 			this.recordDao.saveObject(zfryIre);
 		}
 	}
+	
+	
+	
+
+    @Action
+    public String exportExcel(String faid) throws Exception {
+        
+    	ExtResultObject ero = new ExtResultObject();
+        ActionContext context = ActionContext.getActionContext();
+        HttpServletRequest request = context.getHttpServletRequest();
+        String path = "/temp/gjxfj.xls";
+        // 下载文件流
+        try {
+            String filePath = System.getProperty("resourceFiles.location")+path;
+            
+            File file = new File(filePath);
+            if (file.exists()) {
+                // 删除文件
+                file.delete();
+            }
+
+            // 获得页面当前字段
+            String ziduan = request.getParameter("ziduan");
+
+            // 表头名列表
+            List<String> titleList = new ArrayList<String>();
+            List<String> fieldList = new ArrayList<String>();
+            JSONArray zdjsonarry = JSONArray.fromObject(ziduan);
+            
+            
+            titleList.add("地区");
+            titleList.add("机构代码");
+            titleList.add("单位名称");
+            titleList.add("地址");
+            titleList.add("联系人");
+            titleList.add("电话");
+            titleList.add("检查内容");
+            titleList.add("检查人");
+            titleList.add("涉及事项");
+            
+            fieldList.add("dq");
+            fieldList.add("jgdm");
+            fieldList.add("dwmc");
+            fieldList.add("dz");
+            fieldList.add("lxr");
+            fieldList.add("phone");
+            fieldList.add("jcnr");
+            fieldList.add("jcr");
+            fieldList.add("sjly");
+            
+            
+           /* for (int i = 0; i < zdjsonarry.size(); i++) {
+                titleList.add(zdjsonarry.getJSONObject(i).get("text").toString());
+                fieldList.add(zdjsonarry.getJSONObject(i).get("id").toString());
+            }*/
+            
+            String sheetName = "随机方案清单";
+  
+            // 调用方法查询返回数据
+            String list = this.getData(faid);
+            // 将返回的list转json对象
+            JSONObject a = JSONObject.fromObject(list);
+            // 取得对象中key为"ArrData"的集合
+            JSONArray jsonarry = a.getJSONArray("ArrData");
+            List<JSONObject> jsonList = new ArrayList<JSONObject>();
+            // 遍历集合,转成json对象加入集合
+            for (int i = 0; i < jsonarry.size(); i++) {
+                JSONObject jsonObject = (JSONObject) jsonarry.get(i);
+                jsonList.add(jsonObject);
+            }
+            // 是否有记录
+            if (jsonList.size() > 0 && jsonList != null) {
+                // 生成excel
+                createExcelForExtRow(titleList, fieldList, jsonList, filePath, sheetName);
+                ero.add("flag", true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            ero.add("flag", false);
+        }
+        ero.add("path", path);
+        return ero.toString();
+    }
+    
+
+    @Action
+    private void createExcelForExtRow(List<String> titleList, List<String> fieldList,
+            List<JSONObject> recordList, String filePath, String sheetName) throws IOException {
+
+        try {
+            // 服务器路径
+            String servicePath = this.getServicePath();
+            String licFilePath = servicePath + File.separator + "license" + File.separator
+                    + "Aspose.Total.Product.Family.lic";
+
+            License cellLic = new License();
+            cellLic.setLicense(licFilePath);
+
+            // 新建excel
+            Workbook wb = new Workbook();
+            // 打开excel中第一个sheet
+            Worksheet worksheet = wb.getWorksheets().get(0);
+            // 设置sheet名称
+            worksheet.setName(sheetName);
+            // 获取行集合
+            RowCollection rows = worksheet.getCells().getRows();
+            int styleIndex = wb.getStyles().add();
+            // 设置cell样式
+            Style style = wb.getStyles().get(styleIndex);
+            // 设置文本自动换行
+            style.setTextWrapped(false);
+            style.setBorder(BorderType.TOP_BORDER, CellBorderType.THIN, Color.getBlack());
+            style.setBorder(BorderType.BOTTOM_BORDER, CellBorderType.THIN, Color.getBlack());
+            style.setBorder(BorderType.LEFT_BORDER, CellBorderType.THIN, Color.getBlack());
+            style.setBorder(BorderType.RIGHT_BORDER, CellBorderType.THIN, Color.getBlack());
+            style.setHorizontalAlignment(TextAlignmentType.CENTER);
+            int stratRow = 0;
+
+
+            // 写入表头
+            for (int ti = 0; ti < titleList.size(); ti++) {
+                Row row = rows.get(0);
+                Cell cell = row.get(ti);
+                cell.setValue(titleList.get(ti));
+                cell.setStyle(style);
+            }
+
+            
+ 
+            // 写入记录
+            stratRow = stratRow + 1;
+            for (JSONObject jsonRows : recordList) {
+                Row row = rows.get(stratRow);
+                for (int fi = 0; fi < fieldList.size(); fi++) {
+                    // 获得表头字段
+                    String feildName = fieldList.get(fi);
+                    // Object objfeild = jsonRows.get(feildName);
+                    // 获得当前行的单元格
+                    Cell cell = row.get(fi);
+                    // 根据表头字段设置单元格值
+                    // 查询码
+                    if (StringUtils.equals("dq", feildName)) {
+                        if(jsonRows.has("dq")){
+                         cell.setValue(jsonRows.get("dq"));   
+                        }else{
+                            cell.setValue("");   
+                           }
+                    } else if (StringUtils.equals("jgdm", feildName)) {
+                        if(jsonRows.has("jgdm")){
+                            cell.setValue(jsonRows.get("jgdm"));  
+                        }else{
+                            cell.setValue("");   
+                           }
+                    } else if (StringUtils.equals("dwmc", feildName)) {
+                        if(jsonRows.has("dwmc")){
+                            cell.setValue(jsonRows.get("dwmc")); 
+                        }else{
+                            cell.setValue("");   
+                           }
+
+                    } else if (StringUtils.equals("dz", feildName)) {
+                        if(jsonRows.has("dz")){
+                            cell.setValue(jsonRows.get("dz")); 
+                        }else{
+                            cell.setValue("");   
+                           }
+
+                    } else if (StringUtils.equals("lxr", feildName)) {
+                        if(jsonRows.has("lxr")){
+                            cell.setValue(jsonRows.get("lxr")); 
+                        }else{
+                            cell.setValue("");   
+                           }
+
+                    } else if (StringUtils.equals("phone", feildName)) {
+                        if(jsonRows.has("phone")){
+                            cell.setValue(jsonRows.get("phone")); 
+                        }else{
+                            cell.setValue("");   
+                           }
+
+                    } else if (StringUtils.equals("jcnr", feildName)) {
+                        if(jsonRows.has("jcnr")){
+                            cell.setValue(jsonRows.get("jcnr")); 
+                        }else{
+                            cell.setValue("");   
+                           }
+
+                    }
+                    // 设置单元格样式
+                    cell.setStyle(style);
+                }
+                stratRow++;
+            }
+
+
+            worksheet.autoFitColumns();
+            // 保存文件
+            wb.save(filePath, new XlsSaveOptions());
+
+        } catch (FileNotFoundException fnfe) {
+            fnfe.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * 取得服务器的文件路径
+     * 
+     * @return 文件路径
+     */
+    public static final String getServicePath() {
+        String path = System.getProperty("resourceFiles.location");
+        if (StringUtils.isEmpty(path)) {
+            return StringUtils.EMPTY;
+        }
+
+        File filePath = new File(path);
+        if (filePath == null || !filePath.isDirectory()) {
+            return StringUtils.EMPTY;
+        } else {
+            return filePath.getAbsolutePath();
+        }
+    }
+    
+    
+    /**
+     * 导出
+     * 
+     * @param 导出列表的查询条件
+     *            、页面信息
+     * @return 导出
+     * @throws Exception
+     * @author yangruizhi
+     * @since 2014/10/29
+     */
+    @Action
+    private String getData(String fzid) {
+
+        String rtnlist = StringUtils.EMPTY;
+        ExtGrid rtnExtGrid = new ExtGrid();
+
+
+		String zone = this.userSession.getCurrentUserZone();
+		String whereSql = null;
+//		String querySql = null;
+		if(zone==null||"".equals(zone)){
+			whereSql = "parentid = '"+fzid+"'";
+//			querySql = "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid not in ('110302','110000')";
+		}else{
+			whereSql = "parentid = '"+fzid+"' and PLAN1204 = '"+zone+"'";
+//			querySql = "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid = '"+zone+"'";
+		}
+    // 根据querySql查询返回 ExtGridRow结果集
+    //    List<Map<String,Object>> rowlist = this.jdbcTemplate.queryForList(whereSql);
+		Records ires  = this.recordDao.queryRecord("PLAN12", whereSql,"plan1204");
+		
+        List<ExtGridRow> rowlist2 = new ArrayList<ExtGridRow>();
+        for (IRecord ire : ires) {
+        	ExtGridRow eRow = new ExtGridRow();
+			String personInf[] = this.getJCRData(ire.getRecordId());
+			eRow.add("id", ire.getRecordId());
+			eRow.add("dq", ire.get("PLAN1204",DmCodetables.class).getCaption());
+			eRow.add("jgdm", ire.get("PLAN1202"));
+			eRow.add("dwmc", ire.get("PLAN1203"));
+			eRow.add("dz",  ire.get("PLAN1205"));
+			eRow.add("lxr", ire.get("PLAN1206"));
+			eRow.add("phone", ire.get("PLAN1207"));
+			eRow.add("jcnr",  ire.get("PLAN1208"));
+			eRow.add("jcrid", personInf[0]);
+			eRow.add("jcr",  personInf[1]);
+			
+			eRow.add("sjly", ire.get("PLAN09")==null?"":ire.get("PLAN1209",DmCodetables.class).getCaption());
+            rowlist2.add(eRow);
+        }
+        rtnExtGrid.rows.addAll(rowlist2);
+        rtnlist = rtnExtGrid.toString();
+        
+        return rtnlist;
+    }
+
+    
+    
+    
+    
+    
+    
 }
