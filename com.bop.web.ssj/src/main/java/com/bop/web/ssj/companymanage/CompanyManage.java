@@ -52,9 +52,9 @@ public class CompanyManage {
 
 		String sql= "select t.cid,t.caption,org.orgnum,per.pernum,p6.plan0602 from dm_codetable_data t "+
 					" left join (select count(*) orgnum,reg_district_dic  from ORG01 group by reg_district_dic ) org on org.reg_district_dic = t.cid"+
-					" left join (select count(*) pernum,DEPARTMENT_ID from A01 group by DEPARTMENT_ID ) per on per.DEPARTMENT_ID = t.cid"+
+					" left join (select count(*) pernum,plan0205 from plan02 where plan0204 = 1 group by plan0205) per on per.plan0205 = t.cid"+
 					" left join plan06 p6 on p6.plan0601 = t.cid and p6.parentid = '"+ fzid+
-					"' where t.codetablename = 'DB064' and  t.cid not in ('110302','110000') order by t.cid ";
+					"' where t.codetablename = 'DB064' and  t.cid != '110000' order by t.cid ";
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
 
 		if(resultList.size()>0){
