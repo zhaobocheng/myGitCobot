@@ -1,7 +1,9 @@
 package com.bop.web.ssj.companymanage;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,6 +20,7 @@ import com.bop.domain.Records;
 import com.bop.domain.dao.IRecord;
 import com.bop.json.ExtObject;
 import com.bop.json.ExtObjectCollection;
+import com.bop.json.ExtResultObject;
 import com.bop.module.user.UserService;
 import com.bop.module.user.dao.User01;
 import com.bop.web.CommonSession;
@@ -106,16 +109,43 @@ public class CompanyManage {
 		String qzrzsy = request.getParameter("qzrzsy").toString();
 		String bzsy = request.getParameter("bzsy").toString();
 		
-		//String zfid = getP1ReocrdId(faid);
-		
 		this.saveWeightConfig("ts",ts,tssy,fzid);
 		this.saveWeightConfig("jl",jl,jlsy,fzid);
 		this.saveWeightConfig("qzrz",qzrz,qzrzsy,fzid);
 		this.saveWeightConfig("bz",bz,bzsy,fzid);
 
-
+		ExtResultObject ero = new ExtResultObject();
+		String zone = this.userSession.getCurrentUserZone();
+		List<String> unSetList = new ArrayList<String>();
+		//r如果是么个区县设置权重
+		if(zone==null||"".equals(zone)){
+			String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid <> '110000'";
+			List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
+		
+			if(resultList.size()>0){
+				for(Map<String,Object> map:resultList){
+					String flag = this.setRandm(fzid, map.get("cid").toString());
+					if("false".equals(flag)){
+						unSetList.add(map.get("cid").toString());
+					}
+				}
+				
+				if(unSetList.size()>0){
+					ero.add("flag", "unset");
+					ero.add("text", unSetList);
+				}else{
+					ero.add("flag", "success");
+				}
+			}
+		}else{
+			String flag = this.setRandm(fzid, zone);
+			if("true".equals(flag))
+				ero.add("flag", "success");
+			else 
+				ero.add("flag", "faile");
+		}
 		//当得到权重的时候要向随机库中放对应的随机基数
-		String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid <> '110000'";
+		/*String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid <> '110000'";
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
 	
 		if(resultList.size()>0){
@@ -152,7 +182,7 @@ public class CompanyManage {
 				//生成对应的rand02记录，随机基础数据
 				//Records orgRec = this.recordDao.queryRecord("ORG01", "REG_DISTRICT_DIC='"+map.get("cid")+"'");//得到该地区所有的企业记录
 
-				/*
+				
 				   for(IRecord org:orgRec){
 					IRecord org2 = this.recordDao.queryTopOneRecord("ORG02", "parentid='"+org.getRecordId()+"'", "parentid");//得到企业对应的权重特性
 					boolean flag = true;
@@ -178,26 +208,62 @@ public class CompanyManage {
 					if(flag){
 						this.createRandBase(1,org2,rand1ID);
 					}
-				}*/
+				}
 				
 				String upSql = "update plan03 set plan0302 = 2 where parentid = '"+fzid+"' and plan0301 = '"+map.get("cid").toString()+"'";
 				this.jdbcTemplate.execute(upSql);
-				
-/*				IRecord p3Ire = this.recordDao.queryTopOneRecord("plan03", "parentid = '"+fzid+"' and plan0301 = '"+map.get("cid").toString()+"'", "plan0301");
-				if(p3Ire!=null){
-					p3Ire.put("PLAN0302", 2);
-					this.recordDao.saveObject(p3Ire);
-				}*/
 			}
-		}
-		
-/*		IRecord p3Ire = this.recordDao.queryTopOneRecord("plan03", "parentid = '"+fzid+"' and plan0301 = '"+this.userSession.getCurrentUserZone()+"'", "pindex");
-		if(p3Ire!=null){
-			p3Ire.put("plan0302", "2");
 		}*/
-		
-		return "success";
+		return ero.toString();
 	}
+	
+
+	/**
+	 * 初始化随机基数表
+	 * @param zone
+	 * @return
+	 */
+	private String setRandm(String fzid,String zone){
+		String sql= "select * from plan03   where parentid = '"+fzid+"' and PLAN0301 = '"+zone+"'";
+		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
+
+		if(resultList.size()>0 && "1".equals(resultList.get(0).get("plan0302").toString())){
+			Map<String,Object> map = resultList.get(0);
+			//生成对应的rand01记录    这里做判定如果已经产生了就不在插入了
+			UUID rand1ID = UUID.randomUUID();
+			IRecord ran1 = this.recordDao.createNew("RAND01", rand1ID, rand1ID);
+			ran1.put("RAND0102", map.get("PLAN0301"));
+			ran1.put("RAND0101", fzid);
+			this.recordDao.saveObject(ran1);
+
+			 //建立序列号的语句
+			String sequencesSql = "CREATE SEQUENCE emp_sequence  INCREMENT BY 1   START WITH 1  NOMAXVALUE   NOCYCLE  CACHE 10";
+			String isSwq = "SELECT count(*) FROM All_Sequences where sequence_name='EMP_SEQUENCE'";
+			int swq = this.jdbcTemplate.queryForInt(isSwq);
+
+			if(swq>0){
+				String dropSeqSql = "DROP SEQUENCE emp_sequence";
+				this.jdbcTemplate.execute(dropSeqSql);
+			}
+			this.jdbcTemplate.execute(sequencesSql);
+
+			//这种情况不考虑权重，既所有设置的权重都是1
+			String exeSql = "insert into RAND02 select get_uuid,get_uuid,'"+rand1ID+"',null,emp_sequence.nextval,"+
+							" t.parentid,t.org0201,t.org0202,t.org0203,t.org0204 "+
+							" from org02 t where t.parentid in (select tt.org00 from ORG01 tt where tt.REG_DISTRICT_DIC = '"+map.get("PLAN0301")+"')";
+			this.jdbcTemplate.execute(exeSql);
+			
+			String upSql = "update plan03 set plan0302 = 2 where parentid = '"+fzid+"' and plan0301 = '"+zone+"'";
+			this.jdbcTemplate.execute(upSql);
+			
+			return "true";
+		}else{
+			//请选确认执法人员
+			return "false";
+		}
+	}
+	
+	
 	
 	
 	
@@ -248,50 +314,57 @@ public class CompanyManage {
 	public String addSJResult(String fzid){
 		
 		//校验有没有设置权重
-		
-		String zone = this.userSession.getCurrentUserZone();
-/*		if(zone==null||"".equals(zone)){
-			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+fzid+"' and plan0302 = 2");
-			if(rds.size()==17){
-			}else{
-				return "false";
-			}
-		}else{
-			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+fzid+"' and plan0301 = '"+zone+"'");
-			if(rds.size()>0){
-			}else{
-				return  "false";
-			}
-		}*/
+		ExtResultObject ero = new ExtResultObject();
 		
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String data = request.getParameter("data");
 		String zsts = request.getParameter("zsts");//至少特设
 		String zsjl = request.getParameter("zsjl");//至少计量
-		
-		Records u1 = this.recordDao.queryRecord("USER01", "user0101 = '"+this.userSession.getCurrentUserId()+"'");
-		
 		JSONArray array = JSONArray.fromObject(data);
+		
+		List<Map<String,String>> useQX = new ArrayList<Map<String,String>>();
+		List<String> unUseQX = new ArrayList<String>();
+		
 		for(int i=0;i<array.size();i++){
 			JSONObject jsonObject = (JSONObject) array.get(i);
-			IRecord ird = this.recordDao.createNew("PLAN06", UUID.fromString(jsonObject.get("id").toString()), UUID.fromString(fzid));
-			ird.put("PLAN0601", jsonObject.get("qxid"));
-			ird.put("PLAN0602", jsonObject.get("sjqyzs"));
+			String qxid = jsonObject.get("qxid").toString();
+			Records ird = this.recordDao.queryRecord("PLAN03", "parentid = '"+fzid+"' and plan0301 = '"+qxid+"'");
+			
+			if(ird.size()>0){
+				Object p3 = ird.get(0).get("plan0302");
+				if(p3!=null && "2".equals(p3.toString())){
+					Map<String,String> map = new HashMap<String,String>();
+					map.put("id", jsonObject.get("id").toString());
+					map.put("qxid", jsonObject.get("qxid").toString());
+					map.put("sjqyzs", jsonObject.get("sjqyzs").toString());
+					useQX.add(map);
+				}else{
+					unUseQX.add(qxid);
+				}
+			}else{
+				unUseQX.add(qxid);
+			}
+		}
+
+		//对于已经设置权重的
+		Records u1 = this.recordDao.queryRecord("USER01", "user0101 = '"+this.userSession.getCurrentUserId()+"'");
+		for(int i=0;i<useQX.size();i++){
+			Map<String,String> map = useQX.get(i);
+
+			IRecord ird = this.recordDao.createNew("PLAN06", UUID.fromString(map.get("id")), UUID.fromString(fzid));
+			ird.put("PLAN0601", map.get("qxid"));
+			ird.put("PLAN0602", map.get("sjqyzs"));
 			ird.put("PLAN0603", u1.get(0).get("user00"));
 			ird.put("PLAN0604", new Date());
 			this.recordDao.saveObject(ird);
 
-
-			String upSql = "update plan03 set plan0302 = 3 where parentid = '"+fzid+"' and plan0301 = '"+jsonObject.get("qxid")+"'";
+			String upSql = "update plan03 set plan0302 = 3 where parentid = '"+fzid+"' and plan0301 = '"+map.get("qxid")+"'";
 			this.jdbcTemplate.execute(upSql);
-
-			/*IRecord plan3Ire = this.recordDao.queryTopOneRecord("PLAN03", "PARENTID='"+fzid+"' and plan0301 = '"+jsonObject.get("qxid")+"'", "pindex");
-			if(plan3Ire!=null){
-				plan3Ire.put("PLAN0302", 3);
-				this.recordDao.saveObject(plan3Ire);
-			}*/
 		}
-		return "success";
+
+		ero.add("flag", true);
+		ero.add("unuse", unUseQX.toString());
+		return ero.toString();
 	}
 	
 	

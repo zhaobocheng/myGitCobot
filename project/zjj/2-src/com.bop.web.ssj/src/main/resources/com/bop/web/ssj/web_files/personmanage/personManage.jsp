@@ -137,12 +137,14 @@ function sbRow(){
 		url:'/ssj/personmanage/personmanage/upShow/'+zfid+'?theme=none',
 		type:'post',
 		success:function(e){
-			if(e=="success"){
+			var inf = mini.decode(e);
+
+			if(inf.flag=="success"||inf.flag=="alls"){
 				alert("上报成功！");
-			}else if(e=="select"){
+			}else if(inf.flag=="select"){
 				alert("请先选择随机人员在上报！");
-			}else if(e=="selects"){
-				alert("有为选择人员的区县，请查看！");
+			}else if(inf.flag=="allu"){
+				alert("有未选择人员的区县"+inf.text+"，请查看！");
 			}else{
 				alert("该区县以上报！");
 			}

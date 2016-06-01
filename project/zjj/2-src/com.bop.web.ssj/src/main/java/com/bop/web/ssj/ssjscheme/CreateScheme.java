@@ -233,42 +233,57 @@ public class CreateScheme {
 	 */
 	@Action
 	public String createSchemeDate(String fzid){
-		
-
-		//先判断是否设置了人员和企业数由plan0302来判断
-		List<IRecord> plan3List = this.recordDao.getByParentId("PLAN03", UUID.fromString(fzid));
-		
-/*		for(int i=0;i<plan3List.size();i++){
-			IRecord plan3 = plan3List.get(i);
-			Object flag = plan3.get("PLAN0302");
-			if(flag==null || 3 > Integer.parseInt(flag.toString())){
-				return "false";
-			}
-		}*/
-
 		ExtObjectCollection eoc = new ExtObjectCollection();
-		//String faid = this.getP1ReocrdId(fzid);
 		
 		List<IRecord> plan06List = this.recordDao.getByParentId("PLAN06", UUID.fromString(fzid));
-		List<String> orglist = new ArrayList<String>();  //存放所有抽取企业的容器
 		Map<String,ArrayList> orgmap = new HashMap<String,ArrayList>();
+		
 		//对每个区县进行抽取
 		for(IRecord plan06:plan06List){
 			this.rultGridData("root", plan06,null, eoc,fzid);
 			//开始抽取 得到每个区县的抽取个数,并放入总抽取容器中
+			String qxid = "";
+			String p6flag ="false";
+
+			//判定一个区县符不符合随机的条件
 			if(plan06.get("PLAN0602")!=null){
-				IRecord rand01 = this.recordDao.queryTopOneRecord("RAND01", "RAND0101 = '"+fzid+"' and RAND0102='"+plan06.get("PLAN0601",DmCodetables.class).getId()+"'","RAND0101");
+				qxid= plan06.get("PLAN0601",DmCodetables.class).getId();
+				Records p3s = this.recordDao.queryRecord("PLAN03", "parentid = '"+fzid+"' and plan0301 = '"+qxid+"'");
+				if(p3s.size()>0){
+					Object p3 = p3s.get(0).get("plan0302");
+					if(p3!=null && "3".equals(p3.toString())){
+						p6flag = "true";
+					}else if(p3!=null && "4".equals(p3.toString())){
+						p6flag = "true";
+					}else{
+						//该区县没有设置人员权重或企业数或已经生成方案提交
+					}
+				}else{
+					//该区县没有设置人员
+				}
+			}else{
+				//这个区县不抽取任何企业
+			}
+			
+			if(p6flag.equals("true")){
+				IRecord rand01 = this.recordDao.queryTopOneRecord("RAND01", "RAND0101 = '"+fzid+"' and RAND0102='"+qxid+"'","RAND0101");
+				int allCqOrg = Integer.parseInt(plan06.get("PLAN0602").toString());//得到该区县要抽取的企业个数
+				this.getQxCqOrg(allCqOrg,rand01,orgmap);
+
+				//清除这个方案已经有的临时数据先检查人员后企业
+				this.jdbcTemplate.execute("delete from PLAN1201 where parentid in (select recordid from PLAN12 where parentid = '"+fzid+"' and plan1210 = '保存' and plan1204 = '"+qxid+"')");
+				this.jdbcTemplate.execute("delete from PLAN12 where parentid = '"+fzid+"' and plan1210 = '保存' and plan1204 = '"+qxid+"'");
+			}
+
+			/*if(plan06.get("PLAN0602")!=null){
+				IRecord rand01 = this.recordDao.queryTopOneRecord("RAND01", "RAND0101 = '"+fzid+"' and RAND0102='"+qxid+"'","RAND0101");
 				int allCqOrg = Integer.parseInt(plan06.get("PLAN0602").toString());//得到该区县要抽取的企业个数
 				this.getQxCqOrg(allCqOrg,rand01,orgmap);
 			}else{
 				//这个区县不抽取任何企业
-			}
+			}*/
 		}
 
-		//清除这个方案已经有的临时数据先检查人员后企业
-		this.jdbcTemplate.execute("delete from PLAN1201 where plan00 = '"+fzid+"' and plan120104 = '保存'");
-		this.jdbcTemplate.execute("delete from PLAN12 where parentid = '"+fzid+"' and plan1210 = '保存'");
-		
 		//抽取完毕，进行遍历返回台展现
 		  for (Map.Entry<String, ArrayList> entry : orgmap.entrySet()) {
 			   IRecord orgIcd = this.recordDao.getRecord("ORG01", UUID.fromString(entry.getKey()));
@@ -660,7 +675,7 @@ public class CreateScheme {
             titleList.add("地址");
             titleList.add("联系人");
             titleList.add("电话");
-            titleList.add("检查内容");
+      //      titleList.add("检查内容");
             titleList.add("检查人");
             titleList.add("涉及事项");
             
@@ -670,7 +685,7 @@ public class CreateScheme {
             fieldList.add("dz");
             fieldList.add("lxr");
             fieldList.add("phone");
-            fieldList.add("jcnr");
+      //      fieldList.add("jcnr");
             fieldList.add("jcr");
             fieldList.add("sjly");
             
@@ -808,6 +823,20 @@ public class CreateScheme {
                         if(jsonRows.has("jcnr")){
                             cell.setValue(jsonRows.get("jcnr")); 
                         }else{
+                            cell.setValue("");
+                           }
+
+                    }else if (StringUtils.equals("jcr", feildName)) {
+                        if(jsonRows.has("jcr")){
+                            cell.setValue(jsonRows.get("jcr")); 
+                        }else{
+                            cell.setValue("");   
+                           }
+
+                    }else if (StringUtils.equals("sjly", feildName)) {
+                        if(jsonRows.has("sjly")){
+                            cell.setValue(jsonRows.get("sjly")); 
+                        }else{
                             cell.setValue("");   
                            }
 
@@ -897,8 +926,7 @@ public class CreateScheme {
 			eRow.add("jcnr",  ire.get("PLAN1208"));
 			eRow.add("jcrid", personInf[0]);
 			eRow.add("jcr",  personInf[1]);
-			
-			eRow.add("sjly", ire.get("PLAN09")==null?"":ire.get("PLAN1209",DmCodetables.class).getCaption());
+			eRow.add("sjly", this.getJSLY(ire.get("PLAN1202").toString()));
             rowlist2.add(eRow);
         }
         rtnExtGrid.rows.addAll(rowlist2);

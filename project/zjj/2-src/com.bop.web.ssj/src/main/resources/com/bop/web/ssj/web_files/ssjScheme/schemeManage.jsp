@@ -67,7 +67,12 @@ isup(zfcom.value);
 
 
 valueChange = function(e){
-	url = "/ssj/ssjScheme/CreateScheme/getSchemeDate/"+e.value+"?theme=none";
+	gridLoad(e.value)
+	isup(e.value);
+}
+
+gridLoad = function(value){
+	url = "/ssj/ssjScheme/CreateScheme/getSchemeDate/"+value+"?theme=none";
 	grid.setUrl(url);
 	grid.reload();
 	isup(e.value);
@@ -82,7 +87,7 @@ createFa=function(){
 		success:function(e){
 			if(e=="seccess"){
 				alert("生成完毕！");
-				gird.reload();
+				gridLoad(faid);
 			}else if(e=="false"){
 				alert("有未设置人员或企业数的区县请先设置！");
 			}

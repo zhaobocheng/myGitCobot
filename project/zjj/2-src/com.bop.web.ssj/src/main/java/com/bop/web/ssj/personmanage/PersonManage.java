@@ -1,6 +1,7 @@
 package com.bop.web.ssj.personmanage;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,11 @@ import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
 import com.bop.domain.dao.DmCodetables;
 import com.bop.domain.dao.IRecord;
+import com.bop.json.ExtGrid;
+import com.bop.json.ExtGridRow;
 import com.bop.json.ExtObject;
 import com.bop.json.ExtObjectCollection;
+import com.bop.json.ExtResultObject;
 import com.bop.module.user.UserService;
 import com.bop.module.user.dao.User01;
 import com.bop.web.CommonSession;
@@ -55,6 +59,10 @@ public class PersonManage {
 	public String getUnSelectedGridData(String faid){
 		//查询数据库
 		
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		int pageIndex = request.getParameter("pageIndex")==null?0:Integer.parseInt(request.getParameter("pageIndex").toLowerCase());
+		int pageSize = request.getParameter("pageSize")==null?20:Integer.parseInt(request.getParameter("pageSize").toLowerCase());
+		
 		String zone = this.userSession.getCurrentUserZone();
 		String whereSql = null;
 		if(zone==null||"".equals(zone)){
@@ -63,16 +71,30 @@ public class PersonManage {
 			whereSql = "plan0204 = '1' and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 		}
 		
-		Records rds = this.recordDao.queryRecord("PLAN02", whereSql);
-		ExtObjectCollection eoc = new ExtObjectCollection();
+		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", pageIndex, pageSize);
+		Records totalrds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205");
+		
+		ExtGrid eg = new ExtGrid();
+		eg.setTotal(totalrds.size());
+
+		for(IRecord ird:rds){
+			ExtGridRow eo = new ExtGridRow();
+			eo.add("id", ird.getRecordId());
+			eo.add("unSeletedName", ird.get("plan0202"));
+			eo.add("unSeletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
+			eg.rows.add(eo);
+		}
+		
+		
+/*		ExtObjectCollection eoc = new ExtObjectCollection();
 		for(IRecord ird:rds){
 			ExtObject eo = new ExtObject();
 			eo.add("id", ird.getRecordId());
 			eo.add("unSeletedName", ird.get("plan0202"));
 			eo.add("unSeletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
 			eoc.add(eo);
-		}
-		return eoc.toString();
+		}*/
+		return eg.toString();
 	}
 	/**
 	 * getP1ReocrdId
@@ -83,6 +105,9 @@ public class PersonManage {
 	public String getSelectedGridData(String faid){
 
 		//查询数据库
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		int pageIndex = request.getParameter("pageIndex")==null?0:Integer.parseInt(request.getParameter("pageIndex").toLowerCase());
+		int pageSize = request.getParameter("pageSize")==null?20:Integer.parseInt(request.getParameter("pageSize").toLowerCase());
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		String zone = this.userSession.getCurrentUserZone();
 		String whereSql = null;
@@ -92,16 +117,21 @@ public class PersonManage {
 			whereSql = "plan0204 <> '1' and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 		}
 		
-		Records rds = this.recordDao.queryRecord("PLAN02", whereSql);
+		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", pageIndex, pageSize);
+		Records totalrds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205");
+		
+		ExtGrid eg = new ExtGrid();
+		eg.setTotal(totalrds.size());
+
 		for(IRecord ird:rds){
-			ExtObject eo = new ExtObject();
+			ExtGridRow eo = new ExtGridRow();
 			eo.add("id", ird.getRecordId());
 			eo.add("seletedName", ird.get("plan0202"));
-			//eo.add("seletedDept", ird.get("PLAN0205"));
 			eo.add("seletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
-			eoc.add(eo);
+			eg.rows.add(eo);
 		}
-		return eoc.toString();
+		
+		return eg.toString();
 	}
 	/**
 	 * 根据方案列表时间得到对应的方案ID
@@ -165,21 +195,37 @@ public class PersonManage {
 	@Action
 	public String upShow(String faid){
 		String zone = this.userSession.getCurrentUserZone();
-		String returnsql = null;
+		
+		List<String> unSelectList = new ArrayList<String>();
+		ExtResultObject ero = new ExtResultObject();
+		
 		if(zone==null||"".equals(zone)){
 			String qureySql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid <> '110000'";
 			List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(qureySql);
 			for(Map<String,Object> map:resultList){
-				returnsql = this.changeUpshow(faid, map.get("cid").toString());
-				if("select".equals(resultList)){
-					returnsql = "selects";
-					break;
+				String returnsql = this.changeUpshow(faid, map.get("cid").toString());
+				if(!"ups".equals(returnsql) &&!"success".equals(returnsql)){
+					unSelectList.add(returnsql);
 				}
 			}
+			if(unSelectList.size()>0){
+				ero.add("text", unSelectList.toArray());
+				ero.add("flag", "allu");
+			}else{
+				ero.add("flag", "alls");
+			}
+			return ero.toString();
 		}else{
-			returnsql = this.changeUpshow(faid, zone);
+			String returnsql = this.changeUpshow(faid, zone);
+			if("success".equals(returnsql)){
+				ero.add("flag", "success");
+			}else if("ups".equals(returnsql)){
+				ero.add("flag", "ups");
+			}else{
+				ero.add("flag", "select");
+			}
+			return ero.toString();
 		}
-		return returnsql;
 	}
 	
 	private String changeUpshow(String faid,String zone){
@@ -201,7 +247,7 @@ public class PersonManage {
 			if(rds.size()>0){
 				return "ups";  //以上报
 			}else{
-				return "select";   //需要选择对象
+				return zone;   //需要选择对象
 			}
 		}
 	}
