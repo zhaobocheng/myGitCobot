@@ -250,7 +250,7 @@ public class CompanyManage {
 		//校验有没有设置权重
 		
 		String zone = this.userSession.getCurrentUserZone();
-		if(zone==null||"".equals(zone)){
+/*		if(zone==null||"".equals(zone)){
 			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+fzid+"' and plan0302 = 2");
 			if(rds.size()==17){
 			}else{
@@ -262,7 +262,7 @@ public class CompanyManage {
 			}else{
 				return  "false";
 			}
-		}
+		}*/
 		
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String data = request.getParameter("data");

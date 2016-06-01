@@ -211,11 +211,11 @@
 		function mommit() {
 
 			grid.validate();
-			if (grid.isValid() == false) {
+/* 			if (grid.isValid() == false) {
 				var error = grid.getCellErrors()[0];
 				grid.beginEditCell(error.record, error.column);
 				return;
-			}
+			} */
 			var data = grid.getChanges();
 			var json = mini.encode(data);
 			var zfid = mini.get("zftime").value;
