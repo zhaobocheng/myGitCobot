@@ -238,13 +238,13 @@ public class CreateScheme {
 		//先判断是否设置了人员和企业数由plan0302来判断
 		List<IRecord> plan3List = this.recordDao.getByParentId("PLAN03", UUID.fromString(fzid));
 		
-		for(int i=0;i<plan3List.size();i++){
+/*		for(int i=0;i<plan3List.size();i++){
 			IRecord plan3 = plan3List.get(i);
 			Object flag = plan3.get("PLAN0302");
 			if(flag==null || 3 > Integer.parseInt(flag.toString())){
 				return "false";
 			}
-		}
+		}*/
 
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		//String faid = this.getP1ReocrdId(fzid);
