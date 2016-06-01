@@ -246,11 +246,12 @@ public class PersonManage {
 		int allUpCount = this.jdbcTemplate.queryForInt(upSql);
 		if(allUpCount>0){
 			this.jdbcTemplate.execute(updataSql);
-			Object [] args = new Object[3];
-			String sql = "insert into plan03 values(get_uuid,get_uuid,?,1,?,?)";
+			Object [] args = new Object[4];
+			String sql = "insert into plan03(recordid,parentid,plan00,pindex,plan0301,plan0302) values(get_uuid,?,?,1,?,?)";
 			args[0]=faid;
-			args[1]=zone;
-			args[2]=1;
+			args[1]=faid;
+			args[2]=zone;
+			args[3]=1;
 			this.jdbcTemplate.update(sql, args);
 			return "success";
 		}else{
