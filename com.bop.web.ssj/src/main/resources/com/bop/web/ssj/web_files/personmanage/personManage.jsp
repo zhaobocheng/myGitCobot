@@ -30,7 +30,7 @@
     <!-- 右侧选择人员 -->
     <div title="参与随机执法人员" region="east"   showSplitIcon="true" minWidth = "500px"  >
 		<div id="selectedgrid" class="mini-datagrid" style="width:100%;height:98%" url=""
-		allowResize="true" sizeList="[20,30,50,100]" pageSize="20" showFooter="true" multiSelect="true" >
+		allowResize="true" sizeList="[20,30,50,100]" pageSize="20" showFooter="true" multiSelect="true">
 			<div property="columns">
 				<div type="checkcolumn" width="20"></div>
 				<div type="indexcolumn" width="20">序号</div>
@@ -142,11 +142,11 @@ function sbRow(){
 			if(inf.flag=="success"||inf.flag=="alls"){
 				alert("上报成功！");
 			}else if(inf.flag=="select"){
-				alert("请先选择随机人员在上报！");
+				alert("请先选择随机人员再上报！");
 			}else if(inf.flag=="allu"){
 				alert("有未选择人员的区县"+inf.text+"，请查看！");
 			}else{
-				alert("该区县以上报！");
+				alert("该区县已上报！");
 			}
 		}
 	});

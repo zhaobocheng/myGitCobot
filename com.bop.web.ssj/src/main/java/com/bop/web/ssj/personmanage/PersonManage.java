@@ -23,9 +23,7 @@ import com.bop.json.ExtGridRow;
 import com.bop.json.ExtObject;
 import com.bop.json.ExtObjectCollection;
 import com.bop.json.ExtResultObject;
-import com.bop.module.user.UserService;
-import com.bop.module.user.dao.User01;
-import com.bop.web.CommonSession;
+
 import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
@@ -64,6 +62,13 @@ public class PersonManage {
 		int pageSize = request.getParameter("pageSize")==null?20:Integer.parseInt(request.getParameter("pageSize").toLowerCase());
 		
 		String zone = this.userSession.getCurrentUserZone();
+		
+		// 获取第几页
+		int start = 0;
+		if (pageIndex != 0){
+			start = pageSize*pageIndex;
+		}
+		
 		String whereSql = null;
 		if(zone==null||"".equals(zone)){
 			whereSql = "plan0204 = '1' and parentid = '"+faid+"'";
@@ -71,7 +76,7 @@ public class PersonManage {
 			whereSql = "plan0204 = '1' and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 		}
 		
-		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", pageIndex, pageSize);
+		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);
 		Records totalrds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205");
 		
 		ExtGrid eg = new ExtGrid();
@@ -117,7 +122,13 @@ public class PersonManage {
 			whereSql = "plan0204 <> '1' and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 		}
 		
-		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", pageIndex, pageSize);
+		// 获取第几页
+		int start = 0;
+		if (pageIndex != 0){
+			start = pageSize*pageIndex;
+		}
+				
+		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);
 		Records totalrds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205");
 		
 		ExtGrid eg = new ExtGrid();
