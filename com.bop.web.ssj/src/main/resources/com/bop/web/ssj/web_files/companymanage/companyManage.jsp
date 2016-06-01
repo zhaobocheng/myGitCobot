@@ -179,7 +179,7 @@
 			if (!formdata.isValid()) {
 				return;
 			}
-
+			
 			var data = formdata.getData();
 			var zfid = mini.get("zftime").value;
 			var json = mini.decode(data);
@@ -190,15 +190,17 @@
 				type : 'post',
 				data : json,
 				success : function(e) {
-					if (e == "success") {
+					
+					var inf = mini.decode(e);
+					if (inf.flag=="success") {
 						alert("保存成功！");
-						datagrid.reload();
-						newwin.hide();
-					} else {
+					} else if(inf.flag=="unset") {
+						alert("请为一下区县先设置人员"+inf.text);
+					}else{
 						alert("保存失败！");
-						datagrid.reload();
 					}
-					newwin.hide();
+					var win = mini.get("newWin");
+					win.hide();
 				}
 			})
 		}
@@ -233,11 +235,14 @@
 				},
 				type : "post",
 				success : function(text) {
-					if(text=="false"){
+					var inf = mini.decode(text);
+					
+					if(inf.flag){
 						grid.reload();
-						alert("请先设置权重");
+						alert("区县代码为"+inf.text+"的区县未设置权重，请先设置权重");
 					}else{
 						grid.reload();
+						alert("提交失败");
 					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
