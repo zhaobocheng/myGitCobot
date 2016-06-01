@@ -24,10 +24,10 @@
         <div field="dz" width="80" >地址</div>
         <div field="lxr" width="80" >联系人</div>
         <div field="phone" width="60" >电话</div>
-        <div field="jcnr" width="80" >检查内容</div>
+        <div field="jcnr" width="80" visible="false">检查内容</div>
         <div field="jcr" width="80" >检查人</div> 
          <div field="jcrid" width="80" visible="false" >检查人id</div> 
-        <div field="sjly" width="80" >涉及事项</div>                  
+        <div field="sjly" width="80" >涉及内容</div>                  
     </div>
 </div>
 
