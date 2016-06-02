@@ -220,7 +220,7 @@ public class PersonManage {
 				}
 			}
 			if(unSelectList.size()>0){
-				ero.add("text", unSelectList.toArray());
+				ero.add("text", unSelectList.toString());
 				ero.add("flag", "allu");
 			}else{
 				ero.add("flag", "alls");
