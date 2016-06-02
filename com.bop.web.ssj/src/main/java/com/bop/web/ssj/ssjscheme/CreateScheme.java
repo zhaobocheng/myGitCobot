@@ -316,7 +316,6 @@ public class CreateScheme {
 		
 		Map<Integer ,ArrayList<String>> zhMap = new HashMap<Integer,ArrayList<String>>();  //存放按企业数随机好人员的map
 		for(int i=0;i<allCqOrg;i++){
-
 			ArrayList<String> personIreList = new ArrayList<String>();
 			Random prd = new Random();
 			
@@ -325,7 +324,7 @@ public class CreateScheme {
 				int p= prd.nextInt(personMap.size());
 				int p2= prd.nextInt(personMap.size());
 				if(p==p2){
-					p2 =this.getDifPerson(p, prd, personMap.size());
+					p2 = this.getDifPerson(p, prd, personMap.size());
 				}
 				
 				Map<String,Object> ire = personMap.get(p);
@@ -362,7 +361,7 @@ public class CreateScheme {
 				if(p==p2){
 					p2 = this.getDifPerson(p, prd, OrdypersonMap2.size());
 				}
-				
+
 				Map<String,Object> ire = OrdypersonMap2.get(p);
 				Map<String,Object> ire2 = OrdypersonMap2.get(p2);
 
@@ -393,8 +392,8 @@ public class CreateScheme {
 			zhMap.put(i, personIreList);
 		}
 		
+		System.out.println("zhMap-----------"+zhMap.size());
 		
-		System.out.println("zhMap-----------"+zhMap);
 		List<IRecord> rand02s = this.recordDao.getByParentId("RAND02", rand01.getRecordId());//得到该区县所有的企业信息
 		
 		//计量或特设至少为一的情况
@@ -406,7 +405,6 @@ public class CreateScheme {
 		int jlorgindex = rd.nextInt(jlIre.size());
 		int tsorgindex = rd.nextInt(tsIre.size());
 		
-		System.out.println("sssss-----------"+zhMap.size());
 		
 		orgmap.put(jlIre.get(jlorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(0));
 		orgmap.put(tsIre.get(tsorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(1));
@@ -435,6 +433,7 @@ public class CreateScheme {
 				dqOrglist.add(orgCode.toString());
 				orgmap.put(orgCode.toString(), zhMap.get(i));
 			}
+			
 		}
 	}
 
@@ -442,7 +441,7 @@ public class CreateScheme {
 	private int getDifPerson(int p1,Random rdm,int conutNum){
 		int p2 = rdm.nextInt(conutNum);
 		if(p2 == p1 ){
-			this.getDifPerson(p1, rdm, conutNum);
+			return this.getDifPerson(p1, rdm, conutNum);
 		}
 		return p2;
 	}

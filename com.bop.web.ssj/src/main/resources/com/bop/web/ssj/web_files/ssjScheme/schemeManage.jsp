@@ -92,9 +92,8 @@ createFa=function(){
 		url:'/ssj/ssjScheme/CreateScheme/createSchemeDate/'+faid,
 		type:'get',
 		success:function(e){
-			 mini.unmask(document.body);
 			if(e=="seccess"){
-				alert("生成完毕！");
+				mini.unmask(document.body);
 				gridLoad(faid);
 			}else if(e=="false"){
 				alert("有未设置人员或企业数的区县请先设置！");
