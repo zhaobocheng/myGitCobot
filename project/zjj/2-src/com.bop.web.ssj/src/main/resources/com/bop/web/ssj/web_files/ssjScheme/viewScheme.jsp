@@ -49,6 +49,7 @@ valueChange = function(e){
 
 importExc = function(){
 	var faid = mini.get("faid").value;
+	grid.loading("正在导出，请稍后......");
 	$.ajax({
 		url:'/ssj/ssjscheme/CreateScheme/exportExcel/'+faid+"?theme=none",
 		type:'get',
@@ -57,8 +58,9 @@ importExc = function(){
 			if(inf.flag){
 				location.href = decodeURI("/ResourceFiles"+inf.path);
 			}else{
-				alert("导出失败咧！");
+				alert("导出失败！");
 			}
+			grid.reload();
 		}
 	});
 }
