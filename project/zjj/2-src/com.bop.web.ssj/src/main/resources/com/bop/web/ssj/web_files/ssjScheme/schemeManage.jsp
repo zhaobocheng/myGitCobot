@@ -18,11 +18,11 @@
     treeColumn="dq" idField="dqid" parentField="ParentDqId" resultAsTree="false"  allowResize="true" expandOnLoad="true">
     <div property="columns">
         <div type="indexcolumn"></div>
-        <div name="dq" field="dq" width="160" >地区</div>
-        <div field="jgdm" width="80">机构代码</div>
+        <div name="dq" field="dq" width="60" >地区</div>
+        <div field="jgdm" width="60">机构代码</div>
         <div field="dwmc" width="60" align="right">单位名称</div>
         <div field="dz" width="80" >地址</div>
-        <div field="lxr" width="80" >联系人</div>
+        <div field="lxr" width="60" >联系人</div>
         <div field="phone" width="60" >电话</div>
         <div field="jcnr" width="80" visible="false">检查内容</div>
         <div field="jcr" width="80" >检查人</div> 
