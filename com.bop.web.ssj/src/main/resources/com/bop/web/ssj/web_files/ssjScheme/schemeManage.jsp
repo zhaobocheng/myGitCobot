@@ -47,11 +47,12 @@ grid.load(url);
 function isup(e){
 	var createBut = mini.get("createBut");
 	var mommitBut = mini.get("commitBut");
-	
+
 	jQuery.ajax({
 		url:'/ssj/ssjScheme/CreateScheme/getZT/'+e+'?theme=none',
 		type:'post',
 		success:function(e){
+			
 			if(e=="5"){
 				createBut.setEnabled(false);
 				mommitBut.setEnabled(false);
@@ -81,10 +82,17 @@ gridLoad = function(value){
 createFa=function(){
 	var faid = mini.get("faid").value;
 
+    mini.mask({
+        el: document.body,
+        cls: 'mini-mask-loading',
+        html: '方案生成中，请稍等...'
+    });
+	
 	$.ajax({
 		url:'/ssj/ssjScheme/CreateScheme/createSchemeDate/'+faid,
 		type:'get',
 		success:function(e){
+			 mini.unmask(document.body);
 			if(e=="seccess"){
 				alert("生成完毕！");
 				gridLoad(faid);
@@ -96,12 +104,17 @@ createFa=function(){
 }
 commitFa = function(){
 	var faid = mini.get("faid").value;
-
+    mini.mask({
+        el: document.body,
+        cls: 'mini-mask-loading',
+        html: '方案提交中，请稍等...'
+    });
 	$.ajax({
 		url:'/ssj/ssjscheme/CreateScheme/commitSchemeDate/'+faid+"?theme=none",
 		type:'get',
 		success:function(e){
-			if(e=="seccess"){
+			 mini.unmask(document.body);
+			if(e=="success"){
 				alert("提交完毕！");
 				gird.reload();
 			}
