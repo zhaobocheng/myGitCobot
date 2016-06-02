@@ -119,7 +119,7 @@ public class CompanyManage {
 		List<String> unSetList = new ArrayList<String>();
 		//如果是某个区县设置权重 或者市局设置权重
 		if(zone==null||"".equals(zone)){
-			String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid   not in('110000','110302')";
+			String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid   <> '110000'";
 			List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
 		
 			if(resultList.size()>0){
@@ -363,7 +363,7 @@ public class CompanyManage {
 		}
 
 		ero.add("flag", true);
-		ero.add("unuse", unUseQX.toString());
+		ero.add("text", unUseQX.toString());
 		return ero.toString();
 	}
 	
