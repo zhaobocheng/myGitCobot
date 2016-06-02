@@ -180,13 +180,19 @@
 			var zfid = mini.get("zftime").value;
 			var json = mini.decode(data);
 
+	        mini.mask({
+	            el: document.body,
+	            cls: 'mini-mask-loading',
+	            html: '保存中...'
+	        });
+			
 			$.ajax({
 				url : '/ssj/companymanage/companymanage/addWeightCon/' + zfid
 						+ '?theme=none',
 				type : 'post',
 				data : json,
 				success : function(e) {
-					
+					 mini.unmask(document.body);
 					var inf = mini.decode(e);
 					if (inf.flag=="success") {
 						alert("保存成功！");
@@ -195,6 +201,7 @@
 					}else{
 						alert("保存失败！");
 					}
+					
 					var win = mini.get("newWin");
 					win.hide();
 				}
@@ -215,6 +222,10 @@
 				return;
 			} */
 			var data = grid.getChanges();
+			
+			var selectData = grid.getSelecteds();
+			
+			debugger;
 			var json = mini.encode(data);
 			var zfid = mini.get("zftime").value;
 			var zsts = mini.get("zsts").value;
@@ -227,7 +238,8 @@
 				data : {
 					data : json,
 					zsts : zsts,
-					zsjl : zsjl
+					zsjl : zsjl,
+					sdata: mini.encode(selectData)
 				},
 				type : "post",
 				success : function(text) {
