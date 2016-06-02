@@ -61,11 +61,7 @@
 	<!-- 权限设置窗口 -->
 	<div id="newWin" class="mini-window" title="设置权重"
 		style="display: none; width: 500px; height: 300px;" showToolbar="true"
-		showFooter="true">
-		<div property="toolbar" style="padding: 5px;">
-			<label>企业权重规则</label>
-			<!-- <input type='button' value='' onclick="hideWindow()" style='vertical-align:middle;'/> -->
-		</div>
+		showFooter="true">		
 		<div property="footer"
 			style="text-align: right; padding: 5px; padding-right: 15px;">
 			<input type='button' value="确定" onclick="commitWindow()"
