@@ -325,7 +325,7 @@ public class CreateScheme {
 				int p= prd.nextInt(personMap.size());
 				int p2= prd.nextInt(personMap.size());
 				if(p==p2){
-					this.getDifPerson(p, prd, personMap.size());
+					p2 =this.getDifPerson(p, prd, personMap.size());
 				}
 				
 				Map<String,Object> ire = personMap.get(p);
@@ -360,7 +360,7 @@ public class CreateScheme {
 				int p= prd.nextInt(OrdypersonMap2.size());
 				int p2= prd.nextInt(OrdypersonMap2.size());
 				if(p==p2){
-					this.getDifPerson(p, prd, personMap.size());
+					p2 = this.getDifPerson(p, prd, OrdypersonMap2.size());
 				}
 				
 				Map<String,Object> ire = OrdypersonMap2.get(p);
@@ -393,7 +393,8 @@ public class CreateScheme {
 			zhMap.put(i, personIreList);
 		}
 		
-
+		
+		System.out.println("zhMap-----------"+zhMap);
 		List<IRecord> rand02s = this.recordDao.getByParentId("RAND02", rand01.getRecordId());//得到该区县所有的企业信息
 		
 		//计量或特设至少为一的情况
