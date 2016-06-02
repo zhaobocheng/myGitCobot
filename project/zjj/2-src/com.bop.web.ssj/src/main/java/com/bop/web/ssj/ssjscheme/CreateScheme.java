@@ -324,7 +324,10 @@ public class CreateScheme {
 			if(personmapLc>=ordypersonmapLc&&personMap.size()>=2){
 				int p= prd.nextInt(personMap.size());
 				int p2= prd.nextInt(personMap.size());
-
+				if(p==p2){
+					this.getDifPerson(p, prd, personMap.size());
+				}
+				
 				Map<String,Object> ire = personMap.get(p);
 				Map<String,Object> ire2 = personMap.get(p2);
 
@@ -356,7 +359,10 @@ public class CreateScheme {
 			}else if(personmapLc<ordypersonmapLc&&OrdypersonMap2.size()>=2){
 				int p= prd.nextInt(OrdypersonMap2.size());
 				int p2= prd.nextInt(OrdypersonMap2.size());
-
+				if(p==p2){
+					this.getDifPerson(p, prd, personMap.size());
+				}
+				
 				Map<String,Object> ire = OrdypersonMap2.get(p);
 				Map<String,Object> ire2 = OrdypersonMap2.get(p2);
 
@@ -431,6 +437,15 @@ public class CreateScheme {
 		}
 	}
 
+	//如果随机的人员是同一个，则生成一个不同的号
+	private int getDifPerson(int p1,Random rdm,int conutNum){
+		int p2 = rdm.nextInt(conutNum);
+		if(p2 == p1 ){
+			this.getDifPerson(p1, rdm, conutNum);
+		}
+		return p2;
+	}
+	
 	/**
 	 * 将抽到的企业和人的信息格式化成griddata
 	 * @param rootType  是否是根节点的数据
