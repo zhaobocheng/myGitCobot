@@ -48,37 +48,20 @@ valueChange = function(e){
 }
 
 importExc = function(){
-	alert("导出Excle");
-	//参考对应的民政部的导出
+	var faid = mini.get("faid").value;
+	$.ajax({
+		url:'/ssj/ssjscheme/CreateScheme/exportExcel/'+faid+"?theme=none",
+		type:'get',
+		success:function(e){
+			var inf = mini.decode(e);
+			if(inf.flag){
+				location.href = decodeURI("/ResourceFiles"+inf.path);
+			}else{
+				alert("导出失败咧！");
+			}
+		}
+	});
 }
-
-
-
-function exportExcel() {
-    $('#ziduan').val(ziduan_t1);
-    $('#table_index').attr("value","1");
-  // 拿到查询条件
-  var ggsclbFormData = ggsclb.getData();
-  var ggsclbFormJson = mini.encode([ ggsclbFormData ]);
-  var temp1 = $("#cxtj1Data").val();
-  var temp2 = $("#cxtj2Data").val();
-  if(temp1){
-    $("#cxtjForm").attr("action","/gjxfj/common/dcservice/exportexcel/xfjcxlist/民政部信访件信息.xls?theme=none");
-  }else if(temp2){
-    $("#cxtjForm").attr("action","/gjxfj/common/dcservice/exportexcel/xfjgjlist/民政部信访件信息.xls?theme=none");
-  }
-
-  //var data1 = $("#cxtj1Data").val();
-  //var data2 = $("#cxtj2Data").val();
-  if (mini.get("#ggscgrid").totalCount < 1) {
-    mini.alert("数据为空");
-    return;
-  }
-  
-  $("#cxtjForm").submit();
-  showTipsMsgSuccess("导出文件准备中，请稍后下载！");
-}
-
 </script>
 </body>
 </html>
