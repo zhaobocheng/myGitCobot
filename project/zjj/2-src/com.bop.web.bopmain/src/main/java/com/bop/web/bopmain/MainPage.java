@@ -135,7 +135,7 @@ public class MainPage {
 	@Action
 	public Renderer unauthorized() throws IOException {
 		log.debug("无权访问");
-		return new TextRenderer("您无访问此功能的权限");
+		return new TextRenderer("您无访问此功能的权限，请返回<a href=\"" + PathUtil.getDesktopUrl() + "\">首页</a>。");
 	}
 	
 	@Action
