@@ -312,15 +312,20 @@ public class CompanyManage {
 	 */
 	@Action
 	public String addSJResult(String fzid){
-		
 		//校验有没有设置权重
 		ExtResultObject ero = new ExtResultObject();
-		
+
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String data = request.getParameter("data");
 		String zsts = request.getParameter("zsts");//至少特设
 		String zsjl = request.getParameter("zsjl");//至少计量
 		JSONArray array = JSONArray.fromObject(data);
+
+		/*如果按选择的条数来，就要去除企业总数为空的时机
+		 String sdata = request.getParameter("sdata");
+		JSONArray sarray = JSONArray.fromObject(sdata);
+		*/
+		
 		
 		List<Map<String,String>> useQX = new ArrayList<Map<String,String>>();
 		List<String> unUseQX = new ArrayList<String>();
