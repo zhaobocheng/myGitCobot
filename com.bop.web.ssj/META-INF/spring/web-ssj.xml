@@ -26,5 +26,9 @@
     	<property name="recordDao" ref="recordDao" />
    		<property name="userSession" ref="UserSession" />
     </bean>
-    
+    <bean id="powerlist" class="com.bop.web.ssj.powerlist.PowerList">
+    	<property name="jdbcTemplate" ref="JdbcTemplate" />
+    	<property name="recordDao" ref="recordDao" />
+   		<property name="userSession" ref="UserSession" />
+    </bean>
 </beans>

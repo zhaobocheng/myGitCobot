@@ -110,4 +110,30 @@
 		</bean>
 	</osgi:service>
 	
+	<osgi:service id="MenuItem1301" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="1301" />
+			<property name="name" value="权力清单查询" />
+			<property name="description" value="权力清单查询" />
+			<property name="url" value="/ssj/powerlist/powerList.jsp" />
+		</bean>
+	</osgi:service>
+	<osgi:service id="MenuItem1302" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="1302" />
+			<property name="name" value="企业责任查询" />
+			<property name="description" value="企业责任查询" />
+			<property name="url" value="/ssj/powerlist/companyQuery.jsp" />
+		</bean>
+	</osgi:service>
+	
+	<osgi:service id="MenuItem1303" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="1303" />
+			<property name="name" value="检查事项管理" />
+			<property name="description" value="检查事项管理" />
+			<property name="url" value="/ssj/powerlist/checkItem.jsp" />
+		</bean>
+	</osgi:service>
+	
 </beans>
