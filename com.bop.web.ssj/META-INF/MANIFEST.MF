@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-SymbolicName: com.bop.web.ssj
 Built-By: bdsoft
 Bundle-ManifestVersion: 2
-Bnd-LastModified: 1465214558529
+Bnd-LastModified: 1465215109344
 Bundle-Level: 71
 Import-Package: com.aspose.cells,com.bop.domain;version="4.2",com.bop.
  domain.dao;version="4.2",com.bop.json;version="4.2",com.bop.module.au

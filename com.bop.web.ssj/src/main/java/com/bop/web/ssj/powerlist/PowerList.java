@@ -83,10 +83,10 @@ public class PowerList {
 		String whereString = "1=1";
 		
 		if(qymc!=null&&!"".equals(qymc)){
-			whereString +=" and ORG_NAME = '"+qymc+"'";
+			whereString +=" and ORG_NAME like '%"+qymc+"%'";
 		}
 		if(qymc!=null&&!"".equals(qydm)){
-			whereString +=" and ORG_CODE like '%"+qydm+"%'";
+			whereString +=" and ORG_CODE = '"+qydm+"'";
 		}
 		
 		
