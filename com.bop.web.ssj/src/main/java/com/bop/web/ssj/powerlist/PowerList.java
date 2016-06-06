@@ -53,7 +53,7 @@ public class PowerList {
 			whereString +=" and Q0101 = '"+qlbl+"'";
 		}
 		if(qlmc!=null&&!"".equals(qlmc)){
-			whereString +=" and Q0103 = '"+qlmc+"'";
+			whereString +=" and Q0103 like '%"+qlmc+"%'";
 		}
 		
 		ExtGrid eg = new ExtGrid();
@@ -86,7 +86,7 @@ public class PowerList {
 			whereString +=" and ORG_NAME = '"+qymc+"'";
 		}
 		if(qymc!=null&&!"".equals(qydm)){
-			whereString +=" and ORG_CODE = '"+qydm+"'";
+			whereString +=" and ORG_CODE like '%"+qydm+"%'";
 		}
 		
 		
