@@ -8,6 +8,7 @@ import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
 import com.bop.domain.dao.DmCodetables;
 import com.bop.domain.dao.IRecord;
+import com.bop.json.ExtGrid;
 import com.bop.json.ExtObject;
 import com.bop.json.ExtObjectCollection;
 import com.bop.web.bopmain.UserSession;
@@ -48,24 +49,26 @@ public class PowerList {
 		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
 		String whereString = "1=1";
 		
-		if(qlbl!=null){
+		if(qlbl!=null&&!"".equals(qlbl)){
 			whereString +=" and Q0101 = '"+qlbl+"'";
 		}
-		if(qlmc!=null){
+		if(qlmc!=null&&!"".equals(qlmc)){
 			whereString +=" and Q0103 = '"+qlmc+"'";
 		}
 		
-		
-		ExtObjectCollection eoc = new ExtObjectCollection();
+		ExtGrid eg = new ExtGrid();
 		Records rds = this.recordDao.queryRecord("Q01", whereString,"Q0102",pageIndex*pageSize,pageSize);
-
+		int total= this.jdbcTemplate.queryForInt("select count(*) from Q01 where "+whereString);
+		eg.setTotal(total);
+		
 		for(IRecord ird :rds){
 			ExtObject eo = new ExtObject();
 			eo.add("qlqdbm", ird.get("Q0101"));
 			eo.add("qlsxmc", ird.get("Q0103"));
 			eo.add("ssqx", ird.get("Q0102",DmCodetables.class).getCaption());
+			eg.rows.add(eo);
 		}
-		return eoc.toString();
+		return eg.toString();
 	}
 	
 	
@@ -79,17 +82,19 @@ public class PowerList {
 		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
 		String whereString = "1=1";
 		
-		if(qymc!=null){
+		if(qymc!=null&&!"".equals(qymc)){
 			whereString +=" and ORG_NAME = '"+qymc+"'";
 		}
-		if(qydm!=null){
+		if(qymc!=null&&!"".equals(qydm)){
 			whereString +=" and ORG_CODE = '"+qydm+"'";
 		}
 		
 		
-		ExtObjectCollection eoc = new ExtObjectCollection();
+		ExtGrid eg = new ExtGrid();
+		
 		Records rds = this.recordDao.queryRecord("ORG01", whereString,"ORG_CODE",pageIndex*pageSize,pageSize);
-
+		int total= this.jdbcTemplate.queryForInt("select count(*) from org01 where "+whereString);
+		eg.setTotal(total);
 		for(IRecord ird :rds){
 			ExtObject eo = new ExtObject();
 			eo.add("qymc", ird.get("ORG_NAME"));
@@ -97,8 +102,9 @@ public class PowerList {
 			eo.add("dz", ird.get("REG_ADDR"));
 			eo.add("lxr", ird.get("LEGAL_REPRE"));
 			eo.add("sjsx", ird.get("ORG_CODE"));
+			eg.rows.add(eo);
 		}
-		return eoc.toString();
+		return eg.toString();
 	}
 	
 	@Action
