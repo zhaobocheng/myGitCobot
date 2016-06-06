@@ -1,5 +1,7 @@
 package com.bop.web.ssj.powerlist;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.jdbc.core.JdbcOperations;
@@ -101,7 +103,17 @@ public class PowerList {
 			eo.add("dm", ird.get("ORG_CODE"));
 			eo.add("dz", ird.get("REG_ADDR"));
 			eo.add("lxr", ird.get("LEGAL_REPRE"));
-			eo.add("sjsx", ird.get("ORG_CODE"));
+			
+			// 涉及事项
+			String strSJSX = "select case  when t.org0205 ='1' then '产品质量日常监督检查,' end  || "
+					+" case  when t.org0202 ='1' then '检验机构监督检查,' end  "
+					+" ||case  when t.org0203 ='1' then '3C认证日常监督检查,' end ||"
+					+" case  when t.org0201 ='1' then '特种设备监督检查,' end sjsx"
+					+" from ORG02 t where t.org00 ='" + ird.get("ORG00") +"'";
+			
+			Map<String,Object>  SJSXMap = this.jdbcTemplate.queryForMap(strSJSX);
+			
+			eo.add("sjsx", SJSXMap.get("sjsx"));
 			eg.rows.add(eo);
 		}
 		return eg.toString();

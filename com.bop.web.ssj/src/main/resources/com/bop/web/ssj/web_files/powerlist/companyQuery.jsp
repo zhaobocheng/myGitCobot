@@ -9,13 +9,13 @@
 <div  class="input_form" class="width:100%;">
 	<table  style="width:100%;">
 		<tr>
-			<th width="30%">企业名称</th>
-			<td width="40%"><input class="mini-textbox" id="qymc" name="qymc" style="width:100%" /></td>
+			<th width="20%">企业名称</th>
+			<td width="50%"><input class="mini-textbox" id="qymc" name="qymc" style="width:100%" /></td>
 			<td><a class="mini-button" iconCls="icon-find" onclick="findRow">查询</a></td>
 		</tr>
 		<tr>
-			<th width="30%">企业代码</th>
-			<td width="40%"><input class="mini-textbox" id="qydm" style="width:100%" /></td>
+			<th width="20%">企业代码</th>
+			<td width=50%"><input class="mini-textbox" id="qydm" style="width:100%" /></td>
 			<td><a class="mini-button" iconCls="icon-find" onclick="findRow">查询</a></td>
 		</tr>
 	</table>
@@ -26,9 +26,9 @@
 	<div property="columns">
 		<div type="indexcolumn" width="20" headerAlign="center">序号</div>
 		<div field="qymc" width="120" headerAlign="center">企业名称</div>
-		<div field="dm" width="120" headerAlign="center">代码</div>
-		<div field="dz" width="120" headerAlign="center">地址</div>
-		<div field="lxr" width="120" headerAlign="center">联系人</div>
+		<div field="dm" width="60" headerAlign="center">代码</div>
+		<div field="dz" width="200" headerAlign="center">地址</div>
+		<div field="lxr" width="60" headerAlign="center">联系人</div>
 		<div field="sjsx" width="120" headerAlign="center">涉及的检查事项</div>
 	</div>
 </div>
