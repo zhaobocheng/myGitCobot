@@ -24,7 +24,7 @@
 <div class="mini-datagrid" id="datagrid" style="width:100%;height:100%;" url="/ssj/powerlist/PowerList/getPowerListData?theme=none" showFooter="true" idField="id"
 	pageSize="20" sizeList="[20,30,50,100]">
 	<div property="columns">
-		<div type="indexcolums" width="20" headerAlign="center">序号</div>
+		<div type="indexcolumn" width="20" headerAlign="center">序号</div>
 		<div field="qlqdbm" width="120" headerAlign="center">权力清单编码</div>
 		<div field="qlsxmc" width="120" headerAlign="center">权力事项名称</div>
 		<div field="ssqx" width="120" headerAlign="center">所属区县</div>
