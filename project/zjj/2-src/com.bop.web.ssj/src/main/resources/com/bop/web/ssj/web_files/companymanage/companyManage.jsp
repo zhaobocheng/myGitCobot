@@ -36,11 +36,12 @@
 				idFiled="id" showPager="false" multiSelect="true"
 				allowCellEdit="true" allowCellSelect="true"
 				editNextOnEnterKey="true" editNextRowCell="true"
-				oncellvalidation="onCellValidation(e)">
+				oncellvalidation="onCellValidation(e)" >
 				<div property="columns">
 					<div type="checkcolumn" width="10"></div>
 					<div type="indexcolumn" width="15">序号</div>
 					<div field="id" name="id" width="100" visible="false">id</div>
+					<div field="id" name="id" width="100" visible="false">zt</div>
 					<div field="qxid" name="qxid" width="100" visible="false">qxid</div>
 					<div field="qx" name="qx" width="100" headerAlign="center"
 						align="center" allowSort="true">区县</div>
@@ -64,9 +65,8 @@
 		showFooter="true">		
 		<div property="footer"
 			style="text-align: right; padding: 5px; padding-right: 15px;">
-			<input type='button' value="确定" onclick="commitWindow()"
-				style='vertical-align: middle;' /> <input type='button' value="取消"
-				onclick="hideWindow()" style='vertical-align: middle;' />
+			<a class='mini-button' id="sureBut"  onclick="commitWindow()" style='vertical-align: middle;' >确定</a> 
+			<a class='mini-button'  onclick="hideWindow()" style='vertical-align: middle;' >取消</a>
 		</div>
 
 		<div id="newForm" class="input_form" style="width: 100%;">
@@ -164,7 +164,24 @@
 		}
 
 		setAuthenRow = function() {
-			newwin.show();
+			//去判定这个方案有没有设置权重，如果有就将对应的值带过来，然后将确定按钮置灰
+			var faid = zfcom.value;
+			$.ajax({
+				url:'/ssj/companymanage/CompanyManage/getWFormData/'+faid+'?theme=none',
+				type:'get',
+				success:function(e){
+					 var formdate = mini.decode(e);
+					 var wform = new mini.Form("#newForm");
+					 wform.setData(formdate);
+					 var sureBut = mini.get("sureBut");
+					 if(e.length>2){
+						 sureBut.setEnabled(false);
+					 }else{
+						 sureBut.setEnabled(true);
+					 }
+					 newwin.show();
+				}
+			});
 		}
 
 		//提交权重
@@ -196,8 +213,6 @@
 					var inf = mini.decode(e);
 					if (inf.flag=="success") {
 						alert("保存成功！");
-					} else if(inf.flag=="unset") {
-						alert("请为一下区县先设置人员"+inf.text);
 					}else{
 						alert("保存失败！");
 					}
@@ -224,8 +239,7 @@
 			var data = grid.getChanges();
 			
 			var selectData = grid.getSelecteds();
-			
-			debugger;
+
 			var json = mini.encode(data);
 			var zfid = mini.get("zftime").value;
 			var zsts = mini.get("zsts").value;
@@ -245,12 +259,18 @@
 				success : function(text) {
 					var inf = mini.decode(text);
 					
-					if(inf.flag){
+					if(inf.flag=="f2"){
 						grid.reload();
-						alert("区县代码为"+inf.text+"的区县未设置权重，请先设置权重");
-					}else{
+						alert(inf.text);
+					}else if(inf.flag=="f1"){
 						grid.reload();
-						alert("提交失败");
+						debugger;
+						if(inf.text.length>2){
+							alert("提交的区县代码为"+inf.text+"未设置人员，请设置完人员在提交！");
+						}else{
+							alert("已提交");
+						}
+						
 					}
 				},
 				error : function(jqXHR, textStatus, errorThrown) {
@@ -276,6 +296,20 @@
 				}
 			}
 		}
+		
+/* 		function onRenderer(e){
+			var render = e.record;
+			var column = e.column;
+			if(render.zt==1){
+				//已提交
+				e.cellHtml = render.sjqyzs;
+			//	column.readOnly=true;
+				column.editor="";
+				//editor
+			}else{
+				//未提交
+			}
+		} */
 	</script>
 </body>
 </html>
