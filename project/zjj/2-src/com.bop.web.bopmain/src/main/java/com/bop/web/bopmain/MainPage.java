@@ -97,7 +97,6 @@ public class MainPage {
 		FunctionTree tree = NavigationService.getMe().getSystemTreeMenu();
 		MenuItem m = tree.getById(sid);
 
-		//这个很重要呀，找了半天才找到
 		Principal username = request.getUserPrincipal();
 
 		String html = "";
@@ -217,7 +216,8 @@ public class MainPage {
 		if(d == null) d = new Date();
 		
 		//密码有效的天数
-		Integer i = u.getUserforTime();
+		//Integer i = u.getUserforTime();
+		Integer i = Integer.parseInt(System.getProperty("activeTime","60"));
 		if(i == null) i = 0;
 		d = DateUtility.dateAfter(d, i, DateUnit.day);
 		
