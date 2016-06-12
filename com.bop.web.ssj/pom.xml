@@ -8,13 +8,12 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.bop</groupId>
 	<artifactId>com.bop.web.ssj</artifactId>
 	<packaging>bundle</packaging>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.bop</groupId>
+			<groupId>com.bop.bjzjj</groupId>
 			<artifactId>com.bop.web.bopmain</artifactId>
 			<version>${project.version}</version>
 		</dependency>
