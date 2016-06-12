@@ -103,10 +103,6 @@
                     <input id="rpassword" name="rpassword" class="mini-password" required="true" onvaluechanged="checkPassword()"/>
                 </td>
             </tr>
-			<tr >
-                <th width="35%">  <label for="usetime">密码有效时间：</label>  </th>
-                <td>  <input id="usetime" name="usetime" class="mini-textbox" vtype="int" required="true"/>月 </td>
-            </tr>
 			
 			<tr >
                 <th width="35%">  <label for="usetime">IP地址：</label>  </th>
@@ -177,14 +173,6 @@
                 </th>
                 <td>
                     <input id="Erpassword" name="Erpassword" class="mini-password" required="true" onvaluechanged="checkPassword()"/>
-                </td>
-            </tr>
-			<tr >
-                <th width="35%">
-                    <label for="Eusetime">密码有效时间：</label>
-                </th>
-                <td>
-                    <input id="Eusetime" name="Eusetime" class="mini-textbox" vtype="int" required="true"/>月
                 </td>
             </tr>
 			<tr >

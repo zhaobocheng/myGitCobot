@@ -266,7 +266,7 @@ public class Rygl implements UserProvider {
 		user.setValidate(true);
 		user.setPassword(password);
 		user.setDescription(description);
-		user.setUserforTime(Integer.parseInt(usetime));
+		user.setUserforTime(Integer.parseInt(System.getProperty("activeTime","60")));
 		user.setMac(MAC);
 		user.setIp(IP);
 		user.setWpasswordTime("0");

@@ -64,7 +64,7 @@ function checkUpdateNode(){
 		url: "/bopmain/user/rygl/isupddeptname/" + id+ "/"+ value+ "?theme=none",
 		type: "post",
 		success: function (text) {
-			var data = mini.decode(text);    
+			var data = mini.decode(text);
 			if (data.info == "yes") {
 				document.getElementById("BM0101EORROR").innerHTML="";
 			} else {
