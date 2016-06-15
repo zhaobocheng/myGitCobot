@@ -1,0 +1,1 @@
+mvn18 clean install deploy
