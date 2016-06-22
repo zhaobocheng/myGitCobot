@@ -392,8 +392,6 @@ public class CreateScheme {
 			zhMap.put(i, personIreList);
 		}
 		
-		System.out.println("zhMap-----------"+zhMap.size());
-		
 		List<IRecord> rand02s = this.recordDao.getByParentId("RAND02", rand01.getRecordId());//得到该区县所有的企业信息
 		
 		//计量或特设至少为一的情况
@@ -405,7 +403,6 @@ public class CreateScheme {
 		int jlorgindex = rd.nextInt(jlIre.size());
 		int tsorgindex = rd.nextInt(tsIre.size());
 		
-		
 		orgmap.put(jlIre.get(jlorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(0));
 		orgmap.put(tsIre.get(tsorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(1));
 		
@@ -414,7 +411,9 @@ public class CreateScheme {
 			boolean doubleflag = false;
 
 			int orgindex = rd.nextInt(rand02s.size());
-			IRecord  cqRand02= this.recordDao.queryTopOneRecord("RAND02", "RAND0201 = "+orgindex+" and parentid = '"+rand01.getRecordId()+"'", "RAND0201");
+			IRecord  cqRand02= this.recordDao.queryTopOneRecord("RAND02", "RAND0201 = "+orgindex+"+1 and parentid = '"+rand01.getRecordId()+"'", "RAND0201");
+
+			System.out.println("RAND02----"+zhMap.size()+"-------"+orgindex+"-------"+rand01.getRecordId());
 			UUID orgCode = cqRand02.get("RAND0202",IRecord.class).getRecordId();
 
 			for(int k=0;k<dqOrglist.size();k++){
@@ -433,7 +432,6 @@ public class CreateScheme {
 				dqOrglist.add(orgCode.toString());
 				orgmap.put(orgCode.toString(), zhMap.get(i));
 			}
-			
 		}
 	}
 

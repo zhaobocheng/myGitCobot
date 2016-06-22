@@ -2,22 +2,22 @@ Manifest-Version: 1.0
 Bundle-SymbolicName: com.bop.web.ssj
 Built-By: bdsoft
 Bundle-ManifestVersion: 2
-Bnd-LastModified: 1465215462685
+Bnd-LastModified: 1466517918068
 Bundle-Level: 71
 Import-Package: com.aspose.cells,com.bop.domain;version="4.2",com.bop.
  domain.dao;version="4.2",com.bop.json;version="4.2",com.bop.module.au
  thor;version="4.2",com.bop.module.function;version="4.2",com.bop.modu
  le.function.service;version="4.2",com.bop.module.log;version="4.2",co
- m.bop.module.resources,com.bop.module.user;version="4.2",com.bop.web;
- version="4.2",com.bop.web.bopmain;version="1.1",com.bop.web.defaults;
- version="4.2",com.bop.web.rest;version="4.2",javax.servlet.http;versi
- on="3.1",net.sf.json;version="2.2",org.apache.commons.lang;version="2
- .1",org.hibernate;version="4.2",org.springframework.jdbc.core;version
- ="3.1"
+ m.bop.module.resources;version="4.2",com.bop.module.user;version="4.2
+ ",com.bop.web;version="4.2",com.bop.web.bopmain;version="1.2",com.bop
+ .web.defaults;version="4.2",com.bop.web.rest;version="4.2",javax.serv
+ let.http;version="3.1",net.sf.json;version="2.2",org.apache.commons.l
+ ang;version="2.1",org.hibernate;version="4.2",org.springframework.jdb
+ c.core;version="3.1"
 DynamicImport-Package: *
 Tool: Bnd-0.0.357
 Originally-Created-By: Apache Maven Bundle Plugin
-Bundle-Version: 1.1.2.SNAPSHOT
+Bundle-Version: 1.2.1.SNAPSHOT
 Bundle-Name: com.bop.web.ssj
 Created-By: Apache Maven Bundle Plugin
 Build-Jdk: 1.8.0_20
