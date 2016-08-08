@@ -146,7 +146,6 @@ qdRow = function(){
 			alert("该方案已启用！");
 			return;
 		}
-		debugger;
 		var json = mini.encode(selectRows);
 		$.ajax({
 			url:'/ssj/ssjscheme/CreateScheme/goStart?theme=none',

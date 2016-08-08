@@ -48,22 +48,22 @@
 	            <table style="width:100%;">
 	                <tr>
 	                    <td style="width:100%;" align="center">
-	                        <a class="mini-button" id="left" onclick="leftMove()"  >左移</a>
+	                        <a class="mini-button" id="left" onclick="leftMove()"  >不参与随机/a>
 	                    </td>
 	                </tr>
 	                <tr>
 	                    <td style="width:100%;" align="center">
-	                        <a class="mini-button" id="leftall" onclick="allLeftMove()" >全部左移</a>
+	                        <a class="mini-button" id="leftall" onclick="allLeftMove()" >全部参与随机</a>
 	                    </td>
 	                </tr>
 	                <tr>
 	                    <td style="width:100%;" align="center">
-	                        <a class="mini-button" id="right" onclick="rightMove()"  >右移</a>
+	                        <a class="mini-button" id="right" onclick="rightMove()"  >参与随机</a>
 	                    </td>
 	                </tr>
 	                <tr>
 	                    <td style="width:100%;" align="center">
-	                        <a class="mini-button"  id="rightall" onclick="allRightMove()"  >全部右移</a>
+	                        <a class="mini-button"  id="rightall" onclick="allRightMove()"  >全部不参与随机</a>
 	                    </td>
 	                </tr>
 	            </table>

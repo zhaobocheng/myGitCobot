@@ -165,8 +165,37 @@ public class CreateScheme {
 			IRecord ird = this.recordDao.getRecord("PLAN01", UUID.fromString(faid));
 			ird.put("PLAN0105", 1);
 			this.recordDao.saveObject(ird);
+			//方案启动生成一条记录状态的记录，复制人员信息到plan02,复制企业信息到plan04后两步用触发器实现
+			this.insertPlan3(faid);
 		}
 		return "success";
+	}
+	
+	
+	
+	private void insertPlan3(String faid){
+		//需要区分是市局还是区县的用户
+		String zone = this.userSession.getCurrentUserZone();
+		if(zone!=null&&!"".equals(zone)){
+			Object [] args = new Object[4];
+			String sql = "insert into plan03(recordid,parentid,plan00,pindex,plan0301,plan0302) values(get_uuid,?,?,1,?,?)";
+			args[0]=faid;
+			args[1]=faid;
+			args[2]=this.userSession.getCurrentUserZone();
+			args[3]=0;
+			this.jdbcTemplate.update(sql, args);
+		}else{
+			Records irds = this.recordDao.queryRecord("dm_codetable_data", "codetablename='DB064'");
+			for(IRecord ird:irds){
+				Object [] args = new Object[4];
+				String sql = "insert into plan03(recordid,parentid,plan00,pindex,plan0301,plan0302) values(get_uuid,?,?,1,?,?)";
+				args[0]=faid;
+				args[1]=faid;
+				args[2]=ird.get("CID");
+				args[3]=0;
+				this.jdbcTemplate.update(sql, args);
+			}
+		}
 	}
 	
 	
@@ -396,23 +425,31 @@ public class CreateScheme {
 		
 		//计量或特设至少为一的情况
 		//该区县计量总数
-		
+		int zoneqystart=0;
 		Records jlIre = this.recordDao.queryRecord("RAND02", "parentid = '"+rand01.getRecordId()+"' and RAND0204 = 1");
 		Records tsIre = this.recordDao.queryRecord("RAND02", "parentid = '"+rand01.getRecordId()+"' and RAND0203 = 1");
 		
-		int jlorgindex = rd.nextInt(jlIre.size());
-		int tsorgindex = rd.nextInt(tsIre.size());
+		if(jlIre.size()>0){
+			int jlorgindex = rd.nextInt(jlIre.size());
+			orgmap.put(jlIre.get(jlorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(zoneqystart));
+			zoneqystart++;
+		}
 		
-		orgmap.put(jlIre.get(jlorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(0));
-		orgmap.put(tsIre.get(tsorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(1));
+		if(tsIre.size()>0){
+			int tsorgindex = rd.nextInt(tsIre.size());
+			orgmap.put(tsIre.get(tsorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(zoneqystart));
+			zoneqystart++;
+		}
+
+
 		
-		//循环对应的企业
-		for(int i=2;i<allCqOrg;i++){
+		
+		//抽取特殊设置（计量特设各一个）外的对应的企业
+		for(int i=zoneqystart;i<allCqOrg;i++){
 			boolean doubleflag = false;
 
 			int orgindex = rd.nextInt(rand02s.size());
 			IRecord  cqRand02= this.recordDao.queryTopOneRecord("RAND02", "RAND0201 = "+orgindex+"+1 and parentid = '"+rand01.getRecordId()+"'", "RAND0201");
-
 			System.out.println("RAND02----"+zhMap.size()+"-------"+orgindex+"-------"+rand01.getRecordId());
 			UUID orgCode = cqRand02.get("RAND0202",IRecord.class).getRecordId();
 
@@ -601,7 +638,6 @@ public class CreateScheme {
 	public String commitSchemeDate(String faid){
 		String zone = this.userSession.getCurrentUserZone();
 		
-		
 		if(zone==null||"".equals(zone)){
 			String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"'";
 			String plan1201UpSql = "update plan1201 set plan120104 = '提交' where parentid in (select t.recordid from plan12 t where t.parentid = '"+faid+"')";
@@ -787,8 +823,6 @@ public class CreateScheme {
                 cell.setValue(titleList.get(ti));
                 cell.setStyle(style);
             }
-
-            
  
             // 写入记录
             stratRow = stratRow + 1;
@@ -848,7 +882,6 @@ public class CreateScheme {
                         }else{
                             cell.setValue("");
                            }
-
                     }else if (StringUtils.equals("jcr", feildName)) {
                         if(jsonRows.has("jcr")){
                             cell.setValue(jsonRows.get("jcr")); 
@@ -978,6 +1011,4 @@ public class CreateScheme {
 			}
 		}
 	}
-    
-    
 }
