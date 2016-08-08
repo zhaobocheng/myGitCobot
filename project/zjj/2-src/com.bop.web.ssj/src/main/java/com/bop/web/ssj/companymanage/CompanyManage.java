@@ -49,9 +49,65 @@ public class CompanyManage {
 		this.recordDao = recordDao;
 	}
 	
-
+	/**
+	 * 得到抽取企业设置列表
+	 * @param fzid
+	 * @return
+	 */
 	@Action
-	public String getGridData(String fzid){
+	public String getGridData(String zfnd,String zfzt){
+		ExtObjectCollection eoc = new ExtObjectCollection();
+		String sql = "select  t.plan00,t.plan0107 as mc,t.plan0101||t.plan0102 as zfyf,counorg.qys as qys , counp2.rs as rs, "+
+					 " case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as sbqys from plan01 t  left join plan03 tt on tt.parentid = t.plan00"+
+					" left join (select count(*) qys,org.reg_district_dic from org01 org group by org.reg_district_dic) counorg on counorg.reg_district_dic = tt.plan0301"+
+					" left join (select count(*) rs ,p2.plan0205,p2.parentid from plan02 p2 where p2.plan0204 = 2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
+					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where";
+		String wheresql = " t.PLAN0105 = 1 and tt.plan0301='"+this.userSession.getCurrentUserZone()+"' ";
+
+		if(zfnd!=null&&!"".equals(zfnd)){
+			wheresql += " and t.plan0101 = "+zfnd;
+		}
+		if(zfzt!=null&&!"".equals(zfzt)){
+			if("0".equals(zfzt)){
+				wheresql += " and tt.plan0302 <3 ";
+			}else{
+				wheresql += " and tt.plan0302 >= 3";
+			}
+		}
+		
+		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" order by t.plan0102 desc");
+		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
+		
+		if(resultList.size()>0){
+			for(Map<String,Object> map:resultList){
+				ExtObject eo = new ExtObject();
+				UUID uid = UUID.randomUUID();
+				eo.add("id", map.get("plan00"));
+				eo.add("mc", map.get("mc"));
+				eo.add("zfyf", map.get("zfyf"));
+				eo.add("cyqys", map.get("qys"));
+				eo.add("cyzfrys", map.get("rs"));
+				eo.add("sjqyzs", map.get("sbqys"));
+				eo.add("cz", "");//是否提交过
+				
+				if("0".equals(zfzt)){
+					eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 50%;height:100%\" onclick=\"mommit()\">上报</a>");
+				}else{
+					eo.add("cz", "上报");
+				}
+				eoc.add(eo);
+			}
+		}
+		return eoc.toString();
+	}
+	
+	/**
+	 * 得到各个区县本次抽取的信息（使用在市局用户进入的情况下，此版本不用）
+	 * @param fzid
+	 * @return
+	 */
+	@Action
+	public String getSjGridData(String fzid){
 		ExtObjectCollection eoc = new ExtObjectCollection();
 
 		String sql= "select t.cid,t.caption,org.orgnum,per.pernum,p6.recordid, p6.plan0602,p6.plan0605 from dm_codetable_data t "+
@@ -77,7 +133,7 @@ public class CompanyManage {
 		}
 		return eoc.toString();
 	}
-	
+
 	/**
 	 * 得到权重值，用于判定这个方案是否设置了权重
 	 * @return
@@ -116,11 +172,11 @@ public class CompanyManage {
 		ExtResultObject ero = new ExtResultObject();
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 
-		int ts = Integer.parseInt(request.getParameter("ts").toString());
+		/*int ts = Integer.parseInt(request.getParameter("ts").toString());
 		int jl = Integer.parseInt(request.getParameter("jl").toString());
 		int qzrz = Integer.parseInt(request.getParameter("qzrz").toString());
 		int bz = Integer.parseInt(request.getParameter("bz").toString());
-		
+
 		String tssy = request.getParameter("tssy").toString();
 		String jlsy = request.getParameter("jlsy").toString();
 		String qzrzsy = request.getParameter("qzrzsy").toString();
@@ -129,11 +185,18 @@ public class CompanyManage {
 		this.saveWeightConfig("ts",ts,tssy,fzid);
 		this.saveWeightConfig("jl",jl,jlsy,fzid);
 		this.saveWeightConfig("qzrz",qzrz,qzrzsy,fzid);
-		this.saveWeightConfig("bz",bz,bzsy,fzid);
-		this.jdbcTemplate.execute("update plan01 set plan0106=1 where plan00 = '"+fzid+"'");//1表示已经设置权重
-		
-		
-		
+		this.saveWeightConfig("bz",bz,bzsy,fzid);*/
+		//this.jdbcTemplate.execute("update plan01 set plan0106=1 where plan00 = '"+fzid+"'");
+		String zone = this.userSession.getCurrentUserZone();
+		IRecord p3rid =  this.recordDao.queryTopOneRecord("plan03", "parentid = '"+fzid+"' and plan0301='"+zone+"'", "plan0301");
+		String p302 = p3rid.get("plan0302").toString();
+		if("1".equals(p302)){
+			this.jdbcTemplate.execute("update plan03 set plan0302=2 where parentid = '"+fzid+"' and plan0301 = '"+zone+"'");//2表示已经设置权重
+		}else{
+
+		}
+
+
 		/*String zone = this.userSession.getCurrentUserZone();
 		List<String> unSetList = new ArrayList<String>();
 		//如果是某个区县设置权重 或者市局设置权重
@@ -164,91 +227,17 @@ public class CompanyManage {
 				ero.add("flag", "faile");
 		}*/
 		
-		//当得到权重的时候要向随机库中放对应的随机基数
-		/*String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid <> '110000'";
-		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
-	
-		if(resultList.size()>0){
-			for(Map<String,Object> map:resultList){
-				//生成对应的rand01记录
-				UUID rand1ID = UUID.randomUUID();
-				IRecord ran1 = this.recordDao.createNew("RAND01", rand1ID, rand1ID);
-				ran1.put("RAND0102", map.get("cid"));
-				ran1.put("RAND0101", fzid);
-				this.recordDao.saveObject(ran1);
-
-
-			    //建立序列号的语句
-				String sequencesSql = "CREATE SEQUENCE emp_sequence  INCREMENT BY 1   START WITH 1  NOMAXVALUE   NOCYCLE  CACHE 10";
-				String isSwq = "SELECT count(*) FROM All_Sequences where sequence_name='EMP_SEQUENCE'";
-				int swq = this.jdbcTemplate.queryForInt(isSwq);
-
-				if(swq>0){
-					//删除序列函数
-					String dropSeqSql = "DROP SEQUENCE emp_sequence";
-					this.jdbcTemplate.execute(dropSeqSql);
-				}
-
-				this.jdbcTemplate.execute(sequencesSql);
-				int ssss = this.jdbcTemplate.queryForInt("select count(*) from ORG01 tt where tt.REG_DISTRICT_DIC = '"+map.get("cid")+"'");
-
-				//这种情况不考虑权重，既所有设置的权重都是1
-				String exeSql = "insert into RAND02 select get_uuid,get_uuid,'"+rand1ID+"',null,emp_sequence.nextval,"+
-								" t.parentid,t.org0201,t.org0202,t.org0203,t.org0204 "+
-								" from org02 t where t.parentid in (select tt.org00 from ORG01 tt where tt.REG_DISTRICT_DIC = '"+map.get("cid")+"')";
-				this.jdbcTemplate.execute(exeSql);
-				
-				//一下是适合多权重的，sql和程序还需要优化一下
-				//生成对应的rand02记录，随机基础数据
-				//Records orgRec = this.recordDao.queryRecord("ORG01", "REG_DISTRICT_DIC='"+map.get("cid")+"'");//得到该地区所有的企业记录
-
-				
-				   for(IRecord org:orgRec){
-					IRecord org2 = this.recordDao.queryTopOneRecord("ORG02", "parentid='"+org.getRecordId()+"'", "parentid");//得到企业对应的权重特性
-					boolean flag = true;
-					//企业是特设
-					if("1".equals(org2.get("ORG0201"))){
-						this.createRandBase(ts,org2,rand1ID);
-						flag = false;
-					}
-					//企业是计量
-					if("1".equals(org2.get("ORG0202"))){
-						this.createRandBase(jl,org2,rand1ID);
-						flag = false;
-					}
-					if("1".equals(org2.get("ORG0203"))){
-						this.createRandBase(qzrz,org2,rand1ID);
-						flag = false;
-					}
-					if("1".equals(org2.get("ORG0204"))){
-						this.createRandBase(bz,org2,rand1ID);
-						flag = false;
-					}
-
-					if(flag){
-						this.createRandBase(1,org2,rand1ID);
-					}
-				}
-				
-				String upSql = "update plan03 set plan0302 = 2 where parentid = '"+fzid+"' and plan0301 = '"+map.get("cid").toString()+"'";
-				this.jdbcTemplate.execute(upSql);
-			}
-		}*/
 		ero.add("flag", "success");
 		return ero.toString();
 	}
 	
 
 	/**
-	 * 初始化随机基数表
+	 * 初始化企业随机基数表
 	 * @param zone
 	 * @return
 	 */
 	private String setRandm(String fzid,String zone){
-/*		String sql= "select * from plan03   where parentid = '"+fzid+"' and PLAN0301 = '"+zone+"'";
-		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
-		if(resultList.size()>0 && "1".equals(resultList.get(0).get("plan0302").toString())){
-			Map<String,Object> map = resultList.get(0);*/
 			//生成对应的rand01记录    这里做判定如果已经产生了就不在插入了
 			UUID rand1ID = UUID.randomUUID();
 			IRecord ran1 = this.recordDao.createNew("RAND01", rand1ID, rand1ID);
@@ -260,7 +249,6 @@ public class CompanyManage {
 			String sequencesSql = "CREATE SEQUENCE emp_sequence  INCREMENT BY 1   START WITH 1  NOMAXVALUE   NOCYCLE  CACHE 10";
 			String isSwq = "SELECT count(*) FROM All_Sequences where sequence_name='EMP_SEQUENCE'";
 			int swq = this.jdbcTemplate.queryForInt(isSwq);
-
 			if(swq>0){
 				String dropSeqSql = "DROP SEQUENCE emp_sequence";
 				this.jdbcTemplate.execute(dropSeqSql);
@@ -273,17 +261,9 @@ public class CompanyManage {
 							" from org02 t where t.parentid in (select tt.org00 from ORG01 tt where tt.REG_DISTRICT_DIC = '"+zone+"' and tt.org00 not in(select PLAN1201 from plan12 where PLAN1204 = '"+zone+"'))";
 			this.jdbcTemplate.execute(exeSql);
 			return "true";
-/*		}else{
-			//请选确认执法人员
-			return "false";
-		}*/
-		
-		
-		
-		
+
 		/*
-		
-				//一下是适合多权重的，sql和程序还需要优化一下
+				//以下是适合多权重的，sql和程序还需要优化一下
 				//生成对应的rand02记录，随机基础数据
 				//Records orgRec = this.recordDao.queryRecord("ORG01", "REG_DISTRICT_DIC='"+map.get("cid")+"'");//得到该地区所有的企业记录
 
@@ -321,11 +301,7 @@ public class CompanyManage {
 		}
 		*/
 	}
-	
-	
-	
-	
-	
+
 	/**
 	 * 
 	 * @param times 企业加权后的次数
@@ -363,10 +339,9 @@ public class CompanyManage {
 		ird.put("PLAN0803", isSY=="true"?0:1);  //0表示适用，1表示不适用
 		this.recordDao.saveObject(ird);
 	}
-
 	
 	/**
-	 * 存储每个方案各个地区需要随机的企业数
+	 * 存储每个方案各个地区需要随机的企业数(此版本不适用)
 	 * @return
 	 */
 	@Action
@@ -380,82 +355,10 @@ public class CompanyManage {
 		String zsjl = request.getParameter("zsjl");//至少计量
 		JSONArray array = JSONArray.fromObject(data);
 
-		/*如果按选择的条数来，就要去除企业总数为空的时机
-		 String sdata = request.getParameter("sdata");
+		
+		String sdata = request.getParameter("sdata");
 		JSONArray sarray = JSONArray.fromObject(sdata);
-		*/
-		
-		//一下是考虑各个区县可以自己设置权重的情况，
-/*		List<Map<String,String>> useQX = new ArrayList<Map<String,String>>();
-		List<String> unUseQX = new ArrayList<String>();
-		for(int i=0;i<array.size();i++){
-			JSONObject jsonObject = (JSONObject) array.get(i);
-			String qxid = jsonObject.get("qxid").toString();
-			Records ird = this.recordDao.queryRecord("PLAN03", "parentid = '"+fzid+"' and plan0301 = '"+qxid+"'");
-			
-			if(ird.size()>0){
-				Object p3 = ird.get(0).get("plan0302");
-				if(p3!=null && "2".equals(p3.toString())){
-					Map<String,String> map = new HashMap<String,String>();
-					map.put("id", jsonObject.get("id").toString());
-					map.put("qxid", jsonObject.get("qxid").toString());
-					map.put("sjqyzs", jsonObject.get("sjqyzs").toString());
-					useQX.add(map);
-				}else{
-					unUseQX.add(qxid);
-				}
-			}else{
-				unUseQX.add(qxid);
-			}
-		}
 
-		//对于已经设置权重的
-		Records u1 = this.recordDao.queryRecord("USER01", "user0101 = '"+this.userSession.getCurrentUserId()+"'");
-		for(int i=0;i<useQX.size();i++){
-			Map<String,String> map = useQX.get(i);
-
-			IRecord ird = this.recordDao.createNew("PLAN06", UUID.fromString(map.get("id")), UUID.fromString(fzid));
-			ird.put("PLAN0601", map.get("qxid"));
-			ird.put("PLAN0602", map.get("sjqyzs"));
-			ird.put("PLAN0603", u1.get(0).get("user00"));
-			ird.put("PLAN0604", new Date());
-			this.recordDao.saveObject(ird);
-
-			String upSql = "update plan03 set plan0302 = 3 where parentid = '"+fzid+"' and plan0301 = '"+map.get("qxid")+"'";
-			this.jdbcTemplate.execute(upSql);
-		}
-		
-		ero.add("flag", true);
-		ero.add("text", unUseQX.toString());
-		return ero.toString();
-		
-		if(zone==null||"".equals(zone)){
-			String sql= "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid   <> '110000'";
-			List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql);
-		
-			if(resultList.size()>0){
-				for(Map<String,Object> map:resultList){
-					String flag = this.setRandm(fzid, map.get("cid").toString());
-					if("false".equals(flag)){
-						unSetList.add(map.get("cid").toString());
-					}
-				}
-				
-				if(unSetList.size()>0){
-					ero.add("flag", "unset");
-					ero.add("text", unSetList);
-				}else{
-					ero.add("flag", "success");
-				}
-			}
-		}else{
-			String flag = this.setRandm(fzid, zone);
-			if("true".equals(flag))
-				ero.add("flag", "success");
-			else 
-				ero.add("flag", "faile");
-		}
-		*/
 		List<String> unUseQX = new ArrayList<String>();
 		//现在使用的是由市局统一配置对应的权重,先判定市局有没有设置权重plan01添加对应的字段，初始化抽取企业（去除已抽取）
 		IRecord p1 = this.recordDao.getRecord("PLAN01", UUID.fromString(fzid));
@@ -501,6 +404,62 @@ public class CompanyManage {
 	}
 	
 	
+	/**
+	 * 各区县提交抽查的企业数
+	 * @return
+	 */
+	@Action
+	public String addSJOrgCount(String fzid){
+		ExtResultObject ero = new ExtResultObject();
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String zone = this.userSession.getCurrentUserZone();
+		String sdata = request.getParameter("sdata");
+		JSONObject jsonObject = JSONObject.fromObject(sdata);
+		
+		//此版本不做权重的设置，但是下一个版本要做，这里在方法内走一下权重的更新,如果权重启用，这个状态就不在这里控制了
+		this.addWeightCon(fzid);
+		
+		IRecord p3rid =  this.recordDao.queryTopOneRecord("plan03", "parentid = '"+fzid+"' and plan0301='"+zone+"'", "plan0301");
+		String p302 = p3rid.get("plan0302").toString();
+		
+		if("0".equals(p302)){
+			ero.add("text", "请先设置抽查人员");
+			ero.add("flag", "f2");
+		}else if("1".equals(p302)){
+			ero.add("text", "请先设置权重");
+			ero.add("flag", "f2");
+		}else{//已经设置权重和人员
+			Records u1 = this.recordDao.queryRecord("USER01", "user0101 = '"+this.userSession.getCurrentUserId()+"'");
+			this.saveToP6(fzid, zone, jsonObject, u1.get(0).get("user00").toString());
+			//给每个区县设置抽取企业
+			this.setRandm(fzid, zone);
+			String upSql = "update plan03 set plan0302 = 3 where parentid = '"+fzid+"' and plan0301 = '"+zone+"'";
+			this.jdbcTemplate.execute(upSql);
+			ero.add("text", "上报成功");
+			ero.add("flag", "f1");
+		}
+		return ero.toString();
+	}
+
+	/**
+	 * 将设置的企业数保存到plan06表中
+	 * @param fzid
+	 * @param zone
+	 * @param jsonObject
+	 * @param userid
+	 */
+	private void saveToP6(String fzid,String zone,JSONObject jsonObject,String userid){
+		UUID uid = UUID.randomUUID();
+		IRecord ird = this.recordDao.createNew("PLAN06", uid, UUID.fromString(fzid));
+		ird.put("PLAN0601", zone);
+		ird.put("PLAN0602", jsonObject.get("sjqyzs"));
+		ird.put("PLAN0603", userid);
+		ird.put("PLAN0605", "1");//表示已将提交过了
+		ird.put("PLAN0604", new Date());
+		this.recordDao.saveObject(ird);
+	}
+	
+	
 	@Action
 	public String getZT(String faid){
 		String zone = this.userSession.getCurrentUserZone();
@@ -518,7 +477,7 @@ public class CompanyManage {
 				}
 			}
 		}else{
-			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"'");
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"' and plan0302 >=3");
 			if(rds.size()>0){
 				return rds.get(0).get("plan0302").toString();  //以上报
 			}else{

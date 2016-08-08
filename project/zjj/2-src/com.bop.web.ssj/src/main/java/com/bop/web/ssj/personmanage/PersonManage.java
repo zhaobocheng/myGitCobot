@@ -23,7 +23,6 @@ import com.bop.json.ExtGridRow;
 import com.bop.json.ExtObject;
 import com.bop.json.ExtObjectCollection;
 import com.bop.json.ExtResultObject;
-
 import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
@@ -60,7 +59,7 @@ public class PersonManage {
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		int pageIndex = request.getParameter("pageIndex")==null?0:Integer.parseInt(request.getParameter("pageIndex").toLowerCase());
 		int pageSize = request.getParameter("pageSize")==null?20:Integer.parseInt(request.getParameter("pageSize").toLowerCase());
-		
+		Object key=request.getParameter("key");
 		String zone = this.userSession.getCurrentUserZone();
 		
 		// 获取第几页
@@ -69,11 +68,15 @@ public class PersonManage {
 			start = pageSize*pageIndex;
 		}
 		
-		String whereSql = null;
+		String whereSql = "plan0204 = '1' ";
 		if(zone==null||"".equals(zone)){
-			whereSql = "plan0204 = '1' and parentid = '"+faid+"'";
+			whereSql += " and parentid = '"+faid+"'";
 		}else{
-			whereSql = "plan0204 = '1' and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
+			whereSql += " and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
+		}
+		
+		if(key!=null&& !"".equals(key)){
+			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
 		}
 		
 		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);
@@ -113,15 +116,20 @@ public class PersonManage {
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		int pageIndex = request.getParameter("pageIndex")==null?0:Integer.parseInt(request.getParameter("pageIndex").toLowerCase());
 		int pageSize = request.getParameter("pageSize")==null?20:Integer.parseInt(request.getParameter("pageSize").toLowerCase());
-		ExtObjectCollection eoc = new ExtObjectCollection();
+		Object key=request.getParameter("key");
+
 		String zone = this.userSession.getCurrentUserZone();
-		String whereSql = null;
+		String whereSql = "plan0204 <> '1' ";
 		if(zone==null||"".equals(zone)){
-			whereSql = "plan0204 <> '1' and parentid = '"+faid+"'";
+			whereSql += " and parentid = '"+faid+"'";
 		}else{
-			whereSql = "plan0204 <> '1' and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
+			whereSql += "  and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 		}
 		
+		if(key!=null&& !"".equals(key)){
+			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
+		}
+
 		// 获取第几页
 		int start = 0;
 		if (pageIndex != 0){
@@ -130,7 +138,6 @@ public class PersonManage {
 				
 		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);
 		Records totalrds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205");
-		
 		ExtGrid eg = new ExtGrid();
 		eg.setTotal(totalrds.size());
 
@@ -156,6 +163,48 @@ public class PersonManage {
 	
 
 	/**
+	 * 得到方案列表数据
+	 * @return
+	 */
+	@Action
+	public String getFALBData(String zfnd,String zfzt){
+
+		ExtObjectCollection eoc = new ExtObjectCollection();
+		String wheresql = " t.PLAN0105 = 1 and tt.plan0301='"+this.userSession.getCurrentUserZone()+"' ";
+		
+		if(zfnd!=null&&!"".equals(zfnd)){
+			wheresql += " and t.plan0101 = "+zfnd;
+		}
+		if(zfzt!=null&&!"".equals(zfzt)){
+			if("0".equals(zfzt)){
+				wheresql += " and tt.plan0302 = "+zfzt;
+			}else{
+				wheresql += " and tt.plan0302 <> 0";
+			}
+		}
+		List<Map<String,Object>> list = this.jdbcTemplate.queryForList("select * from plan01 t  left join plan03 tt on tt.parentid = t.plan00 where "+wheresql+" order by t.plan0102 desc");
+		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
+		for(Map<String,Object> rd :list){
+			ExtObject eo = new ExtObject();
+			eo.add("id", rd.get("plan00"));
+			eo.add("zftime",rd.get("PLAN0101").toString()+"0"+rd.get("PLAN0102").toString());
+			eo.add("cjtime",format.format(rd.get("PLAN0103")));
+			eo.add("famc",rd.get("PLAN0107").toString());
+			eo.add("zt", "0".equals(rd.get("PLAN0302").toString())?"未上报":"已上报");
+			
+			if("0".equals(rd.get("PLAN0302").toString())){
+				eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\"  onclick=\"sbRow()\">上报</a>");
+			}else{
+				eo.add("cz", "上报");
+			}
+			
+			eoc.add(eo);
+		}
+		return eoc.toString();
+	}
+	
+	
+	/**
 	 * 得到下拉时间列表数据
 	 * @return
 	 */
@@ -174,6 +223,25 @@ public class PersonManage {
 		return eoc.toString();
 	}
 	
+	/**
+	 * 得到下拉框数据
+	 * @return
+	 */
+	@Action
+	public String getCBData(String flag){
+		List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList("select distinct t.plan0101 nd from plan01 t");
+		ExtObjectCollection eoc = new ExtObjectCollection();
+
+		for(Map<String,Object> ire:ndlist){
+			ExtObject eo = new ExtObject();
+			eo.add("id", ire.get("nd"));
+			eo.add("text", ire.get("nd"));
+			eoc.add(eo);
+		}
+		return eoc.toString();
+	}
+	
+
 	/**
 	 * 人员页面左移右移的改动
 	 * @param zfid
@@ -206,7 +274,6 @@ public class PersonManage {
 	@Action
 	public String upShow(String faid){
 		String zone = this.userSession.getCurrentUserZone();
-		
 		List<String> unSelectList = new ArrayList<String>();
 		ExtResultObject ero = new ExtResultObject();
 		
@@ -241,18 +308,15 @@ public class PersonManage {
 	
 	private String changeUpshow(String faid,String zone){
 		String upSql = "select count(*) from plan02 where plan0204 = 0 and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
-		String updataSql= "update plan02 set plan0204 = 2 where plan0204 = 0 and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 		
 		int allUpCount = this.jdbcTemplate.queryForInt(upSql);
 		if(allUpCount>0){
+			String updataSql= "update plan02 set plan0204 = 2 where plan0204 = 0 and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 			this.jdbcTemplate.execute(updataSql);
-			Object [] args = new Object[4];
-			String sql = "insert into plan03(recordid,parentid,plan00,pindex,plan0301,plan0302) values(get_uuid,?,?,1,?,?)";
-			args[0]=faid;
-			args[1]=faid;
-			args[2]=zone;
-			args[3]=1;
-			this.jdbcTemplate.update(sql, args);
+			
+			String updataPlan03Sql= "update plan03 set plan0302 = 1 where  parentid = '"+faid+"' and plan0301 = '"+zone+"'";
+			this.jdbcTemplate.execute(updataPlan03Sql);
+			
 			return "success";
 		}else{
 			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"'");
@@ -263,24 +327,24 @@ public class PersonManage {
 			}
 		}
 	}
-	
+
 	@Action
 	public String getZT(String faid){
 		String zone = this.userSession.getCurrentUserZone();
-		
 		if(zone==null||"".equals(zone)){
-			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"'");
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0302=0");
 			if(rds.size()==17){
-				return "ups";  //以上报
-			}else{
 				return "select";   //需要选择对象
+			}else{
+				return "ups";  //以上报
 			}
 		}else{
-			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"'");
+			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"' and plan0302 = 0");
 			if(rds.size()>0){
-				return "ups";  //以上报
-			}else{
 				return "select";   //需要选择对象
+			}else{
+				return "ups";  //以上报
+				
 			}
 		}
 	}

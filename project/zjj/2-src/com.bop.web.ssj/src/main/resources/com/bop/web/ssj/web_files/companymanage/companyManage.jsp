@@ -237,7 +237,6 @@
 				return;
 			} */
 			var data = grid.getChanges();
-			
 			var selectData = grid.getSelecteds();
 
 			var json = mini.encode(data);
