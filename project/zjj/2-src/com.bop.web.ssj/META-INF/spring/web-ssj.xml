@@ -37,4 +37,9 @@
     	<property name="recordDao" ref="recordDao" />
    		<property name="userSession" ref="UserSession" />
     </bean>
+    <bean id="schemeresult" class="com.bop.web.ssj.ssjscheme.SchemeResult">
+        <property name="jdbcTemplate" ref="JdbcTemplate" />
+        <property name="recordDao" ref="recordDao" />
+        <property name="userSession" ref="UserSession" />
+    </bean>    
 </beans>
