@@ -84,7 +84,14 @@
 			<property name="url" value="/ssj/ssjScheme/temp.jsp" />
 		</bean>
 	</osgi:service>
-	
+	<osgi:service id="MenuItem1109" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="1109" />
+			<property name="name" value="执法结果录入" />
+			<property name="description" value="执法结果录入" />
+			<property name="url" value="/ssj/ssjScheme/schemeResult.jsp" />
+		</bean>
+	</osgi:service>	
 	<osgi:service id="MenuItem1202" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1202" />
