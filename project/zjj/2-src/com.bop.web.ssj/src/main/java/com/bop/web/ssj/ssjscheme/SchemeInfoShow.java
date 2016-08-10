@@ -77,20 +77,20 @@ public class SchemeInfoShow {
 				eo.add("id", map.get("plan00"));
 				eo.add("mc", map.get("mc"));
 				eo.add("zfyf", map.get("zfyf"));
-				eo.add("zfryzs", "<a  id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 48%;height:100%\" onclick=\"showRy()\">"+map.get("zfryzs")+"</a>");
-				eo.add("cyzfrs", map.get("cyzfrs"));
-				eo.add("cycczs", map.get("cycczs"));
-				eo.add("ccqys", map.get("ccqys"));
+				eo.add("zfryzs", "<a  id = \"zs\"   Style=\"color:black;\" onclick=\"showRy('zs')\">"+map.get("zfryzs")+"</a>");
+				eo.add("cyzfrs", "<a  id = \"zfrs\" Style=\"color:black;\" onclick=\"showRy('zf')\">"+map.get("cyzfrs")+"</a>");
+				eo.add("cycczs", "<a  id = \"zfrs\" Style=\"color:black;\" onclick=\"showOrg('zs')\">"+map.get("cycczs")+"</a>");
+				eo.add("ccqys", "<a  id = \"zfrs\" Style=\"color:black;\" onclick=\"showOrg('zf')\">"+map.get("ccqys")+"</a>");
 				eo.add("zffa", map.get("zffa"));
 				eo.add("wtjfas", map.get("wtjfas"));
 				eo.add("cz", "");//是否提交过
 				
-				if("0".equals(zfzt)){
+			//	if("0".equals(zfzt)){
 					eo.add("zffa", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 48%;height:100%\" onclick=\"createFa()\">生成执法方案</a>"
 							+ " <a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 48%;height:100%\" onclick=\"viewFa()\">浏览执法方案</a>");
-				}else{
+		/*		}else{
 					eo.add("zffa", "");
-				}
+				}*/
 				eoc.add(eo);
 			}
 		}
@@ -99,7 +99,6 @@ public class SchemeInfoShow {
 	
 	
 
-	
 //	---------------------------------------------------------------------方案浏览-------------------------------------------------------
 	/**
 	 * 浏览生成方案
@@ -115,7 +114,6 @@ public class SchemeInfoShow {
 		}else{
 			whereSql = "parentid = '"+fzid+"' and PLAN1204 = '"+zone+"'";
 		}
-
 
 		Records ires  = this.recordDao.queryRecord("PLAN12", whereSql);
 
@@ -239,21 +237,73 @@ public class SchemeInfoShow {
 		vc.put("name", "名称");
 		return new TemplateRenderer(this.getClass(), "desktop", vc);
 	}
+
+	/**
+	 * 返回人员信息的列表，提供给方案生成和浏览的人数下钻使用
+	 * @param faid
+	 * @return
+	 */
+	@Action
+	public String getRYcount(String faid){
+		ExtObjectCollection ero = new ExtObjectCollection();
+		String flag=ActionContext.getActionContext().getHttpServletRequest().getParameter("flag");
+		String zone = this.userSession.getCurrentUserZone();
+		String sql = null;
+		
+		if("zs".equals(flag)){
+			 sql = "select p2.plan0202 as mc,p2.plan0203 as sfzh,case when a1.person_sex=1 then '女' else '男' end as xb,zs.zfcs as zfcs "+
+					" from plan02 p2  left join a01 a1 on a1.a00=p2.plan0201 left join plan01 p1 on p1.plan00=p2.parentid"+
+					" left join (  select plan01.plan0101 as nd,t.plan0201,count(t.recordid) as zfcs   from plan02 t left join plan01 on plan01.plan00 = t.parentid"+
+					" where  t.plan0204 = 2   group by plan01.plan0101,t.plan0201 ) zs on zs.plan0201 = p2.plan0201 and zs.nd = p1.plan0101"+
+					" where p2.parentid = '"+faid+"' and p2.plan0205 = '"+zone+"'";
+		}else{
+			 sql = "select p2.plan0202 as mc,p2.plan0203 as sfzh,case when a1.person_sex=1 then '女' else '男' end as xb,zs.zfcs as zfcs "+
+					" from plan02 p2  left join a01 a1 on a1.a00=p2.plan0201 left join plan01 p1 on p1.plan00=p2.parentid"+
+					" left join (  select plan01.plan0101 as nd,t.plan0201,count(t.recordid) as zfcs   from plan02 t left join plan01 on plan01.plan00 = t.parentid"+
+					" where  t.plan0204 = 2   group by plan01.plan0101,t.plan0201 ) zs on zs.plan0201 = p2.plan0201 and zs.nd = p1.plan0101"+
+					" where p2.plan0204 = 2 and p2.parentid = '"+faid+"' and p2.plan0205 = '"+zone+"'";
+		}
+		List<Map<String,Object>> list = this.jdbcTemplate.queryForList(sql);
+		
+		for(Map<String,Object> map:list){
+			ExtObject eo = new ExtObject();
+			eo.add("mc", map.get("mc"));
+			eo.add("xb", map.get("xb"));
+			eo.add("sfzh", map.get("sfzh"));
+			eo.add("chcs", map.get("zfcs"));
+			ero.add(eo);
+		}
+		
+		return ero.toString();
+	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	@Action
+	public String getORGcount(String faid){
+		ExtObjectCollection ero = new ExtObjectCollection();
+		String flag=ActionContext.getActionContext().getHttpServletRequest().getParameter("flag");
+		String zone = this.userSession.getCurrentUserZone();
+		String sql = null;
+		
+		if("zs".equals(flag)){
+			 sql = "select  t.org_code as jgdm,t.org_name as dwmc,t.reg_addr dz,t.legal_repre as lxr ,t.legal_repre_tel phone "+
+					" from org01 t where t.reg_district_dic = '110108' ";
+		}else{
+			 sql = "select t.plan1202 as jgdm,t.plan1203 as dwmc,t.plan1205 dz,t.plan1206 as lxr ,t.plan1207 phone 	from plan12 t where t.parentid='"+faid+"' and t.plan1204='"+zone+"'";
+		}
+
+		List<Map<String,Object>> list = this.jdbcTemplate.queryForList(sql);
+		
+		for(Map<String,Object> map:list){
+			ExtObject eo = new ExtObject();
+			eo.add("jgdm", map.get("jgdm"));
+			eo.add("dwmc", map.get("mc"));
+			eo.add("dz", map.get("dz"));
+			eo.add("lxr", map.get("lxr"));
+			eo.add("phone", map.get("phone"));
+			ero.add(eo);
+		}
+		return ero.toString();
+	}
 	
 	
 	

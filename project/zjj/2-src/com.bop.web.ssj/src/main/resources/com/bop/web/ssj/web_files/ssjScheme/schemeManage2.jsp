@@ -91,7 +91,7 @@ createRepert = function(e){
     var faid = grid.getSelected().id;
     
 	$.ajax({
-		url:'/ssj/ssjScheme/SchemeInfoShow/createSchemeData/'+faid,
+		url:'/ssj/ssjscheme/SchemeInfoShow/createSchemeData/'+faid,
 		type:'get',
 		data:{isreplace:e},
 		success:function(e){
@@ -125,13 +125,13 @@ viewFa = function(){
 	
 }
 
-showRy = function(){
+showRy = function(e){
 	var faid = grid.getSelected().id;
 	mini.open({
-		url:'/ssj/ssjScheme/SchemeInfoShow/getRYcount?theme=2&faid='+faid,
+		url:'/ssj/ssjscheme/showPerson.jsp?theme=2&faid='+faid+"&flag="+e,
 		showMaxButton: false,
 	    allowResize: true,
-	    title: '方案浏览',
+	    title: '执法人员情况',
 	    width: 800,
 	    height: 600,
 	    onload: function(){
@@ -142,7 +142,47 @@ showRy = function(){
 	    
 	    }	
 	});
-}
+} 
+
+showOrg = function(e){
+	var faid = grid.getSelected().id;
+	mini.open({
+		url:'/ssj/ssjscheme/showOrg.jsp?theme=2&faid='+faid+"&flag="+e,
+		showMaxButton: false,
+	    allowResize: true,
+	    title: '执法人员情况',
+	    width: 800,
+	    height: 600,
+	    onload: function(){
+	        var iframe = this.getIFrameEl();
+	       // iframe.contentWindow.setData(data);
+	    },
+	    ondestroy: function (action) {
+	    
+	    }	
+	});
+} 
+
+/* showRy = function(){
+	var faid = grid.getSelected().id;
+	mini.open({
+		url:'/ssj/ssjscheme/SchemeInfoShow/getRYcount?theme=2&faid='+faid,
+		showMaxButton: false,
+	    allowResize: true,
+	    title: '执法人员情况',
+	    width: 800,
+	    height: 600,
+	    onload: function(){
+	        var iframe = this.getIFrameEl();
+	       // iframe.contentWindow.setData(data);
+	    },
+	    ondestroy: function (action) {
+	    
+	    }	
+	});
+} */
+
+
 
 
 </script>
