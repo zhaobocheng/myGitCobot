@@ -171,8 +171,7 @@ public class CreateScheme {
 		return "success";
 	}
 	
-	
-	
+
 	private void insertPlan3(String faid){
 		//需要区分是市局还是区县的用户
 		String zone = this.userSession.getCurrentUserZone();
@@ -304,13 +303,6 @@ public class CreateScheme {
 				this.jdbcTemplate.execute("delete from PLAN12 where parentid = '"+fzid+"' and plan1210 = '保存' and plan1204 = '"+qxid+"'");
 			}
 
-			/*if(plan06.get("PLAN0602")!=null){
-				IRecord rand01 = this.recordDao.queryTopOneRecord("RAND01", "RAND0101 = '"+fzid+"' and RAND0102='"+qxid+"'","RAND0101");
-				int allCqOrg = Integer.parseInt(plan06.get("PLAN0602").toString());//得到该区县要抽取的企业个数
-				this.getQxCqOrg(allCqOrg,rand01,orgmap);
-			}else{
-				//这个区县不抽取任何企业
-			}*/
 		}
 
 		//抽取完毕，进行遍历返回台展现
