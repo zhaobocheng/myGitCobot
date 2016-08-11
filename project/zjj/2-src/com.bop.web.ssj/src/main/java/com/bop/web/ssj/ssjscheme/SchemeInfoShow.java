@@ -2,6 +2,7 @@ package com.bop.web.ssj.ssjscheme;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,11 +50,11 @@ public class SchemeInfoShow {
 	public String getFALBData(String zfnd,String zfzt){ 
 
 		ExtObjectCollection eoc = new ExtObjectCollection();
-		String sql = "select  t.plan00,t.plan0107 as mc,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys , "+
-					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs from plan01 t  left join plan03 tt on tt.parentid = t.plan00 "+
+		String sql = "select  t.plan00,t.plan0107 as mc,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys ,  "+
+					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs , decode(p21.fqs,null,0,p21.fqs) as fqs from plan01 t  left join plan03 tt on tt.parentid = t.plan00 "+
 					" left join (select count(*) qys,org.reg_district_dic from org01 org group by org.reg_district_dic) counorg on counorg.reg_district_dic = tt.plan0301"+
 					" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
-					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
+					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301    left join (select count(*) as fqs ,pp.parentid from plan21 pp group by pp.parentid) p21 on p21.parentid = t.plan00 where ";
 		String wheresql = " t.PLAN0105 = 1 and tt.plan0301='"+this.userSession.getCurrentUserZone()+"' ";
 
 		if(zfnd!=null&&!"".equals(zfnd)){
@@ -66,10 +67,10 @@ public class SchemeInfoShow {
 				wheresql += " and tt.plan0302 >= 4";
 			}
 		}
-		
+
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" order by t.plan0102 desc");
 		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
-		
+
 		if(resultList.size()>0){
 			for(Map<String,Object> map:resultList){
 				ExtObject eo = new ExtObject();
@@ -82,7 +83,7 @@ public class SchemeInfoShow {
 				eo.add("cycczs", "<a  id = \"zfrs\" Style=\"color:black;\" onclick=\"showOrg('zs')\">"+map.get("cycczs")+"</a>");
 				eo.add("ccqys", "<a  id = \"zfrs\" Style=\"color:black;\" onclick=\"showOrg('zf')\">"+map.get("ccqys")+"</a>");
 				eo.add("zffa", map.get("zffa"));
-				eo.add("wtjfas", map.get("wtjfas"));
+				eo.add("wtjfas", "<a  id = \"zfrs\" Style=\"color:black;\" onclick=\"showOrg('fqb')\">"+map.get("fqs")+"</a>");
 				eo.add("cz", "");//是否提交过
 				
 			//	if("0".equals(zfzt)){
@@ -446,7 +447,7 @@ public class SchemeInfoShow {
 	@Action
 	public String createSchemeData(String fzid){
 		String zone = this.userSession.getCurrentUserZone();
-		String replace  =  ActionContext.getActionContext().getHttpServletRequest().getParameter("replace");
+		String replace  =  ActionContext.getActionContext().getHttpServletRequest().getParameter("isreplace");
 		Map<String,ArrayList> orgmap = new HashMap<String,ArrayList>();
 		
 		if("replace".equals(replace)){
@@ -481,9 +482,26 @@ public class SchemeInfoShow {
 	 * @param ss
 	 */
 	private void saveReplacedSchema(String faid,String zone,String ss){
-		this.jdbcTemplate.execute("delete from PLAN1201 where parentid in (select recordid from PLAN12 where parentid = '"+faid+"' and plan1210 = '保存' and plan1204 = '"+zone+"')");
-		this.jdbcTemplate.execute("delete from PLAN12 where parentid = '"+faid+"' and plan1210 = '保存' and plan1204 = '"+zone+"'");
+		this.createPlan21(faid, zone);    //创建废弃信息主表
+	//	this.jdbcTemplate.execute("delete from PLAN1201 where parentid in (select recordid from PLAN12 where parentid = '"+faid+"' and plan1210 = '保存' and plan1204 = '"+zone+"')");
+		this.jdbcTemplate.execute("delete from PLAN12 where parentid = '"+faid+"' and plan1210 = '保存' and plan1204 = '"+zone+"'");   //上一步不用操作，因为这里使用的是级联删除，同时触发删除的表记录到废弃表中
+
 	}
+
+	/**
+	 * 创建废弃的信息表
+	 * @param faid
+	 * @param zone
+	 */
+	private void createPlan21(String faid,String zone){
+		UUID uid=UUID.randomUUID();
+		IRecord ire=this.recordDao.createNew("PLAN21", uid, UUID.fromString(faid));
+		ire.put("PLAN2101", "废弃原因");
+		ire.put("PLAN2102", new Date());
+		ire.put("PLAN2103", zone);
+		this.recordDao.saveObject(ire);
+	}
+
 	
 	/**
 	 * 抽取每个区县设置的数量的企业和人员

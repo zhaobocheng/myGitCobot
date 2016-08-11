@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 <html>
 <head>
-<meta name="decorator" content="miniui">
+<meta name="decorator" content="miniui"/>
 <title>方案浏览</title>
 </head>
 <body>
