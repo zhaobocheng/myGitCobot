@@ -231,7 +231,6 @@ public class CompanyManage {
 		return ero.toString();
 	}
 	
-
 	/**
 	 * 初始化企业随机基数表
 	 * @param zone
@@ -257,11 +256,12 @@ public class CompanyManage {
 
 			//这种情况不考虑权重，既所有设置的权重都是1，并且去除已经抽取过的企业
 			String exeSql = "insert into RAND02 select get_uuid,get_uuid,'"+rand1ID+"',null,emp_sequence.nextval,"+
-							" t.parentid,t.org0201,t.org0202,t.org0203,t.org0204 "+
-							" from org02 t where t.parentid in (select tt.org00 from ORG01 tt where tt.REG_DISTRICT_DIC = '"+zone+"' and tt.org00 not in(select PLAN1201 from plan12 where PLAN1204 = '"+zone+"'))";
+							" t.parentid,t.PLAN0405,t.PLAN0406,t.PLAN0407,t.PLAN0408 from plan04 t where t.parentid = '"+fzid+"' and PLAN0404 = '"+zone+"'";
 			this.jdbcTemplate.execute(exeSql);
 			return "true";
 
+			
+			
 		/*
 				//以下是适合多权重的，sql和程序还需要优化一下
 				//生成对应的rand02记录，随机基础数据

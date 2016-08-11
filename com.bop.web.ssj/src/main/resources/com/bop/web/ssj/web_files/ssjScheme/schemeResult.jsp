@@ -70,7 +70,6 @@ valueChangeMonth = function(e){
 }
 
 function onDrawCell(e){
-	debugger;
 	var value = e.value; 
 	var parm = /\{.*\}/;    
 	 if(value!=null){
@@ -82,7 +81,6 @@ function onDrawCell(e){
 }
 
 function onGenderRenderer(e) {
-	debugger
 	var editor=e.editor;
 	//if (editor.data!=null){
 	    for (var i = 0, l = Months.length; i < l; i++) {
@@ -94,8 +92,6 @@ function onGenderRenderer(e) {
 }
 
 function commitFa(){
-	debugger
-  
     if (grid.isChanged() == true) {
     	alert(1);
     	saveData();

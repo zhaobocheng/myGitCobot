@@ -17,7 +17,6 @@
         <div field="phone" width="50" headerAlign="center" >电话</div>
     </div>
 </div>
-
 <script>
 mini.parse();
 <%String faid = request.getParameter("faid"); %>

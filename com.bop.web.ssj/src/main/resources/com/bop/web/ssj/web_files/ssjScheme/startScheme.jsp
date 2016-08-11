@@ -30,6 +30,7 @@
 		<div type="checkcolumn" width="10"></div>
 		<div type="indexcolumn" width="10">序号</div>
 		<div field="id" name="id"  width="100" visible="false">方案id</div>
+		<div field="famc" name="famc" width="100" headerAlign="center"   allowSort="true">方案名称</div>
 		<div field="zftime" name="zftime" width="100" headerAlign="center"   allowSort="true">执法日期</div>
 		<div field="cjtime" name="cjtime" width="100" headerAlign="center" dateFormat="yyyy-MM-dd" allowSort="true">创建时间</div>
 		<div field="zt" name="zt" width="100" headerAlign="center"  >状态</div>
@@ -37,7 +38,7 @@
 </div>
 
 <!-- 新增窗口 -->
-<div id="newWin" class="mini-window" title="新增方案" style="width:300px;height:200px;" showToolbar="true" showFooter="true" >
+<div id="newWin" class="mini-window" title="新增方案" style="width:330px;height:230px;" showToolbar="true" showFooter="true" >
  	<div property="toolbar" style="padding:5px;">
         <label>方案时间</label>
         <!-- <input type='button' value='' onclick="hideWindow()" style='vertical-align:middle;'/> -->
@@ -54,6 +55,9 @@
 			</tr>
 			<tr><th width="20%"><label>月<font color="red">*</font>：</label></th>
 				<td><input id="addMonthcom" name="addMonthcom" class="mini-combobox"  style="width:100%"  required="true"/></td>
+			</tr>
+			<tr><th width="30%"><label>方案名称<font color="red">*</font>：</label></th>
+					<td><input id="faname" name="faname" class="mini-textbox"  style="width:100%"  required="true"/></td>
 			</tr>
 		</table>
     </div>
