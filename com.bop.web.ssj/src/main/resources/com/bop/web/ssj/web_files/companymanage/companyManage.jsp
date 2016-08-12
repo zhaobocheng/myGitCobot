@@ -13,18 +13,22 @@
 			<table>
 				<tr>
 					<td>
+					<span>年度：</span><input class="mini-combobox" id="zfnd" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getCBData/nd?theme=none"/>
+					<span>状态：</span><input class="mini-combobox" id="fazt" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" data="[{id:'0',text:'未上报'},{id:'1',text:'已上报'}]"  />
+					<!-- 
 						<span>&nbsp;&nbsp;方案时间：</span><input class="mini-combobox" id="zftime"
 							name="zftime" onvaluechanged="valueChange"
 							textField="text" valueField="id"
 							url="/ssj/personmanage/personmanage/getZfcData?theme=none" />
-							 <a class="mini-button" iconCls="icon-upload" id="setWeigBut" onclick="setAuthenRow()">设置权重</a>
-					</td>					
-					<td>
+							 <a class="mini-button" iconCls="icon-upload" id="setWeigBut" onclick="setAuthenRow()">设置权重</a> -->
+					</td>	
+					<!-- <td>
 						<span>&nbsp;&nbsp;随机结果规则：至少特设：</span><input class="mini-textbox" id="zsts"
 							style="width: 150px;" /> <span>&nbsp;&nbsp;至少计量：</span><input
-							class="mini-textbox" id="zsjl" style="width: 150px;" />
+							class="mini-textbox" id="zsjl" style="width: 150px;" /> </td> <a class="mini-button" id="mommitBut" onclick="mommit()">提交</a> -->
+					<td>
+						<span>抽取结果么人规则：至少1个特设企业，1个计量企业</span>
 					</td>
-					<td><a class="mini-button" id="mommitBut" onclick="mommit()">提交</a></td>
 				</tr>
 			</table>
 		</div>
@@ -32,27 +36,24 @@
 			<!-- 数据列表 -->
 			<div id="griddata" class="mini-datagrid"
 				style="width: 100%; height: 100%"
-				url="/ssj/companymanage/CompanyManage/getGridData/ss?theme=none"
+				url="/ssj/companymanage/CompanyManage/getGridData//?theme=none"
 				idFiled="id" showPager="false" multiSelect="true"
 				allowCellEdit="true" allowCellSelect="true"
 				editNextOnEnterKey="true" editNextRowCell="true"
-				oncellvalidation="onCellValidation(e)" >
+				oncellvalidation="onCellValidation(e)" onselectionchanged="onSelectionChanged"  >
 				<div property="columns">
 					<div type="checkcolumn" width="10"></div>
-					<div type="indexcolumn" width="15">序号</div>
+					<div type="indexcolumn" width="20">序号</div>
 					<div field="id" name="id" width="100" visible="false">id</div>
-					<div field="id" name="id" width="100" visible="false">zt</div>
-					<div field="qxid" name="qxid" width="100" visible="false">qxid</div>
-					<div field="qx" name="qx" width="100" headerAlign="center"
-						align="center" allowSort="true">区县</div>
-					<div field="cyqys" name="cyqys" width="100" headerAlign="center"
-						align="center" allowSort="true">参与企业数</div>
-					<div field="cyzfrys" name="cyzfrys" width="100"
-						headerAlign="center" align="center" allowSort="true">参与执法人员数</div>
-					<div field="sjqyzs" name="sjqyzs" vtype="required;int" width="100"
-						headerAlign="center" allowSort="true">
-						随机企业总数 <input property="editor" class="mini-spinner" minValue="0"
-							maxValue="200" value="4" style="width: 100%;" />
+					<div field="mc" name="mc" width="100" headerAlign="center" align="center" allowSort="true">任务名称</div>
+					<div field="zfyf" name="zfyf" width="100" headerAlign="center" align="center" >执法月份</div>
+					<div field="cyqys" name="cyqys" width="80" headerAlign="center" align="center" allowSort="true">参与抽查企业数</div>
+					<div field="cyzfrys" name="cyzfrys" width="60" headerAlign="center" align="center" allowSort="true">参与执法人员数</div>
+					<div field="sjqyzs" name="sjqyzs" vtype="required;int" width="60" headerAlign="center" allowSort="true">
+						抽查总数 <input property="editor" class="mini-spinner" minValue="0" maxValue="200" value="4" style="width: 100%;" />
+					</div>
+					<div field="cz" name="cz" vtype="required" width="60" headerAlign="center" allowSort="true">
+						操作 <!-- <input property="editor" class="mini-button"  style="width: 100%;" value="上报"/> -->
 					</div>
 				</div>
 			</div>
@@ -117,185 +118,167 @@
 		</div>
 	</div>
 
-	<script>
-		mini.parse();
-		var newwin = mini.get("newWin");
-		var zfcom = mini.get("zftime");
-		zfcom.select(0);
+<script>
+mini.parse();
+var newwin = mini.get("newWin");
+var zfnd = mini.get("zfnd");
+zfnd.select(0);
+var zfzt = mini.get("fazt");
+zfzt.select(0);
 
-		var grid = mini.get("griddata");
-		var url = "/ssj/companymanage/CompanyManage/getGridData/" + zfcom.value
-				+ "?theme=none";
-		grid.setUrl(url);
-		grid.load();
+var grid = mini.get("griddata");
+var url = "/ssj/companymanage/CompanyManage/getGridData/" + zfnd.value+"/"+zfzt.value + "?theme=none";
+grid.setUrl(url);
+grid.load();
 
 		
 
-		function isup(e){
-			var setWeigBut = mini.get("setWeigBut");
-			var mommitBut = mini.get("mommitBut");
-			
-			jQuery.ajax({
-				url:'/ssj/companymanage/CompanyManage/getZT/'+e+'?theme=none',
-				type:'post',
-				success:function(e){
-					if(e=="2"){
-						mommitBut.setEnabled(true);
-						setWeigBut.setEnabled(false);
-					}else if(e=="1" || e=="select"){
-						mommitBut.setEnabled(true);
-						setWeigBut.setEnabled(true);
-					}else{
-						mommitBut.setEnabled(false);
-						setWeigBut.setEnabled(false);
-					}
-				}	
-			});
-		};
+function isup(e){
+	var setWeigBut = mini.get("setWeigBut");
+	var mommitBut = mini.get("mommitBut");
+	
+	jQuery.ajax({
+		url:'/ssj/companymanage/CompanyManage/getZT/'+e+'?theme=none',
+		type:'post',
+		success:function(e){
+			if(e=="2"){
+				mommitBut.setEnabled(true);
+				setWeigBut.setEnabled(false);
+			}else if(e=="1" || e=="select"){
+				mommitBut.setEnabled(true);
+				setWeigBut.setEnabled(true);
+			}else{
+				mommitBut.setEnabled(false);
+				setWeigBut.setEnabled(false);
+			}
+		}	
+	});
+};
 
-		isup(zfcom.value);
+/* isup(zfcom.value); */
 		
-		valueChange = function(e) {
-			url = "/ssj/companymanage/CompanyManage/getGridData/" + e.value
-					+ "?theme=none";
-			grid.setUrl(url);
-			grid.reload();
-			isup(e.value);
-		}
 
-		setAuthenRow = function() {
-			//去判定这个方案有没有设置权重，如果有就将对应的值带过来，然后将确定按钮置灰
-			var faid = zfcom.value;
-			$.ajax({
-				url:'/ssj/companymanage/CompanyManage/getWFormData/'+faid+'?theme=none',
-				type:'get',
-				success:function(e){
-					 var formdate = mini.decode(e);
-					 var wform = new mini.Form("#newForm");
-					 wform.setData(formdate);
-					 var sureBut = mini.get("sureBut");
-					 if(e.length>2){
-						 sureBut.setEnabled(false);
-					 }else{
-						 sureBut.setEnabled(true);
-					 }
-					 newwin.show();
-				}
-			});
+setAuthenRow = function() {
+	//去判定这个方案有没有设置权重，如果有就将对应的值带过来，然后将确定按钮置灰
+	var faid = zfcom.value;
+	$.ajax({
+		url:'/ssj/companymanage/CompanyManage/getWFormData/'+faid+'?theme=none',
+		type:'get',
+		success:function(e){
+			 var formdate = mini.decode(e);
+			 var wform = new mini.Form("#newForm");
+			 wform.setData(formdate);
+			 var sureBut = mini.get("sureBut");
+			 if(e.length>2){
+				 sureBut.setEnabled(false);
+			 }else{
+				 sureBut.setEnabled(true);
+			 }
+			 newwin.show();
 		}
+	});
+}
 
 		//提交权重
-		function commitWindow() {
-			var formdata = new mini.Form("#newForm");
-			//验证表单
-			formdata.validate();
-			if (!formdata.isValid()) {
-				return;
+function commitWindow() {
+	var formdata = new mini.Form("#newForm");
+	//验证表单
+	formdata.validate();
+	if (!formdata.isValid()) {
+		return;
+	}
+	
+	var data = formdata.getData();
+	var zfid = mini.get("zftime").value;
+	var json = mini.decode(data);
+
+       mini.mask({
+           el: document.body,
+           cls: 'mini-mask-loading',
+           html: '保存中...'
+       });
+	
+	$.ajax({
+		url : '/ssj/companymanage/companymanage/addWeightCon/' + zfid
+				+ '?theme=none',
+		type : 'post',
+		data : json,
+		success : function(e) {
+			 mini.unmask(document.body);
+			var inf = mini.decode(e);
+			if (inf.flag=="success") {
+				alert("保存成功！");
+			}else{
+				alert("保存失败！");
 			}
 			
-			var data = formdata.getData();
-			var zfid = mini.get("zftime").value;
-			var json = mini.decode(data);
-
-	        mini.mask({
-	            el: document.body,
-	            cls: 'mini-mask-loading',
-	            html: '保存中...'
-	        });
-			
-			$.ajax({
-				url : '/ssj/companymanage/companymanage/addWeightCon/' + zfid
-						+ '?theme=none',
-				type : 'post',
-				data : json,
-				success : function(e) {
-					 mini.unmask(document.body);
-					var inf = mini.decode(e);
-					if (inf.flag=="success") {
-						alert("保存成功！");
-					}else{
-						alert("保存失败！");
-					}
-					
-					var win = mini.get("newWin");
-					win.hide();
-				}
-			})
-		}
-		function hideWindow() {
 			var win = mini.get("newWin");
 			win.hide();
 		}
+	})
+}
+function hideWindow() {
+	var win = mini.get("newWin");
+	win.hide();
+}
 
 		//提交按钮触发
-		function mommit() {
+function mommit() {
 
-			grid.validate();
-/* 			if (grid.isValid() == false) {
-				var error = grid.getCellErrors()[0];
-				grid.beginEditCell(error.record, error.column);
-				return;
-			} */
-			var data = grid.getChanges();
-			var selectData = grid.getSelecteds();
+	grid.validate();
+	var selectData = grid.getSelected();
+	var selectDatas = grid.getSelecteds();
+	var zfid = selectData.id;
 
-			var json = mini.encode(data);
-			var zfid = mini.get("zftime").value;
-			var zsts = mini.get("zsts").value;
-			var zsjl = mini.get("zsjl").value;
-
-			grid.loading("保存中，请稍后......");
-			$.ajax({
-				url : "/ssj/companymanage/companymanage/addSJResult/" + zfid
-						+ "?theme=none",
-				data : {
-					data : json,
-					zsts : zsts,
-					zsjl : zsjl,
-					sdata: mini.encode(selectData)
-				},
-				type : "post",
-				success : function(text) {
-					var inf = mini.decode(text);
-					
-					if(inf.flag=="f2"){
-						grid.reload();
-						alert(inf.text);
-					}else if(inf.flag=="f1"){
-						grid.reload();
-						debugger;
-						if(inf.text.length>2){
-							alert("提交的区县代码为"+inf.text+"未设置人员，请设置完人员在提交！");
-						}else{
-							alert("已提交");
-						}
-						
-					}
-				},
-				error : function(jqXHR, textStatus, errorThrown) {
-					alert(jqXHR.responseText);
-				}
-			});
+	grid.loading("保存中，请稍后......");
+	$.ajax({
+		url : "/ssj/companymanage/companymanage/addSJOrgCount/" + zfid + "?theme=none",
+		data : { sdata: mini.encode(selectData) },
+		type : "post",
+		success : function(text) {
+			var inf = mini.decode(text);
+				grid.reload();
+				alert(inf.text);
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			alert(jqXHR.responseText);
 		}
-		//每次数值校验企业的数量不能为空
-		grid.on("cellcommitedit", function(e) {
-			if (e.field == "sjqyzs") {
-				if (e.value == "") {
-					alert("企业总数不能设置为空！");
-					e.cancel = true;
-				}
-			}
-		});
-
-		function onCellValidation(e) {
-			if (e.field == "sjqyzs") {
-				if (e.value = "") {
-					e.isValid = false;
-					e.errorText = "随机总人数不能为空！";
-				}
-			}
+	});
+	
+	
+	
+}
+//每次数值校验企业的数量不能为空
+grid.on("cellcommitedit", function(e) {
+	if (e.field == "sjqyzs") {
+		if (e.value == "") {
+			alert("企业总数不能设置为空！");
+			e.cancel = true;
 		}
+	}
+});
+
+function onCellValidation(e) {
+	if (e.field == "sjqyzs") {
+		if (e.value = "") {
+			e.isValid = false;
+			e.errorText = "随机总人数不能为空！";
+		}
+	}
+}
+
 		
+		
+valueChange = function(){
+	var nd = mini.get("zfnd").value;
+	var zt = mini.get("fazt").value;
+	
+	url = "/ssj/companymanage/companyManage/getGridData/"+nd+"/"+zt+"?theme=none";
+	grid.setUrl(url);
+	grid.reload();
+	//isup(e.value);
+}
+
 /* 		function onRenderer(e){
 			var render = e.record;
 			var column = e.column;

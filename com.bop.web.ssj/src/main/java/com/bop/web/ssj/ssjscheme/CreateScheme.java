@@ -68,219 +68,6 @@ public class CreateScheme {
 	public void setRecordDao(IRecordDao recordDao) {
 		this.recordDao = recordDao;
 	}
-
-	/**
-	 * 创建任务方法
-	 * @author lh
-	 * @param json 新增时传入的数据
-	 * @return
-	 */
-	@Action
-	public String addScheme(String json){
-		
-		ExtResultObject eor = new ExtResultObject();
-		HttpServletRequest repquest = ActionContext.getActionContext().getHttpServletRequest();
-		String addMonthcom = repquest.getParameter("addMonthcom").toString();
-		String addYearcom = repquest.getParameter("addYearcom").toString();
-		String faname = repquest.getParameter("faname").toString();
-		String sql = "PLAN0102= "+addMonthcom+" and PLAN0101 = "+addYearcom;
-		Records rds = this.recordDao.queryRecord("PLAN01", sql);
-
-
-		if(rds.size()>0){
-			//已经存在这种记录
-			eor.add("inf", "false");
-			eor.add("text", "已经存在相同时间段记录！");
-			return eor.toString();
-		}
-
-		Records u1 = this.recordDao.queryRecord("USER01", "USER0101 = '"+this.userSession.getCurrentUserId()+"'");
-
-		UUID uid = UUID.randomUUID();
-		IRecord red =this.recordDao.createNew("PLAN01",uid, uid);
-		red.put("PLAN0101", addYearcom);
-		red.put("PLAN0102", addMonthcom);
-		red.put("PLAN0103", new Date());
-		red.put("PLAN0104",u1.get(0).get("user00"));
-		red.put("PLAN0105", "0");
-		red.put("PLAN0107", faname);
-		this.recordDao.saveObject(red);
-
-		eor.add("inf", "true");
-		return eor.toString();
-	}
-
-	/**
-	 * 删除任务方法
-	 * @author bdsoft lh
-	 * @return
-	 */
-	@Action
-	public String deleteScheme(){
-		ExtResultObject ero = new ExtResultObject();
-		String id = ActionContext.getActionContext().getHttpServletRequest().getParameter("id");
-
-		IRecord p1 = this.recordDao.getRecord("PLAN01", UUID.fromString(id));
-		if(p1.get("PLAN0105")!=null && "1".equals(p1.get("PLAN0105").toString())){
-			return "false";
-		}else{
-			this.recordDao.deleteObject("PLAN01", UUID.fromString(id));
-			ero.add("result", true);
-			return "success";
-		}
-	}
-
-	/**
-	 * 加载任务列表的方法
-	 * @return
-	 * @author lh
-	 */
-	@Action
-	public String getGridData(){
-		//查询数据库
-		ExtObjectCollection eoc = new ExtObjectCollection();
-		Records rds = this.recordDao.queryRecord("PLAN01");
-
-		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
-		for(IRecord rd :rds){
-			ExtObject eo = new ExtObject();
-
-			eo.add("id", rd.getObjectId());
-			eo.add("zftime",rd.get("PLAN0101").toString()+"0"+rd.get("PLAN0102").toString());
-			eo.add("cjtime",format.format(rd.get("PLAN0103")));
-			eo.add("famc",rd.get("PLAN0107").toString());
-			eo.add("zt", "1".equals(rd.get("PLAN0105").toString())?"已启用":"未启用");
-			
-			eoc.add(eo);
-		}
-		return eoc.toString();
-	}
-
-	/**
-	 * 启用方案
-	 * @return
-	 */
-	@Action
-	public String goStart(){
-		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
-		String data = request.getParameter("data");
-		JSONArray array = JSONArray.fromObject(data);
-		for(int i=0;i<array.size();i++){
-			JSONObject jsonObject = (JSONObject) array.get(i);
-			String faid = jsonObject.get("id").toString();
-			IRecord ird = this.recordDao.getRecord("PLAN01", UUID.fromString(faid));
-			ird.put("PLAN0105", 1);
-			this.recordDao.saveObject(ird);
-			//方案启动生成一条记录状态的记录，复制人员信息到plan02,复制企业信息到plan04后两步用触发器实现
-			this.insertPlan3(faid);
-		}
-		return "success";
-	}
-	
-	/**
-	 * 启动任务生出各区县状态表
-	 * @author bdsoft lh
-	 * @param faid
-	 */
-	private void insertPlan3(String faid){
-		//需要区分是市局还是区县的用户
-		String zone = this.userSession.getCurrentUserZone();
-		if(zone!=null&&!"".equals(zone)){
-			Object [] args = new Object[4];
-			String sql = "insert into plan03(recordid,parentid,plan00,pindex,plan0301,plan0302) values(get_uuid,?,?,1,?,?)";
-			args[0]=faid;
-			args[1]=faid;
-			args[2]=this.userSession.getCurrentUserZone();
-			args[3]=0;
-			this.jdbcTemplate.update(sql, args);
-		}else{
-			Records irds = this.recordDao.queryRecord("dm_codetable_data", "codetablename='DB064'");
-			for(IRecord ird:irds){
-				Object [] args = new Object[4];
-				String sql = "insert into plan03(recordid,parentid,plan00,pindex,plan0301,plan0302) values(get_uuid,?,?,1,?,?)";
-				args[0]=faid;
-				args[1]=faid;
-				args[2]=ird.get("CID");
-				args[3]=0;
-				this.jdbcTemplate.update(sql, args);
-			}
-		}
-	}
-	
-	
-	/**
-	 * 得到设计领域
-	 * @param jgdm
-	 * @return
-	 */
-	private String getJSLY(String jgdm){
-		String sql = "select * from org02 where  parentid =(select org01.org00 from org01 where org01.org_code = '"+jgdm+"')";
-		List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);
-		
-		String retStr = "";
-		if(org2List.size()>0){
-			Map<String,Object> map = org2List.get(0);
-			if(map.get("ORG0201")!=null&&"1".equals(map.get("ORG0201").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '1'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0202")!=null&&"1".equals(map.get("ORG0202").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '2'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0203")!=null&&"1".equals(map.get("ORG0203").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '3'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0204")!=null&&"1".equals(map.get("ORG0204").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '4'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0205")!=null&&"1".equals(map.get("ORG0205").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '5'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-		}
-		return retStr.substring(0, retStr.length()-1);
-	}	
-	
-	
-	/**
-	 * 页面加载的时候得到检查人的信息
-	 * @param plan12id
-	 * @return
-	 */
-	private String [] getJCRData(UUID plan12id){
-		String ids = "";
-		String names = "";
-		String inform[] = new String[2];
-		
-		List<IRecord> ires = this.recordDao.getByParentId("PLAN1201", plan12id);
-		for(IRecord ire:ires){
-			names+= ire.get("PLAN120102").toString()+",";
-			ids+=ire.getRecordId().toString()+",";
-		}
-
-		if(ids.length()>0){
-			inform[0] = ids.substring(0, ids.length()-1);
-			inform[1] = names.substring(0, names.length()-1);
-		}else{
-			inform[0] = "无";
-			inform[1] = "无";
-		}
-		return inform;
-	}
-	
-	
-	
-	
-	
-	
 	
 	/**
 	 * 提交随机的抽查企业
@@ -290,319 +77,22 @@ public class CreateScheme {
 	@Action
 	public String commitSchemeDate(String faid){
 		String zone = this.userSession.getCurrentUserZone();
+		String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
+		String plan1201UpSql = "update plan1201 set plan120104 = '提交' where parentid in (select t.recordid from plan12 t where t.parentid = '"+faid+"' and t.plan1204 = '"+zone+"' )";
 		
-		if(zone==null||"".equals(zone)){
-			String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"'";
-			String plan1201UpSql = "update plan1201 set plan120104 = '提交' where parentid in (select t.recordid from plan12 t where t.parentid = '"+faid+"')";
-			
-			this.jdbcTemplate.execute(plan1201UpSql);
-			this.jdbcTemplate.execute(plan12UpSql);
-			
-			String plan03Sql = "update plan03 set plan0302 = 5 where parentid = '"+faid+"'";
-			this.jdbcTemplate.execute(plan03Sql);
-		}else{
-			String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
-			String plan1201UpSql = "update plan1201 set plan120104 = '提交' where parentid in (select t.recordid from plan12 t where t.parentid = '"+faid+"') and t.plan1204 = '"+zone+"'";
-			
-			this.jdbcTemplate.execute(plan1201UpSql);
-			this.jdbcTemplate.execute(plan12UpSql);
-			String plan03Sql = "update plan03 set plan0302 = 5 where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
-			this.jdbcTemplate.execute(plan03Sql);
-		}
-
+		this.jdbcTemplate.execute(plan1201UpSql);
+		this.jdbcTemplate.execute(plan12UpSql);
+		String plan03Sql = "update plan03 set plan0302 = 5 where parentid = '"+faid+"' and plan0301 = '"+zone+"'";
+		this.jdbcTemplate.execute(plan03Sql);
 		return "success";
 	}
 
-	
-    @Action
-    public String exportExcel(String faid) throws Exception {
-        
-    	ExtResultObject ero = new ExtResultObject();
-        ActionContext context = ActionContext.getActionContext();
-        HttpServletRequest request = context.getHttpServletRequest();
-        String path = "/temp/gjxfj.xls";
-        // 下载文件流
-        try {
-            String filePath = System.getProperty("resourceFiles.location")+path;
-            
-            File file = new File(filePath);
-            if (file.exists()) {
-                // 删除文件
-                file.delete();
-            }
-
-            // 获得页面当前字段
-            String ziduan = request.getParameter("ziduan");
-
-            // 表头名列表
-            List<String> titleList = new ArrayList<String>();
-            List<String> fieldList = new ArrayList<String>();
-            JSONArray zdjsonarry = JSONArray.fromObject(ziduan);
-            
-            
-            titleList.add("地区");
-            titleList.add("机构代码");
-            titleList.add("单位名称");
-            titleList.add("地址");
-            titleList.add("联系人");
-            titleList.add("电话");
-      //      titleList.add("检查内容");
-            titleList.add("检查人");
-            titleList.add("涉及事项");
-            
-            fieldList.add("dq");
-            fieldList.add("jgdm");
-            fieldList.add("dwmc");
-            fieldList.add("dz");
-            fieldList.add("lxr");
-            fieldList.add("phone");
-      //      fieldList.add("jcnr");
-            fieldList.add("jcr");
-            fieldList.add("sjly");
-            
-            
-           /* for (int i = 0; i < zdjsonarry.size(); i++) {
-                titleList.add(zdjsonarry.getJSONObject(i).get("text").toString());
-                fieldList.add(zdjsonarry.getJSONObject(i).get("id").toString());
-            }*/
-            
-            String sheetName = "随机方案清单";
-  
-            // 调用方法查询返回数据
-            String list = this.getData(faid);
-            // 将返回的list转json对象
-            JSONObject a = JSONObject.fromObject(list);
-            // 取得对象中key为"ArrData"的集合
-            JSONArray jsonarry = a.getJSONArray("ArrData");
-            List<JSONObject> jsonList = new ArrayList<JSONObject>();
-            // 遍历集合,转成json对象加入集合
-            for (int i = 0; i < jsonarry.size(); i++) {
-                JSONObject jsonObject = (JSONObject) jsonarry.get(i);
-                jsonList.add(jsonObject);
-            }
-            // 是否有记录
-            if (jsonList.size() > 0 && jsonList != null) {
-                // 生成excel
-                createExcelForExtRow(titleList, fieldList, jsonList, filePath, sheetName);
-                ero.add("flag", true);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            ero.add("flag", false);
-        }
-        ero.add("path", path);
-        return ero.toString();
-    }
-    
-
-    @Action
-    private void createExcelForExtRow(List<String> titleList, List<String> fieldList,
-            List<JSONObject> recordList, String filePath, String sheetName) throws IOException {
-
-        try {
-            // 服务器路径
-            String servicePath = this.getServicePath();
-            String licFilePath = servicePath + File.separator + "license" + File.separator
-                    + "Aspose.Total.Product.Family.lic";
-
-            License cellLic = new License();
-            cellLic.setLicense(licFilePath);
-
-            // 新建excel
-            Workbook wb = new Workbook();
-            // 打开excel中第一个sheet
-            Worksheet worksheet = wb.getWorksheets().get(0);
-            // 设置sheet名称
-            worksheet.setName(sheetName);
-            // 获取行集合
-            RowCollection rows = worksheet.getCells().getRows();
-            int styleIndex = wb.getStyles().add();
-            // 设置cell样式
-            Style style = wb.getStyles().get(styleIndex);
-            // 设置文本自动换行
-            style.setTextWrapped(false);
-            style.setBorder(BorderType.TOP_BORDER, CellBorderType.THIN, Color.getBlack());
-            style.setBorder(BorderType.BOTTOM_BORDER, CellBorderType.THIN, Color.getBlack());
-            style.setBorder(BorderType.LEFT_BORDER, CellBorderType.THIN, Color.getBlack());
-            style.setBorder(BorderType.RIGHT_BORDER, CellBorderType.THIN, Color.getBlack());
-            style.setHorizontalAlignment(TextAlignmentType.CENTER);
-            int stratRow = 0;
-
-            // 写入表头
-            for (int ti = 0; ti < titleList.size(); ti++) {
-                Row row = rows.get(0);
-                Cell cell = row.get(ti);
-                cell.setValue(titleList.get(ti));
-                cell.setStyle(style);
-            }
- 
-            // 写入记录
-            stratRow = stratRow + 1;
-            for (JSONObject jsonRows : recordList) {
-                Row row = rows.get(stratRow);
-                for (int fi = 0; fi < fieldList.size(); fi++) {
-                    // 获得表头字段
-                    String feildName = fieldList.get(fi);
-                    // Object objfeild = jsonRows.get(feildName);
-                    // 获得当前行的单元格
-                    Cell cell = row.get(fi);
-                    // 根据表头字段设置单元格值
-                    // 查询码
-                    if (StringUtils.equals("dq", feildName)) {
-                        if(jsonRows.has("dq")){
-                         cell.setValue(jsonRows.get("dq"));   
-                        }else{
-                            cell.setValue("");   
-                           }
-                    } else if (StringUtils.equals("jgdm", feildName)) {
-                        if(jsonRows.has("jgdm")){
-                            cell.setValue(jsonRows.get("jgdm"));  
-                        }else{
-                            cell.setValue("");   
-                           }
-                    } else if (StringUtils.equals("dwmc", feildName)) {
-                        if(jsonRows.has("dwmc")){
-                            cell.setValue(jsonRows.get("dwmc")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    } else if (StringUtils.equals("dz", feildName)) {
-                        if(jsonRows.has("dz")){
-                            cell.setValue(jsonRows.get("dz")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    } else if (StringUtils.equals("lxr", feildName)) {
-                        if(jsonRows.has("lxr")){
-                            cell.setValue(jsonRows.get("lxr")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    } else if (StringUtils.equals("phone", feildName)) {
-                        if(jsonRows.has("phone")){
-                            cell.setValue(jsonRows.get("phone")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    } else if (StringUtils.equals("jcnr", feildName)) {
-                        if(jsonRows.has("jcnr")){
-                            cell.setValue(jsonRows.get("jcnr")); 
-                        }else{
-                            cell.setValue("");
-                           }
-                    }else if (StringUtils.equals("jcr", feildName)) {
-                        if(jsonRows.has("jcr")){
-                            cell.setValue(jsonRows.get("jcr")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    }else if (StringUtils.equals("sjly", feildName)) {
-                        if(jsonRows.has("sjly")){
-                            cell.setValue(jsonRows.get("sjly")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    }
-                    // 设置单元格样式
-                    cell.setStyle(style);
-                }
-                stratRow++;
-            }
-
-
-            worksheet.autoFitColumns();
-            // 保存文件
-            wb.save(filePath, new XlsSaveOptions());
-
-        } catch (FileNotFoundException fnfe) {
-            fnfe.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
-     * 取得服务器的文件路径
-     * 
-     * @return 文件路径
+     * 获取任务状态
+     * @author bdsoft lh
+     * @param faid
+     * @return
      */
-    public static final String getServicePath() {
-        String path = System.getProperty("resourceFiles.location");
-        if (StringUtils.isEmpty(path)) {
-            return StringUtils.EMPTY;
-        }
-
-        File filePath = new File(path);
-        if (filePath == null || !filePath.isDirectory()) {
-            return StringUtils.EMPTY;
-        } else {
-            return filePath.getAbsolutePath();
-        }
-    }
-    
-    
-    /**
-     * 导出
-     * 
-     * @param 导出列表的查询条件
-     *            、页面信息
-     * @return 导出
-     * @throws Exception
-     * @author yangruizhi
-     * @since 2014/10/29
-     */
-    @Action
-    private String getData(String fzid) {
-
-        String rtnlist = StringUtils.EMPTY;
-        ExtGrid rtnExtGrid = new ExtGrid();
-
-
-		String zone = this.userSession.getCurrentUserZone();
-		String whereSql = null;
-//		String querySql = null;
-		if(zone==null||"".equals(zone)){
-			whereSql = "parentid = '"+fzid+"'";
-//			querySql = "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid not in ('110302','110000')";
-		}else{
-			whereSql = "parentid = '"+fzid+"' and PLAN1204 = '"+zone+"'";
-//			querySql = "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = 'DB064' and t.cid = '"+zone+"'";
-		}
-    // 根据querySql查询返回 ExtGridRow结果集
-    //    List<Map<String,Object>> rowlist = this.jdbcTemplate.queryForList(whereSql);
-		Records ires  = this.recordDao.queryRecord("PLAN12", whereSql,"plan1204");
-		
-        List<ExtGridRow> rowlist2 = new ArrayList<ExtGridRow>();
-        for (IRecord ire : ires) {
-        	ExtGridRow eRow = new ExtGridRow();
-			String personInf[] = this.getJCRData(ire.getRecordId());
-			eRow.add("id", ire.getRecordId());
-			eRow.add("dq", ire.get("PLAN1204",DmCodetables.class).getCaption());
-			eRow.add("jgdm", ire.get("PLAN1202"));
-			eRow.add("dwmc", ire.get("PLAN1203"));
-			eRow.add("dz",  ire.get("PLAN1205"));
-			eRow.add("lxr", ire.get("PLAN1206"));
-			eRow.add("phone", ire.get("PLAN1207"));
-			eRow.add("jcnr",  ire.get("PLAN1208"));
-			eRow.add("jcrid", personInf[0]);
-			eRow.add("jcr",  personInf[1]);
-			eRow.add("sjly", this.getJSLY(ire.get("PLAN1202").toString()));
-            rowlist2.add(eRow);
-        }
-        rtnExtGrid.rows.addAll(rowlist2);
-        rtnlist = rtnExtGrid.toString();
-        
-        return rtnlist;
-    }
-    
 	@Action
 	public String getZT(String faid){
 		String zone = this.userSession.getCurrentUserZone();
@@ -623,5 +113,322 @@ public class CreateScheme {
 			}
 		}
 	}
+	
+
+
+	//----------------------------------------------------------------------方案生成---------------------------------------------------------
+	
+	/**
+	 * 判断任务状态，是否符合生成条件，是否是重复生成
+	 * @param faid
+	 * @return
+	 */
+	@Action
+	public String isRepertCreate(String faid){
+		String zone = this.userSession.getCurrentUserZone();
+		ExtResultObject ero = new ExtResultObject();
+		Records p3s = this.recordDao.queryRecord("PLAN03", "parentid = '"+faid+"' and plan0301 = '"+zone+"'");
+		if(p3s.size()>0){
+			Object p3 = p3s.get(0).get("plan0302");
+			if(p3!=null && "4".equals(p3.toString())){
+				ero.add("flag", "4");
+				ero.add("text", "该方案已经生成方案，重新生成将产生记录！");
+			}else if(p3!=null && "3".equals(p3.toString())){
+				ero.add("flag", "3");
+				ero.add("text", "第一次生成方案");
+			}
+		}else{
+			ero.add("flag", "2");
+			ero.add("text", "该方案不符合生成规则！");
+		}
+		return ero.toString();
+	}
+	
+
+	/**
+	 * 生成方案（再次生成方案删除，方案生成）
+	 * @param faid  方案ID
+	 * @return
+	 */
+	@Action
+	public String createSchemeData(String fzid){
+		String zone = this.userSession.getCurrentUserZone();
+		String replace  =  ActionContext.getActionContext().getHttpServletRequest().getParameter("isreplace");
+		Map<String,ArrayList> orgmap = new HashMap<String,ArrayList>();
+		
+		if("replace".equals(replace)){
+			//记录作废方案的结果
+			this.saveReplacedSchema(fzid,zone,"ss");
+		}else{
+
+		}
+
+		IRecord rand01 = this.recordDao.queryTopOneRecord("RAND01", "RAND0101 = '"+fzid+"' and RAND0102='"+zone+"'","RAND0101");
+		IRecord plan06ire = this.recordDao.queryTopOneRecord("PLAN06", "parentid='"+fzid+"' and plan0601='"+zone+"'","pindex");
+		int allCqOrg = Integer.parseInt(plan06ire.get("PLAN0602").toString());
+		this.getQxCqOrg(allCqOrg,rand01,orgmap);
+
+		//储存抽取的结果
+		for (Map.Entry<String, ArrayList> entry : orgmap.entrySet()) {
+		   IRecord orgIcd = this.recordDao.getRecord("ORG01", UUID.fromString(entry.getKey()));
+		   this.saveTempPlan12(orgIcd, entry.getValue(),fzid);
+		  }
+		
+		//更新该区县的方案状态
+		String sql = "update plan03 set plan0302 = 4 where parentid='"+fzid+"' and plan0301 = '"+zone+"'";
+		this.jdbcTemplate.execute(sql);
+		
+		return "seccess";
+	}
+	
+	/**
+	 * 多次生成方案时，将之前的生成记录删除，并将删除的记录放到废弃方案表中（这里放到数据库触发器中实现）
+	 * @param faid
+	 * @param zone
+	 * @param ss
+	 */
+	private void saveReplacedSchema(String faid,String zone,String ss){
+		this.createPlan21(faid, zone);    //创建废弃信息主表
+	//	this.jdbcTemplate.execute("delete from PLAN1201 where parentid in (select recordid from PLAN12 where parentid = '"+faid+"' and plan1210 = '保存' and plan1204 = '"+zone+"')");
+		this.jdbcTemplate.execute("delete from PLAN12 where parentid = '"+faid+"' and plan1210 = '保存' and plan1204 = '"+zone+"'");   //上一步不用操作，因为这里使用的是级联删除，同时触发删除的表记录到废弃表中
+
+	}
+
+	/**
+	 * 创建废弃的信息表
+	 * @param faid
+	 * @param zone
+	 */
+	private void createPlan21(String faid,String zone){
+		UUID uid=UUID.randomUUID();
+		IRecord ire=this.recordDao.createNew("PLAN21", uid, UUID.fromString(faid));
+		ire.put("PLAN2101", "废弃原因");
+		ire.put("PLAN2102", new Date());
+		ire.put("PLAN2103", zone);
+		this.recordDao.saveObject(ire);
+	}
+
+
+	/**
+	 * 抽取每个区县设置的数量的企业和人员
+	 * @param allCqOrg 每个区县要抽取的企业数
+	 * @param rand01ID	区县的ID（rand01）
+	 * @param orglist	存放抽取的企业code的容器
+	 */
+	private void getQxCqOrg(int allCqOrg,IRecord rand01,Map<String,ArrayList> orgmap){
+		List<String> dqOrglist = new ArrayList<String>();//本次已经抽取过的企业，记录用来判重
+		Random rd = new Random();
+		String faid = rand01.get("rand0101").toString();
+		String zone = rand01.get("RAND0102",DmCodetables.class).getId();
+		
+
+		//获取抽取人员组合
+		Map<Integer ,ArrayList<String>> zhMap = this.randPerson(faid,zone,allCqOrg);  //存放按企业数随机好人员的map
+		List<IRecord> rand02s = this.recordDao.getByParentId("RAND02", rand01.getRecordId());//得到该区县所有的企业信息
+
+		//抽取特殊企业
+		int zoneqystart=0;
+		zoneqystart = this.getSpecileOrg(zoneqystart,rand01.getRecordId().toString(),orgmap,zhMap);
+
+		//抽取特殊企业外的
+		for(int i=zoneqystart;i<allCqOrg;i++){
+			boolean doubleflag = false;
+			int orgindex = rd.nextInt(rand02s.size());
+			IRecord  cqRand02= this.recordDao.queryTopOneRecord("RAND02", "RAND0201 = "+orgindex+"+1 and parentid = '"+rand01.getRecordId()+"'", "RAND0201");
+			UUID orgCode = cqRand02.get("RAND0202",IRecord.class).getRecordId();
+
+			for(int k=0;k<dqOrglist.size();k++){
+				String dqorg = dqOrglist.get(k);
+				if(orgCode.equals(dqorg)){
+					doubleflag = true;
+					break;
+				}
+			}
+
+			if(doubleflag){
+				i--;
+			}else{
+				dqOrglist.add(orgCode.toString());
+				orgmap.put(orgCode.toString(), zhMap.get(i));
+			}
+		}
+	}
+
+
+	/**
+	 * 抽取特殊类型企业的方法，这里默认的是一次抽取一个计量类和一个特殊类的企业，如果以后接口放开，这动态加载抽取的总数
+	 * @param zoneqystart  记录特殊抽取的企业数
+	 * @param rand01id	 rand01的ID
+	 * @param orgmap	存储抽取内容的容器
+	 */
+	private int getSpecileOrg(int zoneqystart,String rand01id,Map<String,ArrayList> orgmap,Map<Integer ,ArrayList<String>> zhMap){
+		Records jlIre = this.recordDao.queryRecord("RAND02", "parentid = '"+rand01id+"' and RAND0204 = 1");
+		Records tsIre = this.recordDao.queryRecord("RAND02", "parentid = '"+rand01id+"' and RAND0203 = 1");
+
+		if(jlIre.size()>0){
+			Random rd = new Random();
+			int jlorgindex = rd.nextInt(jlIre.size());
+			orgmap.put(jlIre.get(jlorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(zoneqystart));
+			zoneqystart++;
+		}
+		if(tsIre.size()>0){
+			Random rd = new Random();
+			int tsorgindex = rd.nextInt(tsIre.size());
+			orgmap.put(tsIre.get(tsorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(zoneqystart));
+			zoneqystart++;
+		}
+		
+		return zoneqystart;
+	}
+
+	
+	/**
+	 * 得到不同的随机号
+	 * @param p1  第一次随机的数
+	 * @param rdm 随机函数
+	 * @param conutNum 随机总数
+	 * @return
+	 */
+	private int getDifPerson(int p1,Random rdm,int conutNum){
+		int p2 = rdm.nextInt(conutNum);
+		if(p2 == p1 ){
+			return this.getDifPerson(p1, rdm, conutNum);
+		}
+		return p2;
+	}
+
+	/**
+	 * 
+	 * @param faid 方案ID
+	 * @param zone 区县ID
+	 * @param allCqOrg 抽取企业数
+	 * @return
+	 */
+	private Map<Integer ,ArrayList<String>> randPerson(String faid,String zone,int allCqOrg){
+		String personSql = "select * from plan02 t where PLAN0204 = 2 and parentid = '"+faid+"' and  PLAN0205 = '"+zone+"'";
+		Map<Integer ,ArrayList<String>> zhMap = new HashMap<Integer,ArrayList<String>>();
+		
+		
+		List<Map<String,Object>> personMap = this.jdbcTemplate.queryForList(personSql);
+		List<Map<String,Object>> OrdypersonMap2= new ArrayList<Map<String,Object>>();
+		int personmapLc = 0;
+		int ordypersonmapLc = 0;
+
+		for(int i=0;i<allCqOrg;i++){
+			ArrayList<String> personIreList = new ArrayList<String>();
+			Random prd = new Random();
+			//抽取先以轮次为主，如果是personmapLc>=ordypersonmapLc 说明以personMap集合为主，反之以OrdypersonMap2集合为主，要考虑当集合为一个元素，而要抽取连个的情况
+			if(personmapLc>=ordypersonmapLc&&personMap.size()>=2){
+				int p= prd.nextInt(personMap.size());
+				int p2= prd.nextInt(personMap.size());
+				if(p==p2){
+					p2 = this.getDifPerson(p, prd, personMap.size());
+				}
+				
+				Map<String,Object> ire = personMap.get(p);
+				Map<String,Object> ire2 = personMap.get(p2);
+
+				personIreList.add(ire.get("PLAN0201").toString());
+				personIreList.add(ire2.get("PLAN0201").toString());
+
+				OrdypersonMap2.add(ire);
+				OrdypersonMap2.add(ire2);
+				personMap.remove(ire2);
+				personMap.remove(ire);
+				if(personMap.size()==0){
+					ordypersonmapLc+=1;
+				}
+			}else if(personmapLc>=ordypersonmapLc&&personMap.size()>0){
+				//这是当personMap集合只剩下一个元素的情况
+				//先将personmap抽完，再将ordypersonmap的抽取轮次变大，最后再将ordypersonmap中抽取过的人放到personmap中
+				int p2= prd.nextInt(OrdypersonMap2.size());
+				
+				Map<String,Object> ire = personMap.get(0);
+				Map<String,Object> ire2 = OrdypersonMap2.get(p2);
+				personIreList.add(ire.get("PLAN0201").toString());
+				personIreList.add(ire2.get("PLAN0201").toString());
+				
+				personMap.remove(ire);
+				OrdypersonMap2.add(ire);
+				OrdypersonMap2.remove(ire2);
+				personMap.add(ire2);
+				ordypersonmapLc+=1;
+			}else if(personmapLc<ordypersonmapLc&&OrdypersonMap2.size()>=2){
+				int p= prd.nextInt(OrdypersonMap2.size());
+				int p2= prd.nextInt(OrdypersonMap2.size());
+				if(p==p2){
+					p2 = this.getDifPerson(p, prd, OrdypersonMap2.size());
+				}
+
+				Map<String,Object> ire = OrdypersonMap2.get(p);
+				Map<String,Object> ire2 = OrdypersonMap2.get(p2);
+
+				personIreList.add(ire.get("PLAN0201").toString());
+				personIreList.add(ire2.get("PLAN0201").toString());
+
+				personMap.add(ire);
+				personMap.add(ire2);
+				OrdypersonMap2.remove(ire2);
+				OrdypersonMap2.remove(ire);
+				if(OrdypersonMap2.size()==0){
+					personmapLc+=1;
+				}
+			}else if(personmapLc<ordypersonmapLc&&OrdypersonMap2.size()>0){
+				int p2= prd.nextInt(personMap.size());
+				Map<String,Object> ire = OrdypersonMap2.get(0);
+				Map<String,Object> ire2 = personMap.get(p2);
+				personIreList.add(ire.get("PLAN0201").toString());
+				personIreList.add(ire2.get("PLAN0201").toString());
+				
+				OrdypersonMap2.remove(ire);
+				personMap.add(ire);
+				personMap.remove(ire2);
+				OrdypersonMap2.add(ire2);
+				personmapLc+=1;
+			}
+			zhMap.put(i, personIreList);
+		}
+		return zhMap;
+	}
+	
+	/**
+	 * 每次抽取展现前将抽取的数据放到对应的抽取企业表和抽取人员表中，标识状态为一保存
+	 * @param informIRe 抽取的记录
+	 * @param list	抽取的人员信息
+	 * @param faid 方案ID
+	 */
+	public void saveTempPlan12(IRecord informIRe,ArrayList list,String faid){
+
+		UUID uid = UUID.randomUUID();
+		IRecord ire = this.recordDao.createNew("PLAN12", uid, UUID.fromString(faid));
+		//存储企业
+		ire.put("PLAN1201", informIRe.getRecordId());
+		ire.put("PLAN1202", informIRe.get("ORG_CODE"));
+		ire.put("PLAN1203", informIRe.get("ORG_NAME"));
+		ire.put("PLAN1205", informIRe.get("REG_ADDR"));
+		ire.put("PLAN1204", informIRe.get("REG_DISTRICT_DIC"));
+		ire.put("PLAN1206", informIRe.get("LEGAL_REPRE"));
+		ire.put("PLAN1207", informIRe.get("LEGAL_REPRE_TEL"));
+		ire.put("PLAN1208", "");
+		ire.put("PLAN1209", 0);
+		ire.put("PLAN1210", "保存");
+		this.recordDao.saveObject(ire);
+		
+		
+		for(int i=0;i<list.size();i++){
+			String id = list.get(i).toString();
+			IRecord personIre = this.recordDao.getRecord("A01", UUID.fromString(id));
+			personIre.getRecordId().toString();
+			IRecord zfryIre = this.recordDao.createNew("PLAN1201", uid, ire.getRecordId());
+			zfryIre.put("PLAN120101", id);
+			zfryIre.put("PLAN120102", personIre.get("PERSON_NAME").toString());
+			zfryIre.put("PLAN120103", personIre.get("PERSON_IDCARD").toString());
+			zfryIre.put("PLAN120104", "保存");
+			this.recordDao.saveObject(zfryIre);
+		}
+	}
+	
+	
+	
 
 }

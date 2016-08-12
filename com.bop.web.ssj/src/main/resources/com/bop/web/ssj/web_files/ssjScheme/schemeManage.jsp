@@ -8,136 +8,182 @@
 <body>
 
 <div style="padding:5px;10px;5px;0">
-	<span>抽查方案：</span><input class="mini-combobox" id="faid" style="width:150px;" textField="text" valueField="id" onvaluechanged="valueChange" url="/ssj/personmanage/personmanage/getZfcData?theme=none"/>
-	<a class="mini-button" id="createBut" iconCls = "icon-goto"  onclick="createFa()" >生成随机方案</a>
-	<a class="mini-button" id="commitBut" iconCls = "icon-save" onclick="commitFa()" >提交随机方案</a>
-	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
+	<span>年度：</span><input class="mini-combobox" id="zfnd" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getCBData/nd?theme=none"/>
+	<span>状态：</span><input class="mini-combobox" id="fazt" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" data="[{id:'0',text:'未生成'},{id:'1',text:'已生成'}]"  />
 </div>
-
-<div id="treegrid" class="mini-treegrid" style="width:100%;height:100%;" url="" showTreeIcon="true" 
-    treeColumn="dq" idField="dqid" parentField="ParentDqId" resultAsTree="false"  allowResize="true" expandOnLoad="true">
-    <div property="columns">
-        <div type="indexcolumn"></div>
-        <div name="dq" field="dq" width="60" >地区</div>
-        <div field="jgdm" width="60">机构代码</div>
-        <div field="dwmc" width="60" align="right">单位名称</div>
-        <div field="dz" width="80" >地址</div>
-        <div field="lxr" width="60" >联系人</div>
-        <div field="phone" width="60" >电话</div>
-        <div field="jcnr" width="80" visible="false">检查内容</div>
-        <div field="jcr" width="80" >检查人</div> 
-        <div field="jcrid" width="80" visible="false" >检查人id</div> 
-        <div field="sjly" width="80" >涉及内容</div>                  
-    </div>
+<div class="mini-fit">
+	<div id="datagrid" class="mini-datagrid" style="width:100%;height:100%;" url=""  idFiled="id"  allowResize="true" >
+	    <div property="columns">
+	        <div type="indexcolumn"></div>
+	        <div field="id" visible="false">id</div>
+	        <div name="mc" field="mc" width="60" >任务名称</div>
+	        <div field="zfyf" width="60">执法月份</div>
+	        <div field="zfryzs" width="60" align="right">执法人员总数</div>
+	        <div field="cyzfrs" width="60" >参与执法人员数</div>
+	        <div field="cycczs" width="60" >参与抽查企业总数</div>
+	        <div field="ccqys" width="60" >抽查企业数</div>
+	        <div field="zffa" width="80" headerAlign="center">执法方案</div>
+	        <div field="wtjfas" width="50" headerAlign="center" >未提交方案数</div> 
+	    </div>
+	</div>
 </div>
-
-
 <script >
 mini.parse();
+var zfnd = mini.get("zfnd");
+zfnd.select(0);
+var zfzt = mini.get("fazt");
+zfzt.select(0);
 
-var zfcom = mini.get("faid");
-zfcom.select(0);
+var grid = mini.get("datagrid");
+var url = "/ssj/ssjscheme/SchemeInfoShow/getFALBData/" + zfnd.value+"/"+zfzt.value + "?theme=none";
+grid.setUrl(url);
+grid.load();
 
+ 
+valueChange = function(){
+	var nd = mini.get("zfnd").value;
+	var zt = mini.get("fazt").value;
 
-var grid = mini.get("treegrid");
-var url = '/ssj/ssjScheme/CreateScheme/getSchemeDate/'+zfcom.value+'?theme=none';
-grid.load(url);
-
-
-function isup(e){
-	var createBut = mini.get("createBut");
-	var mommitBut = mini.get("commitBut");
-
-	jQuery.ajax({
-		url:'/ssj/ssjScheme/CreateScheme/getZT/'+e+'?theme=none',
-		type:'post',
-		success:function(e){
-			
-			if(e=="5"){
-				createBut.setEnabled(false);
-				mommitBut.setEnabled(false);
-			}else{
-				mommitBut.setEnabled(true);
-				createBut.setEnabled(true);
-			}
-		}	
-	});
-};
-
-isup(zfcom.value);
-
-
-valueChange = function(e){
-	gridLoad(e.value)
-	isup(e.value);
-}
-
-gridLoad = function(value){
-	url = "/ssj/ssjScheme/CreateScheme/getSchemeDate/"+value+"?theme=none";
+	url = "/ssj/ssjscheme/SchemeInfoShow/getFALBData/"+nd+"/"+zt+"?theme=none";
 	grid.setUrl(url);
 	grid.reload();
-	isup(e.value);
 }
 
+//生成方案
 createFa=function(){
-	var faid = mini.get("faid").value;
+	var faid = grid.getSelected().id;
+    $.ajax({
+    	url:'/ssj/ssjScheme/CreateScheme/isRepertCreate/'+faid,
+    	type:'get',
+    	success:function(e){
+    		var info = mini.decode(e);
+    		if(info.flag==4){
+    			 mini.confirm("该任务已经生成方案，重新生成将产生记录,确定重新生成？", "确定",
+    			            function (action) {
+    			                if (action == "ok") {
+    			                	createRepert('replace');
+    			                } else {
 
+    			                }
+    			            }
+    			        );
+ 	 		}else if(info.flag==3){
+ 	 			createRepert('new');
+    		}else{
+    			alert(info.text);
+    		}
+    	}
+    });
+}
+
+createRepert = function(e){
     mini.mask({
         el: document.body,
         cls: 'mini-mask-loading',
         html: '方案生成中，请稍等...'
     });
-	
+    var faid = grid.getSelected().id;
+
 	$.ajax({
-		url:'/ssj/ssjScheme/CreateScheme/createSchemeDate/'+faid,
+		url:'/ssj/ssjscheme/CreateScheme/createSchemeData/'+faid,
 		type:'get',
+		data:{isreplace:e},
 		success:function(e){
 			if(e=="seccess"){
 				mini.unmask(document.body);
 				gridLoad(faid);
+				viewFa("sc");
 			}else if(e=="false"){
 				alert("有未设置人员或企业数的区县请先设置！");
 			}
-		}
-	});
-}
-commitFa = function(){
-	var faid = mini.get("faid").value;
-    mini.mask({
-        el: document.body,
-        cls: 'mini-mask-loading',
-        html: '方案提交中，请稍等...'
-    });
-	$.ajax({
-		url:'/ssj/ssjscheme/CreateScheme/commitSchemeDate/'+faid+"?theme=none",
-		type:'get',
-		success:function(e){
-			 mini.unmask(document.body);
-			if(e=="success"){
-				alert("提交完毕！");
-				gird.reload();
-			}
+			//打开窗口展现生成的页面
 		}
 	});
 }
 
-importExc = function(){
-	var faid = mini.get("faid").value;
-	grid.loading("正在导出，请稍后......");
-	$.ajax({
-		url:'/ssj/ssjscheme/CreateScheme/exportExcel/'+faid+"?theme=none",
-		type:'get',
-		success:function(e){
-			var inf = mini.decode(e);
-			if(inf.flag){
-				location.href = decodeURI("/ResourceFiles"+inf.path);
-			}else{
-				alert("导出失败咧！");
-			}
-			grid.reload();
-		}
+viewFa = function(e){
+	var faid = grid.getSelected().id;
+	mini.open({
+		url:'/ssj/ssjScheme/viewScheme2.jsp?theme=2&faid='+faid+'&flag='+e,
+		showMaxButton: false,
+	    allowResize: true,
+	    title: '方案浏览',
+	    width: 1000,
+	    height: 700,
+	    onload: function(){
+	        var iframe = this.getIFrameEl();
+	       // iframe.contentWindow.setData(data);
+	    },
+	    ondestroy: function (action) {
+	    	
+	    }	
+	});
+	
+}
+
+showRy = function(e){
+	var faid = grid.getSelected().id;
+	mini.open({
+		url:'/ssj/ssjscheme/showPerson.jsp?theme=2&faid='+faid+"&flag="+e,
+		showMaxButton: false,
+	    allowResize: true,
+	    title: '执法人员情况',
+	    width: 800,
+	    height: 600,
+	    onload: function(){
+	        var iframe = this.getIFrameEl();
+	       // iframe.contentWindow.setData(data);
+	    },
+	    ondestroy: function (action) {
+	    	gridLoad();
+	    }	
 	});
 }
+
+showOrg = function(e){
+	var faid = grid.getSelected().id;
+	mini.open({
+		url:'/ssj/ssjscheme/showOrg.jsp?theme=2&faid='+faid+"&flag="+e,
+		showMaxButton: false,
+	    allowResize: true,
+	    title: '执法人员情况',
+	    width: 800,
+	    height: 600,
+	    onload: function(){
+	        var iframe = this.getIFrameEl();
+	    },
+	    ondestroy: function (action) {
+	    
+	    }	
+	});
+}
+
+
+gridLoad = function(value){
+	grid.setUrl(url);
+	grid.reload();
+}
+/* showRy = function(){
+	var faid = grid.getSelected().id;
+	mini.open({
+		url:'/ssj/ssjscheme/SchemeInfoShow/getRYcount?theme=2&faid='+faid,
+		showMaxButton: false,
+	    allowResize: true,
+	    title: '执法人员情况',
+	    width: 800,
+	    height: 600,
+	    onload: function(){
+	        var iframe = this.getIFrameEl();
+	       // iframe.contentWindow.setData(data);
+	    },
+	    ondestroy: function (action) {
+	    
+	    }	
+	});
+} */
+
+
+
 
 </script>
 </body>
