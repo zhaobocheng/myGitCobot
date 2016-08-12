@@ -214,9 +214,9 @@ public class SchemeInfoShow {
 		public String getViewBaseInfo(String faid){
 			ExtResultObject ero = new ExtResultObject();
 			String zone = this.userSession.getCurrentUserZone();
-			String sql = " select t.plan00,t.plan0107 as mc ,t.plan0102 as yf, count(p2.recordid) as rs ,p6.plan0602 qys"+
-			" from plan01 t left join plan02 p2 on p2.parentid = t.plan00 and p2.plan0205 = '"+zone+"' and p2.plan0204 = 2 "+
-			" left join plan06 p6 on p6.parentid = t.plan00 and p6.plan0601 = '"+zone+"' where t.plan00 = '"+faid+"' group by t.plan00,t.plan0107,t.plan0102,p6.plan0602";
+			String sql = " select t.plan00,  p3.plan0302, t.plan0107 as mc ,t.plan0102 as yf, count(p2.recordid) as rs ,p6.plan0602 qys"+
+			" from plan01 t  left join plan03 p3 on p3.parentid = t.plan00 left join plan02 p2 on p2.parentid = t.plan00 and p2.plan0205 = '"+zone+"' and p2.plan0204 = 2 "+
+			" left join plan06 p6 on p6.parentid = t.plan00 and p6.plan0601 = '"+zone+"' where t.plan00 = '"+faid+"' group by t.plan00,p3.plan0302, t.plan0107,t.plan0102,p6.plan0602";
 			
 			Map<String,Object> map = this.jdbcTemplate.queryForMap(sql);
 			ero.add("id", map.get("plan00"));
@@ -224,6 +224,7 @@ public class SchemeInfoShow {
 			ero.add("yf", map.get("yf"));
 			ero.add("rs", map.get("rs"));
 			ero.add("qys", map.get("qys"));
+			ero.add("zt", map.get("plan0302"));
 			return ero.toString();
 		}
 		

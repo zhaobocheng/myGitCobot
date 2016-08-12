@@ -41,7 +41,6 @@ import com.bop.web.rest.ActionContext;
 
 public class ExportExcle {
 	
-	
 	private JdbcOperations jdbcTemplate;
 	private IRecordDao recordDao;
 	private UserSession userSession;
@@ -58,7 +57,87 @@ public class ExportExcle {
 		this.recordDao = recordDao;
 	}
 
+
+	/**
+	 * 接口二调用示例
+	 * @param faid
+	 * @return
+	 */
+	@Action
+	public String viewExport(String faid){
+		String result = null;
+		try {
+			result = exportExcel(faid);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
 	
+	/**
+	 * 接口一调用示例
+	 * @param faid
+	 * @return
+	 */
+	@Action
+	public String creatExportExcel(){
+		String result = null;
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String gridcolmun = request.getParameter("gridcolmun");
+		String sql = this.getSql();
+		
+		try {
+			result = this.exportExcel(gridcolmun, sql);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	private String getSql(){
+		String sql = "select  t.plan00 as id ,t.plan0107 as mc,t.plan0101||t.plan0102 as zfyf, decode(counorg.qys,null,0,counorg.qys) as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys ,  "+
+				 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs , decode(p21.fqs,null,0,p21.fqs) as wtjfas,tt.plan0302 from plan01 t  left join plan03 tt on tt.parentid = t.plan00 "+
+				" left join (select count(*) qys,org.parentid, org.plan0404  from plan04 org group by org.parentid,org.plan0404) counorg on counorg.plan0404 =  tt.plan0301 and tt.parentid = counorg.parentid"+
+				" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
+				" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301    left join (select count(*) as fqs ,pp.parentid from plan21 pp group by pp.parentid) p21 on p21.parentid = t.plan00 where ";
+		String wheresql = " t.PLAN0105 = 1 and tt.plan0301='"+this.userSession.getCurrentUserZone()+"' order by plan0102 ";
+		return sql + wheresql;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	//-------------------------------------下面是导出的公用方法，简单封装，以后应该拆开---------------------------------------
 	/**
 	 * 导出excle
 	 * @author bdsoft lh
@@ -81,14 +160,9 @@ public class ExportExcle {
                 // 删除文件
                 file.delete();
             }
-
-            // 获得页面当前字段
-            String ziduan = request.getParameter("ziduan");
-
             // 表头名列表
             List<String> titleList = new ArrayList<String>();
             List<String> fieldList = new ArrayList<String>();
-            JSONArray zdjsonarry = JSONArray.fromObject(ziduan);
             
             
             titleList.add("地区");
@@ -110,21 +184,15 @@ public class ExportExcle {
             fieldList.add("sjly");
 
             String sheetName = "随机方案清单";
-            // 调用方法查询返回数据
             String list = this.getData(faid);
-            // 将返回的list转json对象
             JSONObject a = JSONObject.fromObject(list);
-            // 取得对象中key为"ArrData"的集合
             JSONArray jsonarry = a.getJSONArray("ArrData");
             List<JSONObject> jsonList = new ArrayList<JSONObject>();
-            // 遍历集合,转成json对象加入集合
             for (int i = 0; i < jsonarry.size(); i++) {
                 JSONObject jsonObject = (JSONObject) jsonarry.get(i);
                 jsonList.add(jsonObject);
             }
-            // 是否有记录
             if (jsonList.size() > 0 && jsonList != null) {
-                // 生成excel
                 createExcelForExtRow(titleList, fieldList, jsonList, filePath, sheetName);
                 ero.add("flag", true);
             }
@@ -135,11 +203,11 @@ public class ExportExcle {
         ero.add("path", path);
         return ero.toString();
     }
-    
+
     /**
      * 创建导出文件
-     * @param titleList 文件头内容
-     * @param fieldList 	
+     * @param titleList  显示的列名
+     * @param fieldList  对应数据项的列名	
      * @param recordList  数据集合
      * @param filePath	文件存放路径
      * @param sheetName	excle的标签名
@@ -157,18 +225,12 @@ public class ExportExcle {
             License cellLic = new License();
             cellLic.setLicense(licFilePath);
 
-            // 新建excel
             Workbook wb = new Workbook();
-            // 打开excel中第一个sheet
             Worksheet worksheet = wb.getWorksheets().get(0);
-            // 设置sheet名称
             worksheet.setName(sheetName);
-            // 获取行集合
             RowCollection rows = worksheet.getCells().getRows();
             int styleIndex = wb.getStyles().add();
-            // 设置cell样式
             Style style = wb.getStyles().get(styleIndex);
-            // 设置文本自动换行
             style.setTextWrapped(false);
             style.setBorder(BorderType.TOP_BORDER, CellBorderType.THIN, Color.getBlack());
             style.setBorder(BorderType.BOTTOM_BORDER, CellBorderType.THIN, Color.getBlack());
@@ -190,81 +252,22 @@ public class ExportExcle {
             for (JSONObject jsonRows : recordList) {
                 Row row = rows.get(stratRow);
                 for (int fi = 0; fi < fieldList.size(); fi++) {
-                    // 获得表头字段
                     String feildName = fieldList.get(fi);
                     // Object objfeild = jsonRows.get(feildName);
                     // 获得当前行的单元格
                     Cell cell = row.get(fi);
                     // 根据表头字段设置单元格值
                     // 查询码
-                    if (StringUtils.equals("dq", feildName)) {
-                        if(jsonRows.has("dq")){
-                         cell.setValue(jsonRows.get("dq"));   
-                        }else{
-                            cell.setValue("");   
-                           }
-                    } else if (StringUtils.equals("jgdm", feildName)) {
-                        if(jsonRows.has("jgdm")){
-                            cell.setValue(jsonRows.get("jgdm"));  
-                        }else{
-                            cell.setValue("");   
-                           }
-                    } else if (StringUtils.equals("dwmc", feildName)) {
-                        if(jsonRows.has("dwmc")){
-                            cell.setValue(jsonRows.get("dwmc")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    } else if (StringUtils.equals("dz", feildName)) {
-                        if(jsonRows.has("dz")){
-                            cell.setValue(jsonRows.get("dz")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    } else if (StringUtils.equals("lxr", feildName)) {
-                        if(jsonRows.has("lxr")){
-                            cell.setValue(jsonRows.get("lxr")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    } else if (StringUtils.equals("phone", feildName)) {
-                        if(jsonRows.has("phone")){
-                            cell.setValue(jsonRows.get("phone")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    } else if (StringUtils.equals("jcnr", feildName)) {
-                        if(jsonRows.has("jcnr")){
-                            cell.setValue(jsonRows.get("jcnr")); 
-                        }else{
-                            cell.setValue("");
-                           }
-                    }else if (StringUtils.equals("jcr", feildName)) {
-                        if(jsonRows.has("jcr")){
-                            cell.setValue(jsonRows.get("jcr")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    }else if (StringUtils.equals("sjly", feildName)) {
-                        if(jsonRows.has("sjly")){
-                            cell.setValue(jsonRows.get("sjly")); 
-                        }else{
-                            cell.setValue("");   
-                           }
-
-                    }
+                    if(jsonRows.has(feildName)){
+                    	cell.setValue(jsonRows.get(feildName));   
+                    }else{
+                        cell.setValue("");   
+                       }
                     // 设置单元格样式
                     cell.setStyle(style);
                 }
                 stratRow++;
             }
-
-
             worksheet.autoFitColumns();
             // 保存文件
             wb.save(filePath, new XlsSaveOptions());
@@ -280,7 +283,6 @@ public class ExportExcle {
 
     /**
      * 取得服务器的文件路径
-     * 
      * @return 文件路径
      */
     public static final String getServicePath() {
@@ -296,7 +298,7 @@ public class ExportExcle {
             return filePath.getAbsolutePath();
         }
     }
-    
+
     /**
      * 得到导出数据
      * @param fzid
@@ -407,4 +409,92 @@ public class ExportExcle {
 		}
 		return inform;
 	}
+
+
+	
+	
+	
+	
+	
+	//-------------------------------重写导出方法----------------------------------
+	/**
+	 * 展示的数据不需要程序转换的都可以用这个导出方法，如果需要程序转换就要在对应个性化的方法写对应的转换展示字段
+	 * 使用miniui的方法能够得到对应的列的header和filed,注意sql的拼写要与grid的filed一致
+	 * @param gridcolmun 前端传入的grid的列属性集合，通过mini.encode(grid.columns)得到
+	 * @param sql 查询导出列表数据的sql
+	 * @return
+	 */
+	@Action
+	public String exportExcel(String gridcolmun,String sql) throws Exception {
+		JSONArray ja = JSONArray.fromObject(gridcolmun);
+		List<String> titleList = new ArrayList<String>();
+	    List<String> fieldList = new ArrayList<String>();
+
+	     //得到标头和字段简拼
+        for (int i = 0; i < ja.size(); i++) {
+            JSONObject jsonObject = (JSONObject) ja.get(i);
+            if(jsonObject.getBoolean("visible")){
+            	  if(jsonObject.get("header")!=null)
+                  	titleList.add(jsonObject.get("header").toString());
+                  
+                  if(jsonObject.get("field")!=null)
+                  	fieldList.add(jsonObject.get("field").toString());
+            }
+        }
+
+        ExtResultObject ero = new ExtResultObject();
+        String path = "/temp/gjxfj.xls";
+        try {
+            String filePath = System.getProperty("resourceFiles.location")+path;
+            File file = new File(filePath);
+            if (file.exists()) {
+                file.delete();
+            }
+
+            String sheetName = "随机方案清单";
+            //查询对应的数据
+            String list = this.getData(sql,fieldList);
+            JSONObject a = JSONObject.fromObject(list);
+            JSONArray jsonarry = a.getJSONArray("ArrData");
+            List<JSONObject> jsonList = new ArrayList<JSONObject>();
+            for (int i = 0; i < jsonarry.size(); i++) {
+                JSONObject jsonObject = (JSONObject) jsonarry.get(i);
+                jsonList.add(jsonObject);
+            }
+            if (jsonList.size() > 0 && jsonList != null) {
+                createExcelForExtRow(titleList, fieldList, jsonList, filePath, sheetName);
+                ero.add("flag", true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            ero.add("flag", false);
+        }
+        ero.add("path", path);
+        return ero.toString();
+	}
+
+    /**
+     * 得到导出数据
+     * @param fzid
+     * @return
+     */
+    @Action
+    private String getData(String sql,List<String> fieldList) {
+    	String rtnlist =null;
+        ExtGrid rtnExtGrid = new ExtGrid();
+        List<Map<String,Object>> datalist = this.jdbcTemplate.queryForList(sql);
+        
+        List<ExtGridRow> rowlist2 = new ArrayList<ExtGridRow>();
+        for (Map<String,Object> ire : datalist) {
+        	ExtGridRow eRow = new ExtGridRow();
+			for(int i=0;i<fieldList.size();i++){
+				eRow.add(fieldList.get(i), ire.get(fieldList.get(i)));
+			}
+            rowlist2.add(eRow);
+        }
+        rtnExtGrid.rows.addAll(rowlist2);
+        rtnlist = rtnExtGrid.toString();
+        return rtnlist;
+    }
+
 }

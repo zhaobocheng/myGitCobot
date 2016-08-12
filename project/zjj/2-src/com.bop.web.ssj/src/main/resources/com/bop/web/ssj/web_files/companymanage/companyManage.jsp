@@ -117,7 +117,6 @@
 			</table>
 		</div>
 	</div>
-
 <script>
 mini.parse();
 var newwin = mini.get("newWin");

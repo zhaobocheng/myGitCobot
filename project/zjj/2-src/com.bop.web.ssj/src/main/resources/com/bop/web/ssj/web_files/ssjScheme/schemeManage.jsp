@@ -10,6 +10,7 @@
 <div style="padding:5px;10px;5px;0">
 	<span>年度：</span><input class="mini-combobox" id="zfnd" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getCBData/nd?theme=none"/>
 	<span>状态：</span><input class="mini-combobox" id="fazt" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" data="[{id:'0',text:'未生成'},{id:'1',text:'已生成'}]"  />
+	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
 </div>
 <div class="mini-fit">
 	<div id="datagrid" class="mini-datagrid" style="width:100%;height:100%;" url=""  idFiled="id"  allowResize="true" >
@@ -39,11 +40,10 @@ var url = "/ssj/ssjscheme/SchemeInfoShow/getFALBData/" + zfnd.value+"/"+zfzt.val
 grid.setUrl(url);
 grid.load();
 
- 
+
 valueChange = function(){
 	var nd = mini.get("zfnd").value;
 	var zt = mini.get("fazt").value;
-
 	url = "/ssj/ssjscheme/SchemeInfoShow/getFALBData/"+nd+"/"+zt+"?theme=none";
 	grid.setUrl(url);
 	grid.reload();
@@ -63,7 +63,6 @@ createFa=function(){
     			                if (action == "ok") {
     			                	createRepert('replace');
     			                } else {
-
     			                }
     			            }
     			        );
@@ -104,7 +103,7 @@ createRepert = function(e){
 viewFa = function(e){
 	var faid = grid.getSelected().id;
 	mini.open({
-		url:'/ssj/ssjScheme/viewScheme2.jsp?theme=2&faid='+faid+'&flag='+e,
+		url:'/ssj/ssjScheme/viewScheme.jsp?theme=2&faid='+faid+'&flag='+e,
 		showMaxButton: false,
 	    allowResize: true,
 	    title: '方案浏览',
@@ -158,11 +157,32 @@ showOrg = function(e){
 	});
 }
 
-
 gridLoad = function(value){
 	grid.setUrl(url);
 	grid.reload();
 }
+
+importExc = function(){
+	grid.loading("正在导出，请稍后......");
+	var columns = grid.columns;
+	var json = mini.encode(columns);
+
+	$.ajax({
+		url:'/ssj/ssjscheme/ExportExcle/creatExportExcel?theme=none',
+		type:'get',
+		data:{gridcolmun:json},
+		success:function(e){
+			var inf = mini.decode(e);
+			if(inf.flag){
+				location.href = decodeURI("/ResourceFiles"+inf.path);
+			}else{
+				alert("导出失败！");
+			}
+			grid.reload();
+		}
+	});
+}
+
 /* showRy = function(){
 	var faid = grid.getSelected().id;
 	mini.open({
@@ -181,9 +201,6 @@ gridLoad = function(value){
 	    }	
 	});
 } */
-
-
-
 
 </script>
 </body>

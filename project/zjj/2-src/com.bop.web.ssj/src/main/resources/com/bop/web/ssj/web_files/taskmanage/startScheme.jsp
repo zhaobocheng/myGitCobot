@@ -23,20 +23,20 @@
             </table>           
         </div>
     </div>
-    
  <!-- 数据列表 -->
-<div id="griddata" class="mini-datagrid" style="width:100%;height:98%" url="/ssj/taskmanage/taskoperation/getGridData?theme=none"  idFiled="id" allowResize="true" sizeList="[20,30,50,100]" pageSize="20" showFooter="true">
-	<div property="columns">
-		<div type="checkcolumn" width="10"></div>
-		<div type="indexcolumn" width="10">序号</div>
-		<div field="id" name="id"  width="100" visible="false">方案id</div>
-		<div field="famc" name="famc" width="100" headerAlign="center"   allowSort="true">方案名称</div>
-		<div field="zftime" name="zftime" width="100" headerAlign="center"   allowSort="true">执法日期</div>
-		<div field="cjtime" name="cjtime" width="100" headerAlign="center" dateFormat="yyyy-MM-dd" allowSort="true">创建时间</div>
-		<div field="zt" name="zt" width="100" headerAlign="center"  >状态</div>
+ <div class="mini-fit">
+	<div id="griddata" class="mini-datagrid" style="width:100%;height:98%" url="/ssj/taskmanage/taskoperation/getGridData?theme=none"  idFiled="id" allowResize="true" sizeList="[20,30,50,100]" pageSize="20" showFooter="true">
+		<div property="columns">
+			<div type="checkcolumn" width="10"></div>
+			<div type="indexcolumn" width="10">序号</div>
+			<div field="id" name="id"  width="100" visible="false">方案id</div>
+			<div field="famc" name="famc" width="100" headerAlign="center"   allowSort="true">方案名称</div>
+			<div field="zftime" name="zftime" width="100" headerAlign="center"   allowSort="true">执法日期</div>
+			<div field="cjtime" name="cjtime" width="100" headerAlign="center" dateFormat="yyyy-MM-dd" allowSort="true">创建时间</div>
+			<div field="zt" name="zt" width="100" headerAlign="center"  >状态</div>
+		</div>
 	</div>
 </div>
-
 <!-- 新增窗口 -->
 <div id="newWin" class="mini-window" title="新增方案" style="width:330px;height:230px;" showToolbar="true" showFooter="true" >
  	<div property="toolbar" style="padding:5px;">
