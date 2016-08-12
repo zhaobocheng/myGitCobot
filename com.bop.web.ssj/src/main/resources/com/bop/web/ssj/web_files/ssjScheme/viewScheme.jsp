@@ -20,9 +20,9 @@
 		<td><span>参与抽查企业数：</span><input class="mini-textbox" id="qys" readOnly="true"  style="width:228px;"/></td>
 	</tr>
 </table>
-	<a class="mini-button" iconCls = "icon-new" onclick="commitFa()" >提交</a>
+	<a class="mini-button" id="tjbut" iconCls = "icon-new" onclick="commitFa()" >提交</a>
 	<%if(!"sc".equals(flag)){ %>
-		<a class="mini-button" iconCls = "icon-new" onclick="createFa()" >重新生成</a>
+		<a class="mini-button" id="recrebut" iconCls = "icon-new" onclick="createFa()" >重新生成</a>
 	<%}else{} %>
 	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
 </div>
@@ -42,7 +42,6 @@
 	    </div>
 	</div>
 </div>
-
 <script >
 mini.parse();
 var faid ='<%=faid %>';
@@ -56,6 +55,15 @@ $.ajax({
 		mini.get("ccyf").setValue(info.yf);
 		mini.get("rs").setValue(info.rs);
 		mini.get("qys").setValue(info.qys);
+		if(info.zt==5){
+			mini.get("tjbut").setEnabled(false);
+			var recrebut = mini.get("recrebut");
+			if(recrebut!=undefined){
+				recrebut.setEnabled(false);
+			}
+		}else{
+			
+		}
 	}
 });
 
@@ -87,7 +95,7 @@ commitFa = function(){
 //生成方案
 createFa=function(){
     $.ajax({
-    	url:'/ssj/ssjScheme/SchemeInfoShow/isRepertCreate/'+faid,
+    	url:'/ssj/ssjScheme/CreateScheme/isRepertCreate/'+faid,
     	type:'get',
     	success:function(e){
     		var info = mini.decode(e);
@@ -97,7 +105,6 @@ createFa=function(){
     			                if (action == "ok") {
     			                	createRepert('replace');
     			                } else {
-    			                    
     			                }
     			            }
     			        );
@@ -110,17 +117,14 @@ createFa=function(){
     });
 }
 
-
 createRepert = function(e){
     mini.mask({
         el: document.body,
         cls: 'mini-mask-loading',
         html: '方案生成中，请稍等...'
     });
-    var faid = grid.getSelected().id;
-    
 	$.ajax({
-		url:'/ssj/ssjscheme/SchemeInfoShow/createSchemeData/'+faid,
+		url:'/ssj/ssjscheme/CreateScheme/createSchemeData/'+faid,
 		type:'get',
 		data:{isreplace:e},
 		success:function(e){
@@ -136,9 +140,13 @@ createRepert = function(e){
 
 importExc = function(){
 	grid.loading("正在导出，请稍后......");
+	var columns = grid.columns;
+	var json = mini.encode(columns);
+
 	$.ajax({
-		url:'/ssj/ssjscheme/CreateScheme/exportExcel/'+faid+"?theme=none",
+		url:'/ssj/ssjscheme/ExportExcle/exportExcel/'+faid+'?theme=none',
 		type:'get',
+		data:{gridcolmun:json},
 		success:function(e){
 			var inf = mini.decode(e);
 			if(inf.flag){
@@ -150,6 +158,7 @@ importExc = function(){
 		}
 	});
 }
+
 
 gridLoad = function(value){
 	grid.setUrl(url);

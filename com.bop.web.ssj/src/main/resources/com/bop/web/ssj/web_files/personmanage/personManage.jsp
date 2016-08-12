@@ -115,12 +115,13 @@
 <!-- 绘制页面结束 -->
 <script>
 mini.parse();
-
-/* var zfcom = mini.get("zftime");
-zfcom.select(0); */
-
-
+var zfnd = mini.get("zfnd");
+zfnd.select(0);
+var zfzt = mini.get("fazt");
+zfzt.select(0);
+var gridurl = '/ssj/personmanage/personmanage/getFALBData/'+zfnd.value+'/'+zfzt.value+'?theme=none';
 var datagrid=mini.get("griddata");
+datagrid.setUrl(gridurl);
 datagrid.load();
 
 var grid = mini.get("selectedgrid");
@@ -130,9 +131,8 @@ var url2 = "/ssj/personmanage/PersonManage/getUnSelectedGridData/ss?theme=none";
 
 grid.setUrl(url);
 ungrid.setUrl(url2);
-grid.load(); 
-ungrid.load(); 
-
+grid.load();
+ungrid.load();
 
 function isup(e){
 	var left = mini.get("left");

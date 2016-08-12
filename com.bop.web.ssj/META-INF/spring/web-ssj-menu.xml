@@ -20,7 +20,7 @@
 			<property name="id" value="1101" />
 			<property name="name" value="任务管理" />
 			<property name="description" value="任务管理" />
-			<property name="url" value="/ssj/ssjscheme/startScheme.jsp" />
+			<property name="url" value="/ssj/taskmanage/startScheme.jsp" />
 		</bean>
 	</osgi:service>
 	<osgi:service id="MenuItem1102" interface="com.bop.module.function.MenuItem">

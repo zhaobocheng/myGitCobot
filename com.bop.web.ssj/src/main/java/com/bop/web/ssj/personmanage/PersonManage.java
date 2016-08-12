@@ -160,7 +160,7 @@ public class PersonManage {
 		Records p1rds = this.recordDao.queryRecord("PLAN01", "plan0101 ="+year+" and plan0102 ="+month);
 		return p1rds.get(0).getRecordId().toString();
 	}
-	
+
 
 	/**
 	 * 得到方案列表数据
