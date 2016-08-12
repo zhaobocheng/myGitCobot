@@ -25,7 +25,7 @@
     </div>
     
  <!-- 数据列表 -->
-<div id="griddata" class="mini-datagrid" style="width:100%;height:98%" url="/ssj/ssjscheme/CreateScheme/getGridData?theme=none"  idFiled="id" allowResize="true" sizeList="[20,30,50,100]" pageSize="20" showFooter="true">
+<div id="griddata" class="mini-datagrid" style="width:100%;height:98%" url="/ssj/taskmanage/taskoperation/getGridData?theme=none"  idFiled="id" allowResize="true" sizeList="[20,30,50,100]" pageSize="20" showFooter="true">
 	<div property="columns">
 		<div type="checkcolumn" width="10"></div>
 		<div type="indexcolumn" width="10">序号</div>
@@ -122,7 +122,7 @@ removeRow = function(){
 		//请求后台 传参对应的记录ID，
 		var id = selected.id;
 		jQuery.ajax({
-			url:'/ssj/ssjscheme/createscheme/deleteScheme?theme=none',
+			url:'/ssj/taskmanage/taskoperation/deleteScheme?theme=none',
 			type:'post',
 			data:{id:id},
 			seccess:function(e){
@@ -152,7 +152,7 @@ qdRow = function(){
 		}
 		var json = mini.encode(selectRows);
 		$.ajax({
-			url:'/ssj/ssjscheme/CreateScheme/goStart?theme=none',
+			url:'/ssj/taskmanage/taskoperation/goStart?theme=none',
 			type:'post',
 			data:{data:json},
 			success:function(e){
@@ -191,7 +191,7 @@ function commitWindow(){
 	var json = mini.decode(data);
 
 	$.ajax({
-		url:'/ssj/ssjscheme/CreateScheme/addScheme/'+json+'?theme=none',
+		url:'/ssj/taskmanage/taskoperation/addScheme/'+json+'?theme=none',
 		type:'post',
 		data:json,
 		success:function(e){

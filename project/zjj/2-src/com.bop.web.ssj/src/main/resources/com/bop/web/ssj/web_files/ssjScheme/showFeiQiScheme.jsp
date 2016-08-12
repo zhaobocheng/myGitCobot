@@ -14,7 +14,6 @@
         <div name="nd" field="nd" width="50" headerAlign="center" align="center">年度</div>
         <div field="yf" width="30" headerAlign="center" align="center">月份</div>
         <div field="yy" width="60" headerAlign="center"  align="center">废弃原因</div>
-        
     </div>
 </div>
 <script>

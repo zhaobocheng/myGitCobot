@@ -33,5 +33,16 @@
         <property name="jdbcTemplate" ref="JdbcTemplate" />
         <property name="recordDao" ref="recordDao" />
         <property name="userSession" ref="UserSession" />
-    </bean>    
+    </bean>   
+    
+    <bean id="taskoperation" class="com.bop.web.ssj.taskmanage.TaskOperation">
+        <property name="jdbcTemplate" ref="JdbcTemplate" />
+        <property name="recordDao" ref="recordDao" />
+        <property name="userSession" ref="UserSession" />
+    </bean> 
+    <bean id="exportexcle" class="com.bop.web.ssj.ssjscheme.ExportExcle">
+        <property name="jdbcTemplate" ref="JdbcTemplate" />
+        <property name="recordDao" ref="recordDao" />
+        <property name="userSession" ref="UserSession" />
+    </bean>  
 </beans>
