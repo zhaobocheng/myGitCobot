@@ -23,7 +23,7 @@
         allowCellValid="true" oncellvalidation="onCellValidation">
     <div property="columns">
      <div type="checkcolumn"></div>
-        <div type="indexcolumn"></div>
+        <div type="indexcolumn">序号</div>
         <div field="PLAN1202" width="100">机构代码</div>
         <div field="PLAN1203" width="100" align="right">单位名称</div>
         <div field="PLAN1221" vtype="required" width="100"   align="center" headerAlign="center" type="comboboxcolumn">是否发现问题
