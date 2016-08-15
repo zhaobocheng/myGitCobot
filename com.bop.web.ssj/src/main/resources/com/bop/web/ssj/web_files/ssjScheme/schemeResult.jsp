@@ -13,9 +13,9 @@
 	 <a class="mini-button" id="find" iconCls = "icon-find"  onclick="search()">查找</a>
 </div>
 <div style="padding:5px;10px;5px;0">
-	<a class="mini-button" id="createBut" iconCls = "icon-save"  onclick="saveData()" plain="true">保存</a>
-	<a class="mini-button" id="commitBut" iconCls = "icon-ok" onclick="commitFa()" plain="true" >提交</a>
-	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" plain="true">导出Excel</a>
+	<a class="mini-button" id="createBut" iconCls = "icon-save"  onclick="saveData()" >保存</a>
+	<a class="mini-button" id="commitBut" iconCls = "icon-ok" onclick="commitFa()" >提交</a>
+	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
 </div>
 
 <div id="datagrid1" class="mini-datagrid" style="width:100%;height:90%;" 
@@ -53,7 +53,7 @@
 
 
 <script >
-var Months=[{ id: 1, text: '一月' }, { id: 2, text: '二月'}, { id: 3, text: '三月'}, { id: 4, text: '四月'}, { id: 5, text: '五月'}, { id: 6, text: '六月'}, { id: 7, text: '七月'}, { id: 8, text: '八月'}, { id: 9, text: '九月'}, { id: 10, text: '十月'}, { id: 11, text: '十一月'}, { id: 12, text: '十二月'}];
+var Months=[{ id: 12, text: '十二月'}, { id: 11, text: '十一月'}, { id: 10, text: '十月'}, { id: 9, text: '九月'}, { id: 8, text: '八月'}, { id: 7, text: '七月'}, { id: 6, text: '六月'}, { id: 5, text: '五月'}, { id: 4, text: '四月'}, { id: 3, text: '三月'}, { id: 2, text: '二月'},{ id: 1, text: '一月' }];
 var Bits=[{id:0,text:'否'},{id:1,text:'是'}];
 
 mini.parse();
@@ -159,11 +159,19 @@ function search(){
 }
 
 importExc = function(){
-	var faid = mini.get("month").value;
+	//var faid = mini.get("month").value;
+	//var rwmc=mini.get("rwmc").value;
 	grid.loading("正在导出，请稍后......");
+	var columns = grid.columns;	
+	debugger
+	var json = mini.encode(columns);
+	alert(json);
+	//url:'/ssj/ssjscheme/ExportExcle/ResultExportExcel?month='+faid+'&rwmc='+rwmc+'&theme=none',
+
 	$.ajax({
-		url:'/ssj/ssjscheme/CreateScheme/exportExcel/'+faid+"?theme=none",
+		url:'/ssj/ssjscheme/ExportExcle/ResultExportExcel?theme=none',
 		type:'get',
+		data:{gridcolmun:json},
 		success:function(e){
 			var inf = mini.decode(e);
 			if(inf.flag){
