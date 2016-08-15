@@ -106,10 +106,86 @@ public class ExportExcle {
 		return sql + wheresql;
 	}
 	
+	/**
+	 * 执法结果录入导出
+	 * @param rwmc 
+	 * @param month 
+	 * @param gridcolmun
+	 * @return
+	 */
+	@Action
+	public String ResultExportExcel(){
+		String result = null;
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String gridcolmun = request.getParameter("gridcolmun");
+		String rwmc = request.getParameter("rwmc")==null?null:request.getParameter("rwmc").toString();
+		String month = request.getParameter("month")==null?null:request.getParameter("month").toString();
+
+		String zone = this.userSession.getCurrentUserZone();
+		
+		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210='保存'";
+
+		if(null!=zone&&!"".equals(zone)){	
+			querySql += " and plan1204='"+zone+"'";
+		}
+		
+		if  (null!=rwmc &&!"".equals(rwmc)){
+			querySql += " and plan0107 like '%"+rwmc+"%'";
+		}
+		if  (null!=month &&!"".equals(month)){
+			querySql += " and plan0102='"+month+"'";
+		}
+		
+		
+		try {
+			result = this.exportExcel(gridcolmun, querySql);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+		return result;
+	}
+	/**
+	 * 执法方案浏览，导出
+	 * @param zfnd
+	 * @return
+	 */
+	@Action
+	public String SchemeViewExportExcel(String zfnd){
+		String result = null;
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String gridcolmun = request.getParameter("gridcolmun");
+		String sql = "select  t.plan00,tt.recordid,tt.parentid,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys , "+
+				 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 ='5' then '是' else '否' end as cz from plan01 t  "+
+				 " inner join plan03 tt on tt.parentid = t.plan00 "+				   
+				" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
+				 " left join (select count(*) qys,org.reg_district_dic from org01 org group by org.reg_district_dic) counorg on counorg.reg_district_dic = tt.plan0301"+
+				" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
+				" left join (select count(*) fqs , p4.plan2103,p4.parentid from plan21 p4 group by p4.plan2103 ,p4.parentid) countorg on countorg.parentid=t.plan00 and countorg.plan2103=tt.plan0301 " + 
+				" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
 	
+	String sql1="select plan00,plan00 as recordid,null as parentid,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz from plan01 where plan0105 = 1  ";
 	
+	String wheresql = " t.plan0105 = 1 ";
+	String zone=this.userSession.getCurrentUserZone();
+	if(zone!=null&&!"".equals(zone)){
+		wheresql += "and tt.plan0301='"+zone+"' ";
+	}
+	if(zfnd!=null&&!"".equals(zfnd)){
+		wheresql += " and t.plan0101 = "+zfnd;
+		sql1+=" and plan0101="+zfnd;
+	}		
 	
-	
+	try {
+		result = this.exportExcel(gridcolmun,sql+wheresql+" UNION ALL "+sql1+" order by zfyf,parentid desc");
+
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}		
+		return result;
+	}
 	
 	
 	

@@ -8,7 +8,7 @@
 <body>
 <div style="padding:5px;10px;5px;0">
 	<span>年度：</span><input class="mini-combobox" id="zfnd" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getCBData/nd?theme=none"/>
-	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" plain="true">导出Excel</a>
+	<a class="mini-button" iconCls = "icon-new" onclick="importExc()">导出Excel</a>
 </div>
 <div class="mini-fit">
 	<div id="treegrid1" class="mini-treegrid" style="width:100%;height:100%;"     
@@ -17,6 +17,7 @@
 	    <div property="columns">
 	        <div type="indexcolumn">序号</div>
 	        <div field="id" visible="false">id</div>
+	        <div field="yf" visible="false">yf</div>
 	        <div name="zfyf" field="zfyf" width="60" >任务名称</div>
 	        <div field="qx" width="60">区县</div>
 	        <div field="zfryzs" width="60" align="right">执法人员总数</div>
@@ -52,9 +53,12 @@ valueChange = function(){
 importExc = function(){
 	var faid = mini.get("zfnd").value;
 	grid.loading("正在导出，请稍后......");
+	var columns = grid.columns;
+	var json = mini.encode(columns);
 	$.ajax({
-		url:'/ssj/ssjscheme/SchemeResult/exportExcel/'+faid+"?theme=none",
+		url:'/ssj/ssjscheme/ExportExcle/SchemeViewExportExcel/'+faid+'?theme=none',
 		type:'get',
+		data:{gridcolmun:json},
 		success:function(e){
 			var inf = mini.decode(e);
 			if(inf.flag){
@@ -69,6 +73,7 @@ importExc = function(){
 
 showRy = function(e){
 	var faid = grid.getSelected().id;
+
 	mini.open({
 		url:'/ssj/ssjscheme/showPerson.jsp?theme=2&faid='+faid+"&flag="+e,
 		showMaxButton: false,
@@ -107,8 +112,12 @@ showOrg = function(e){
 
 showFQScheme = function(e){
 	var faid = grid.getSelected().id;
+	var qx=grid.getSelected().qx;
+	var yf=grid.getSelected().yf;
+	var nd = mini.get("zfnd").value;
+	
 	mini.open({
-		url:'/ssj/ssjscheme/showFeiQiScheme.jsp?theme=2&faid='+faid+"&flag="+e,
+		url:'/ssj/ssjscheme/showFeiQiScheme.jsp?theme=2&faid='+faid+"&flag="+e+"&qx="+qx+"&yf="+yf+"&nd="+nd,
 		showMaxButton: false,
 	    allowResize: true,
 	    title: '废弃方案',
