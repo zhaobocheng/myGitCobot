@@ -503,21 +503,9 @@ public class ExportExcle {
 	@Action
 	public String exportExcel(String gridcolmun,String sql) throws Exception {
 		JSONArray ja = JSONArray.fromObject(gridcolmun);
-		List<String> titleList = new ArrayList<String>();
-	    List<String> fieldList = new ArrayList<String>();
-
-	     //得到标头和字段简拼
-        for (int i = 0; i < ja.size(); i++) {
-            JSONObject jsonObject = (JSONObject) ja.get(i);
-            if(jsonObject.getBoolean("visible")){
-            	  if(jsonObject.get("header")!=null)
-                  	titleList.add(jsonObject.get("header").toString());
-                  
-                  if(jsonObject.get("field")!=null)
-                  	fieldList.add(jsonObject.get("field").toString());
-            }
-        }
-
+		List<String> titleList = this.getTitleList(ja);
+	    List<String> fieldList = this.getFieldList(ja);
+        
         ExtResultObject ero = new ExtResultObject();
         String path = "/temp/gjxfj.xls";
         try {
@@ -549,6 +537,51 @@ public class ExportExcle {
         return ero.toString();
 	}
 
+	
+	//考虑内存溢出的情况，导出表数据过大
+	/**
+	 * 导出接口二，传入对应的导出列名和对应的简称名，以及数据
+	 * @param gridcolmun 对应的标头列名和简称名集合
+	 * @param listString	对应的导出数据集合
+	 * @return
+	 * @throws Exception
+	 */
+    @Action
+    public String exportExcel(String gridcolmun,ExtGrid listgrid) throws Exception {
+    	JSONArray ja = JSONArray.fromObject(gridcolmun);
+    	List<String> titleList = this.getTitleList(ja);
+	    List<String> fieldList = this.getFieldList(ja);
+    	ExtResultObject ero = new ExtResultObject();
+        String path = "/temp/gjxfj.xls";
+        
+        try {
+            String filePath = System.getProperty("resourceFiles.location")+path;
+            File file = new File(filePath);
+            if (file.exists()) {
+                file.delete();
+            }
+
+            String sheetName = "随机方案清单";
+            JSONObject a = JSONObject.fromObject(listgrid.toString());
+            JSONArray jsonarry = a.getJSONArray("ArrData");
+            List<JSONObject> jsonList = new ArrayList<JSONObject>();
+            for (int i = 0; i < jsonarry.size(); i++) {
+                JSONObject jsonObject = (JSONObject) jsonarry.get(i);
+                jsonList.add(jsonObject);
+            }
+            if (jsonList.size() > 0 && jsonList != null) {
+                createExcelForExtRow(titleList, fieldList, jsonList, filePath, sheetName);
+                ero.add("flag", true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            ero.add("flag", false);
+        }
+        ero.add("path", path);
+        return ero.toString();
+    }
+	
+
     /**
      * 得到导出数据
      * @param fzid
@@ -572,5 +605,38 @@ public class ExportExcle {
         rtnlist = rtnExtGrid.toString();
         return rtnlist;
     }
+    
+    /**
+     * 得到列表头的内容
+     * @param gridcolum
+     * @return
+     */
+    private List<String> getTitleList(JSONArray gridcolum){
+    	List<String> titleList = new ArrayList<String>();
+        for (int i = 0; i < gridcolum.size(); i++) {
+            JSONObject jsonObject = (JSONObject) gridcolum.get(i);
+            if(jsonObject.getBoolean("visible")){
+            	  if(jsonObject.get("header")!=null)
+                  	titleList.add(jsonObject.get("header").toString());
+            }
+        }
+        return titleList;
+    }
 
+    /**
+     * 得到列表简称头
+     * @param gridcolum
+     * @return
+     */
+    private List<String> getFieldList(JSONArray gridcolum){
+    	List<String> fieldList = new ArrayList<String>();
+        for (int i = 0; i < gridcolum.size(); i++) {
+            JSONObject jsonObject = (JSONObject) gridcolum.get(i);
+            if(jsonObject.getBoolean("visible")){
+            	 if(jsonObject.get("field")!=null)
+                   	fieldList.add(jsonObject.get("field").toString());
+            }
+        }
+        return fieldList;
+    }
 }
