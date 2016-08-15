@@ -55,7 +55,6 @@ public class PersonManage {
 	@Action
 	public String getUnSelectedGridData(String faid){
 		//查询数据库
-		
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		int pageIndex = request.getParameter("pageIndex")==null?0:Integer.parseInt(request.getParameter("pageIndex").toLowerCase());
 		int pageSize = request.getParameter("pageSize")==null?20:Integer.parseInt(request.getParameter("pageSize").toLowerCase());
@@ -74,7 +73,7 @@ public class PersonManage {
 		}else{
 			whereSql += " and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 		}
-		
+
 		if(key!=null&& !"".equals(key)){
 			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
 		}
@@ -93,7 +92,7 @@ public class PersonManage {
 			eg.rows.add(eo);
 		}
 		
-		
+
 /*		ExtObjectCollection eoc = new ExtObjectCollection();
 		for(IRecord ird:rds){
 			ExtObject eo = new ExtObject();
@@ -171,6 +170,7 @@ public class PersonManage {
 
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		String wheresql = " t.PLAN0105 = 1 and tt.plan0301='"+this.userSession.getCurrentUserZone()+"' ";
+		String orderby =" order by t.plan0102 desc";
 		
 		if(zfnd!=null&&!"".equals(zfnd)){
 			wheresql += " and t.plan0101 = "+zfnd;
@@ -178,11 +178,12 @@ public class PersonManage {
 		if(zfzt!=null&&!"".equals(zfzt)){
 			if("0".equals(zfzt)){
 				wheresql += " and tt.plan0302 = "+zfzt;
+				orderby= " order by t.plan0102 ";
 			}else{
 				wheresql += " and tt.plan0302 <> 0";
 			}
 		}
-		List<Map<String,Object>> list = this.jdbcTemplate.queryForList("select * from plan01 t  left join plan03 tt on tt.parentid = t.plan00 where "+wheresql+" order by t.plan0102 desc");
+		List<Map<String,Object>> list = this.jdbcTemplate.queryForList("select * from plan01 t  left join plan03 tt on tt.parentid = t.plan00 where "+wheresql+orderby);
 		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
 		for(Map<String,Object> rd :list){
 			ExtObject eo = new ExtObject();

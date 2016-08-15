@@ -106,7 +106,6 @@
 			<property name="url" value="/ssj/powerlist/companyQuery.jsp" />
 		</bean>
 	</osgi:service>
-	
 	<osgi:service id="MenuItem1201" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1201" />
