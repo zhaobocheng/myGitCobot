@@ -17,14 +17,14 @@
 	    <div property="columns">
 	        <div type="indexcolumn"></div>
 	        <div field="id" visible="false">id</div>
-	        <div name="mc" field="mc" width="60" >任务名称</div>
-	        <div field="zfyf" width="60">执法月份</div>
-	        <div field="zfryzs" width="60" align="right">执法人员总数</div>
-	        <div field="cyzfrs" width="60" >参与执法人员数</div>
-	        <div field="cycczs" width="60" >参与抽查企业总数</div>
-	        <div field="ccqys" width="60" >抽查企业数</div>
-	        <div field="zffa" width="80" headerAlign="center">执法方案</div>
-	        <div field="wtjfas" width="50" headerAlign="center" >未提交方案数</div> 
+	        <div name="mc" field="mc" width="60" headerAlign="center" align="center" >任务名称</div>
+	        <div field="zfyf" width="60" headerAlign="center" align="center">执法月份</div>
+	        <div field="zfryzs" width="60" headerAlign="center" align="center">执法人员总数</div>
+	        <div field="cyzfrs" width="60" headerAlign="center" align="center">参与执法人员数</div>
+	        <div field="cycczs" width="60" headerAlign="center" align="center">参与抽查企业总数</div>
+	        <div field="ccqys" width="60" headerAlign="center" align="center">抽查企业数</div>
+	        <div field="zffa" width="80" headerAlign="center" align="center">执法方案</div>
+	        <div field="wtjfas" width="50" headerAlign="center" align="center">未提交方案数</div> 
 	    </div>
 	</div>
 </div>
@@ -167,7 +167,7 @@ importExc = function(){
 	var columns = grid.columns;
 	var json = mini.encode(columns);
 
-	$.ajax({
+ 	$.ajax({
 		url:'/ssj/ssjscheme/ExportExcle/creatExportExcel?theme=none',
 		type:'get',
 		data:{gridcolmun:json},

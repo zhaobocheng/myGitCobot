@@ -34,7 +34,7 @@
     </div>
 
     <!-- 左侧，未选择人员-->
-    <div title="未参与随机执法人员"   region="west" minWidth = "500px" expanded="true" showSplitIcon="true" >
+    <div title="未参与随机执法人员"   region="west" minWidth = "500px"  expanded="true" showSplitIcon="true" >
    		<div class="mini-toolbar" style="border-bottom:0;padding:0px;">
             <table style="width:100%;">
                 <tr>
@@ -58,7 +58,7 @@
     </div>
 
     <!-- 右侧选择人员 -->
-    <div title="参与随机执法人员" region="east"   showSplitIcon="true" minWidth = "500px"  >
+    <div title="参与随机执法人员" region="east"  minwidth="500px"  showSplitIcon="true"  >
      <div class="mini-toolbar" style="border-bottom:0;padding:0px;">
             <table style="width:100%;">
                 <tr>
@@ -83,7 +83,7 @@
 
     <!-- 中间按钮 -->
     <div title="center" region="center" >
-    	<div style="width:100%;padding-top:260;">
+    	<div style="width:100%;">
     		 <div class="mini-toolbar" style="border-bottom:0;padding:2px;">
 	            <table style="width:100%;">
 	                <tr>

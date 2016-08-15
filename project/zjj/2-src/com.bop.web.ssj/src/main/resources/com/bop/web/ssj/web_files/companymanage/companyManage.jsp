@@ -43,7 +43,7 @@
 				oncellvalidation="onCellValidation(e)" onselectionchanged="onSelectionChanged"  >
 				<div property="columns">
 					<div type="checkcolumn" width="10"></div>
-					<div type="indexcolumn" width="20">序号</div>
+					<div type="indexcolumn" width="20" headerAlign="center" align="center">序号</div>
 					<div field="id" name="id" width="100" visible="false">id</div>
 					<div field="mc" name="mc" width="100" headerAlign="center" align="center" allowSort="true">任务名称</div>
 					<div field="zfyf" name="zfyf" width="100" headerAlign="center" align="center" >执法月份</div>
