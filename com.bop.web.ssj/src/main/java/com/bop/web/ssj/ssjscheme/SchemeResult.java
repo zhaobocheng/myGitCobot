@@ -41,6 +41,114 @@ public class SchemeResult {
 		this.recordDao = recordDao;
 	}
 	/**
+	 * 获取某次废弃执法方案包含的企业
+	 * @param sccs
+	 * @return
+	 */
+	@Action
+	public String getFQCYQYData(String fzid){
+		ExtObjectCollection eoc = new ExtObjectCollection();
+
+		String zone = this.userSession.getCurrentUserZone();
+		String whereSql = null;
+		if(zone==null||"".equals(zone)){
+			whereSql = "parentid = '"+fzid+"'";
+		}else{
+			whereSql = "parentid = '"+fzid+"' and PLAN2204 = '"+zone+"'";
+		}
+
+		Records ires  = this.recordDao.queryRecord("PLAN22", whereSql);
+
+		if(ires.size()>0){
+			for(IRecord ire:ires){
+				ExtObject eo = new ExtObject();
+				String personInf[] = this.getJCRData(ire.getRecordId());
+
+				eo.add("id", ire.getRecordId());
+				eo.add("dq", ire.get("PLAN2204",DmCodetables.class).getCaption());
+				eo.add("jgdm", ire.get("PLAN2202"));
+				eo.add("dwmc", ire.get("PLAN2203"));
+				eo.add("dz",  ire.get("PLAN2205"));
+				eo.add("lxr", ire.get("PLAN2206"));
+				eo.add("phone", ire.get("PLAN2207"));
+				eo.add("jcnr",  ire.get("PLAN2208"));
+				eo.add("jcrid", personInf[0]);
+				eo.add("jcr",  personInf[1]);
+				
+				eo.add("sjly", this.getJSLY(ire.get("PLAN2202").toString()));
+				eo.add("ParentDqId", ire.get("PLAN2204",DmCodetables.class).getId());
+				eo.add("dqid",  null);
+				eoc.add(eo);
+			}
+		}
+		return eoc.toString();	
+	}
+	/**
+	 * 页面加载的时候得到检查人的信息
+	 * @param plan12id
+	 * @return
+	 */
+	private String [] getJCRData(UUID plan12id){
+		String ids = "";
+		String names = "";
+		String inform[] = new String[2];
+		
+		List<IRecord> ires = this.recordDao.getByParentId("PLAN1201", plan12id);
+		for(IRecord ire:ires){
+			names+= ire.get("PLAN120102").toString()+",";
+			ids+=ire.getRecordId().toString()+",";
+		}
+
+		if(ids.length()>0){
+			inform[0] = ids.substring(0, ids.length()-1);
+			inform[1] = names.substring(0, names.length()-1);
+		}else{
+			inform[0] = "无";
+			inform[1] = "无";
+		}
+		return inform;
+	}
+	/**
+	 * 得到涉及领域
+	 * @param jgdm
+	 * @return
+	 */	
+	private String getJSLY(String jgdm){
+		String sql = "select * from org02 where  parentid =(select org01.org00 from org01 where org01.org_code = '"+jgdm+"')";
+		List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);
+		
+		String retStr = "";
+		if(org2List.size()>0){
+			Map<String,Object> map = org2List.get(0);
+			if(map.get("ORG0201")!=null&&"1".equals(map.get("ORG0201").toString())){
+				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '1'";
+				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
+				retStr+=codeMap.get("caption")+"，";
+			}
+			if(map.get("ORG0202")!=null&&"1".equals(map.get("ORG0202").toString())){
+				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '2'";
+				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
+				retStr+=codeMap.get("caption")+"，";
+			}
+			if(map.get("ORG0203")!=null&&"1".equals(map.get("ORG0203").toString())){
+				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '3'";
+				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
+				retStr+=codeMap.get("caption")+"，";
+			}
+			if(map.get("ORG0204")!=null&&"1".equals(map.get("ORG0204").toString())){
+				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '4'";
+				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
+				retStr+=codeMap.get("caption")+"，";
+			}
+			if(map.get("ORG0205")!=null&&"1".equals(map.get("ORG0205").toString())){
+				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '5'";
+				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
+				retStr+=codeMap.get("caption")+"，";
+			}
+		}
+		return retStr.substring(0, retStr.length()-1);
+	}	
+	/**
 	 * 获取方案浏览列表数据
 	 * @param 年份
 	 * @return
@@ -49,7 +157,7 @@ public class SchemeResult {
 	public String getFALBData(String zfnd){ 
 
 		ExtObjectCollection eoc = new ExtObjectCollection();
-		String sql = "select  t.plan00,tt.recordid,tt.parentid,t.plan0101 as nf,t.plan0107 as mc,aa.caption as qx,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys , "+
+		String sql = "select  t.plan00,tt.recordid,tt.parentid,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys , "+
 					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 ='5' then '是' else '否' end as cz from plan01 t  "+
 					 " inner join plan03 tt on tt.parentid = t.plan00 "+				   
 					" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
@@ -58,7 +166,7 @@ public class SchemeResult {
 					" left join (select count(*) fqs , p4.plan2103,p4.parentid from plan21 p4 group by p4.plan2103 ,p4.parentid) countorg on countorg.parentid=t.plan00 and countorg.plan2103=tt.plan0301 " + 
 					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
 		
-		String sql1="select plan00,plan00 as recordid,null as parentid,plan0101 as nf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz from plan01 where plan0105 = 1  ";
+		String sql1="select plan00,plan00 as recordid,null as parentid,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz from plan01 where plan0105 = 1  ";
 		
 		String wheresql = " t.plan0105 = 1 ";
 		String zone=this.userSession.getCurrentUserZone();
@@ -80,7 +188,7 @@ public class SchemeResult {
 				UUID uid = UUID.randomUUID();
 				eo.add("id", map.get("recordid"));
 				eo.add("mc", map.get("mc"));
-				eo.add("nf", map.get("nf"));
+				eo.add("yf", map.get("yf"));
 				eo.add("qx", map.get("qx"));
 				eo.add("parentid", map.get("parentid"));
 				eo.add("zfyf", map.get("zfyf"));
@@ -128,9 +236,8 @@ public class SchemeResult {
 		ExtObjectCollection ero = new ExtObjectCollection();
 		String flag=ActionContext.getActionContext().getHttpServletRequest().getParameter("flag");
 		String zone = this.userSession.getCurrentUserZone();
-		String sql = "select a.plan00,t.plan0101,plan0102,t.plan0107,a.plan2101 from plan03 b "+
+		String sql = "select a.recordid,a.plan2104 from plan03 b "+
 					" inner join  plan21 a on a.parentid=b.parentid "+
-					" inner join plan01 t on b.parentid=t.plan00 "+
 					" where b.recordid='"+faid+"' ";
 		
 		if(null!=zone&&!"".equals(zone)){
@@ -141,11 +248,8 @@ public class SchemeResult {
 		
 		for(Map<String,Object> map:list){
 			ExtObject eo = new ExtObject();
-			eo.add("id", map.get("plan00"));
-			eo.add("mc", map.get("plan0107"));
-			eo.add("nd", map.get("plan0101"));
-			eo.add("yf", map.get("plan0102"));
-			eo.add("yy", map.get("plan2101"));
+			eo.add("id", map.get("recordid"));
+			eo.add("mc", "第 "+map.get("plan0107")+" 次");
 			ero.add(eo);
 		}
 		return ero.toString();		
