@@ -380,7 +380,8 @@ public class SchemeResult {
 
 		String zone = this.userSession.getCurrentUserZone();
 		
-		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210='提交'";
+		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210='2'";
+
 
 		if(null!=zone&&!"".equals(zone)){	
 			querySql += " and plan1204='"+zone+"'";
@@ -469,7 +470,7 @@ public class SchemeResult {
 			//IRecord ire = this.recordDao.getRecord("PLAN12", UUID.fromString(faid));
 			if (ires.size()>0){
 				IRecord ire =ires.get(0);
-				ire.put("PLAN1210", "提交");
+				ire.put("PLAN1210", "3");
 				this.recordDao.saveObject(ire);
 			}
 		}
