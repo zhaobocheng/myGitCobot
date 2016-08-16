@@ -133,6 +133,26 @@ showFQScheme = function(e){
 	});
 }
 
+showSchemeView = function(e){
+	var faid = grid.getSelected().id;
+	var parentid=grid.getSelected().parentid;
+	mini.open({
+		url:'/ssj/ssjScheme/showSchemeView.jsp?theme=2&faid='+faid+'&parentid='+parentid+'&flag='+e,
+		showMaxButton: false,
+	    allowResize: true,
+	    title: '方案浏览',
+	    width: 1000,
+	    height: 680,
+	    onload: function(){
+	        var iframe = this.getIFrameEl();
+	       // iframe.contentWindow.setData(data);
+	    },
+	    ondestroy: function (action) {
+	    	
+	    }	
+	});
+	
+}
 </script>
 </body>
 </html>
