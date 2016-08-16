@@ -123,17 +123,24 @@ public class ExportExcle {
 
 		String zone = this.userSession.getCurrentUserZone();
 		
-		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210='保存'";
-
+		//String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210='保存'";
+		String querySql = "select a.plan0102,a.plan0107,t.recordid,t.parentid,t.plan1202,t.plan1203,t.plan1204,t.plan1205,t.plan1206,t.plan1207,"+
+						" c.caption as plan1221,c1.caption as plan1222,t.plan1223,c2.caption as plan1224,case when t.plan1225='1' then '是' else '否' end as plan1225,c3.caption as plan1226,t.plan1227 from plan12 t "+
+						" left join plan01 a on t.parentid=a.plan00 "+
+						" left join dm_codetable_data c on c.cid=t.plan1221 and c.codetablename='ZDY06' "+
+						" left join dm_codetable_data c1 on c1.cid=t.plan1222 and c1.codetablename='ZDY01' "+
+						" left join dm_codetable_data c2 on c2.cid=t.plan1224 and c2.codetablename='ZDY08' "+
+						" left join dm_codetable_data c3 on c3.cid=t.plan1226 and c3.codetablename='ZDY09' "+
+						" where t.plan1210='保存' ";
 		if(null!=zone&&!"".equals(zone)){	
-			querySql += " and plan1204='"+zone+"'";
+			querySql += " and t.plan1204='"+zone+"'";
 		}
 		
 		if  (null!=rwmc &&!"".equals(rwmc)){
-			querySql += " and plan0107 like '%"+rwmc+"%'";
+			querySql += " and a.plan0107 like '%"+rwmc+"%'";
 		}
 		if  (null!=month &&!"".equals(month)){
-			querySql += " and plan0102='"+month+"'";
+			querySql += " and a.plan0102='"+month+"'";
 		}
 		
 		

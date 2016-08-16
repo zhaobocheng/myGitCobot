@@ -15,6 +15,7 @@ import com.bop.domain.dao.DmCodetables;
 import com.bop.domain.dao.IRecord;
 import com.bop.json.ExtObject;
 import com.bop.json.ExtObjectCollection;
+import com.bop.json.ExtResultObject;
 import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
@@ -40,6 +41,83 @@ public class SchemeResult {
 	public void setRecordDao(IRecordDao recordDao) {
 		this.recordDao = recordDao;
 	}
+	/**
+	 * 方案浏览时获取列表头部加载信息
+	 * @param faid
+	 * @return
+	 */
+	@Action
+	public String getViewBaseInfo(String faid){
+		ExtResultObject ero = new ExtResultObject();
+		String zone = this.userSession.getCurrentUserZone();
+		String sql = " select t.plan00,t.plan0107 as mc ,t.plan0102 as yf, count(p2.recordid) as rs ,p6.plan0602 qys"+
+		" from plan03 tt left join plan01 t on tt.parentid=t.plan00 left join plan02 p2 on p2.parentid = t.plan00 and p2.plan0205 = '"+zone+"' and p2.plan0204 = 2 "+
+		" left join plan06 p6 on p6.parentid = t.plan00 and p6.plan0601 = '"+zone+"' where tt.recordid = '"+faid+"' group by t.plan00,t.plan0107,t.plan0102,p6.plan0602";
+		
+		Map<String,Object> map = this.jdbcTemplate.queryForMap(sql);
+		ero.add("id", map.get("plan00"));
+		ero.add("mc", map.get("mc"));
+		ero.add("yf", map.get("yf"));
+		ero.add("rs", map.get("rs"));
+		ero.add("qys", map.get("qys"));
+		return ero.toString();
+	}	
+	/**
+	 * 浏览方案和执法结果信息
+	 * @param faid
+	 * @return
+	 */
+	@Action
+	public String getSchemeAndResult(String fzid){
+		ExtObjectCollection eoc = new ExtObjectCollection();
+		//HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+
+		String zone = this.userSession.getCurrentUserZone();
+		
+	//	String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid ";
+		String whereSql = null;	
+		if(zone==null||"".equals(zone)){
+			whereSql = "parentid = '"+fzid+"'";
+		}else{
+			whereSql = "parentid = '"+fzid+"' and PLAN1204 = '"+zone+"'";
+		}		
+		//List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(querySql);
+		Records ires  = this.recordDao.queryRecord("PLAN12", whereSql);
+
+		if(ires.size()>0){
+			for(IRecord ire:ires){
+				ExtObject eo = new ExtObject();
+
+				eo.add("id", ire.getRecordId());
+				eo.add("PLAN1202", ire.get("PLAN1202"));
+				eo.add("PLAN1203", ire.get("PLAN1203"));
+				eo.add("PLAN1221",  ire.get("PLAN1221"));
+				eo.add("PLAN1222", ire.get("PLAN1222"));
+				eo.add("PLAN1223", ire.get("PLAN1223"));
+				eo.add("PLAN1224",  ire.get("PLAN1224"));
+				eo.add("PLAN1225",  ire.get("PLAN1225"));
+				eo.add("PLAN1226",  ire.get("PLAN1226"));
+				eo.add("PLAN1227",  ire.get("PLAN1227"));
+				String personInf[] = this.getJCRData(ire.getRecordId());				
+				eo.add("dq", ire.get("PLAN1204",DmCodetables.class).getCaption());
+				eo.add("jgdm", ire.get("PLAN1202"));
+				eo.add("dwmc", ire.get("PLAN1203"));
+				eo.add("dz",  ire.get("PLAN1205"));
+				eo.add("lxr", ire.get("PLAN1206"));
+				eo.add("phone", ire.get("PLAN1207"));
+				eo.add("jcnr",  ire.get("PLAN1208"));
+				eo.add("jcrid", personInf[0]);
+				eo.add("jcr",  personInf[1]);			
+				eo.add("sjly", this.getJSLY(ire.get("PLAN1202").toString()));
+				eo.add("ParentDqId", ire.get("PLAN1204",DmCodetables.class).getId());
+				eo.add("dqid",  null);
+				
+				eoc.add(eo);
+			}
+		}
+		return eoc.toString();		
+	}
+	
 	/**
 	 * 获取某次废弃执法方案包含的企业
 	 * @param sccs
@@ -191,7 +269,13 @@ public class SchemeResult {
 				eo.add("yf", map.get("yf"));
 				eo.add("qx", map.get("qx"));
 				eo.add("parentid", map.get("parentid"));
-				eo.add("zfyf", map.get("zfyf"));
+				if (map.get("parentid")==null){
+					eo.add("zfyf", map.get("zfyf"));
+				} else{
+					eo.add("zfyf","<a  id = \"zfyf\"   Style=\"color:black;\" onclick=\"showSchemeView()\">"+map.get("zfyf")+"</a>");
+				}
+
+				
 				if (map.get("zfryzs")==null){
 					eo.add("zfryzs","");
 				} else {

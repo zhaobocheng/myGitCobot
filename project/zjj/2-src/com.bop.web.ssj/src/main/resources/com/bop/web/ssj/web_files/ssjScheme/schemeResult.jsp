@@ -20,7 +20,7 @@
 
 <div id="datagrid1" class="mini-datagrid" style="width:100%;height:90%;" 
         url="/ssj/ssjScheme/SchemeResult/getSchemeDate?theme=none" idField="id" allowResize="true" allowCellEdit="true" allowCellSelect="true" multiSelect="true"
-        allowCellValid="true" oncellvalidation="onCellValidation">
+        allowCellValid="true" oncellvalidation="onCellValidation" >
     <div property="columns">
      <div type="checkcolumn"></div>
         <div type="indexcolumn">序号</div>
@@ -61,7 +61,14 @@ var grid = mini.get("datagrid1");
 //grid.load();
 
 function onCellValidation(e) {
- 
+	 if (e.field == "PLAN1225") {
+       if (e.value == "1") {
+           e.record;
+    	             
+           //e.cancel = true;
+       }
+   }
+
 }
 
 valueChangeMonth = function(e){
@@ -69,37 +76,15 @@ valueChangeMonth = function(e){
 	search();
 }
 
-function onDrawCell(e){
-	var value = e.value; 
-	var parm = /\{.*\}/;    
-	 if(value!=null){
-		 if(parm.exec(value)){ 
-			 var str = value.split(":")[2].replace(/\'/g, "").replace(/\}/g, "");    
-			 e.cellHtml =  str;
-		 }
-	 } 
-}
-
-function onGenderRenderer(e) {
-	var editor=e.editor;
-	//if (editor.data!=null){
-	    for (var i = 0, l = Months.length; i < l; i++) {
-	        var g = Months[i];
-	        if (g.id == e.value) return g.text;
-	    }
-	    return "";
-	//}
-}
-
 function commitFa(){
     if (grid.isChanged() == true) {
-    	alert(1);
+    	
     	saveData();
     }
 	var rows = grid.getSelecteds();
     if (rows.length > 0) {
 		var json = mini.encode(rows);
-		//alert(json);
+		
 		grid.loading("提交中，请稍后......");
 		$.ajax({
 			url:'/ssj/ssjScheme/SchemeResult/commitGridData?theme=none',
@@ -158,18 +143,31 @@ function search(){
 
 }
 
-importExc = function(){
-	//var faid = mini.get("month").value;
-	//var rwmc=mini.get("rwmc").value;
-	grid.loading("正在导出，请稍后......");
-	var columns = grid.columns;	
-	debugger
-	var json = mini.encode(columns);
-	alert(json);
-	//url:'/ssj/ssjscheme/ExportExcle/ResultExportExcel?month='+faid+'&rwmc='+rwmc+'&theme=none',
+function getColumns(columns) {
+    columns = columns.clone();
+    for (var i = columns.length - 1; i >= 0; i--) {
+        var column = columns[i];
+        if (!column.field) {
+            columns.removeAt(i);
+        } else {
+            var c = { header: column.header, field: column.field,visible:column.visible };
+            columns[i] = c;
+        }
+    }
+    return columns;
+}
 
+importExc = function(){
+	var faid = mini.get("month").value;
+	var rwmc=mini.get("rwmc").value;
+	grid.loading("正在导出，请稍后......");
+	//var columns = grid.columns;		
+	var columns = grid.getBottomColumns();
+	var columns1 = getColumns(columns);
+	var json = mini.encode(columns1);	
+	
 	$.ajax({
-		url:'/ssj/ssjscheme/ExportExcle/ResultExportExcel?theme=none',
+		url:'/ssj/ssjscheme/ExportExcle/ResultExportExcel?month='+faid+'&rwmc='+rwmc+'&theme=none',
 		type:'get',
 		data:{gridcolmun:json},
 		success:function(e){
