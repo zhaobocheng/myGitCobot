@@ -20,7 +20,7 @@
 
 <div id="datagrid1" class="mini-datagrid" style="width:100%;height:90%;" 
         url="/ssj/ssjScheme/SchemeResult/getSchemeDate?theme=none" idField="id" allowResize="true" allowCellEdit="true" allowCellSelect="true" multiSelect="true"
-        allowCellValid="true" oncellvalidation="onCellValidation" >
+        allowCellValid="true" oncellvalidation="onCellValidation" oncellbeginedit="OnCellBeginEdit" >
     <div property="columns">
      <div type="checkcolumn"></div>
         <div type="indexcolumn">序号</div>
@@ -60,14 +60,18 @@ mini.parse();
 var grid = mini.get("datagrid1");
 //grid.load();
 
+function OnCellBeginEdit(e) {
+     var record = e.record, field = e.field;
+     if (field == "PLAN1226" && record.PLAN1225 == "0") {
+         e.cancel = true;   
+     }
+     if (field == "PLAN1227" && record.PLAN1226 != "2") {
+         e.cancel = true;   
+     }
+ }
+       
 function onCellValidation(e) {
-	 if (e.field == "PLAN1225") {
-       if (e.value == "1") {
-           e.record;
-    	             
-           //e.cancel = true;
-       }
-   }
+	var rec=e.record;	
 
 }
 
