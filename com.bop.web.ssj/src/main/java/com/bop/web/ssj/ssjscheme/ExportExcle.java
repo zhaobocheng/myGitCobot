@@ -131,7 +131,7 @@ public class ExportExcle {
 						" left join dm_codetable_data c1 on c1.cid=t.plan1222 and c1.codetablename='ZDY01' "+
 						" left join dm_codetable_data c2 on c2.cid=t.plan1224 and c2.codetablename='ZDY08' "+
 						" left join dm_codetable_data c3 on c3.cid=t.plan1226 and c3.codetablename='ZDY09' "+
-						" where t.plan1210='保存' ";
+						" where t.plan1210='2' ";
 		if(null!=zone&&!"".equals(zone)){	
 			querySql += " and t.plan1204='"+zone+"'";
 		}
@@ -230,7 +230,6 @@ public class ExportExcle {
 	 */
     @Action
     public String exportExcel(String faid) throws Exception {
-        
     	ExtResultObject ero = new ExtResultObject();
         ActionContext context = ActionContext.getActionContext();
         HttpServletRequest request = context.getHttpServletRequest();
@@ -247,17 +246,14 @@ public class ExportExcle {
             List<String> titleList = new ArrayList<String>();
             List<String> fieldList = new ArrayList<String>();
             
-            
-            titleList.add("地区");
             titleList.add("机构代码");
             titleList.add("单位名称");
             titleList.add("地址");
             titleList.add("联系人");
             titleList.add("电话");
             titleList.add("检查人");
-            titleList.add("涉及事项");
+            titleList.add("涉及领域");
             
-            fieldList.add("dq");
             fieldList.add("jgdm");
             fieldList.add("dwmc");
             fieldList.add("dz");

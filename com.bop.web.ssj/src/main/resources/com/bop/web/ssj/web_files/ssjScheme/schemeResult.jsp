@@ -17,8 +17,8 @@
 	<a class="mini-button" id="commitBut" iconCls = "icon-ok" onclick="commitFa()" >提交</a>
 	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
 </div>
-
-<div id="datagrid1" class="mini-datagrid" style="width:100%;height:90%;" 
+<div class="mini-fit">
+<div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;" showPager="false"
         url="/ssj/ssjScheme/SchemeResult/getSchemeDate?theme=none" idField="id" allowResize="true" allowCellEdit="true" allowCellSelect="true" multiSelect="true"
         allowCellValid="true" oncellvalidation="onCellValidation" oncellbeginedit="OnCellBeginEdit" >
     <div property="columns">
@@ -50,7 +50,7 @@
                        
     </div>
 </div>
-
+</div>
 
 <script >
 var Months=[{ id: 12, text: '十二月'}, { id: 11, text: '十一月'}, { id: 10, text: '十月'}, { id: 9, text: '九月'}, { id: 8, text: '八月'}, { id: 7, text: '七月'}, { id: 6, text: '六月'}, { id: 5, text: '五月'}, { id: 4, text: '四月'}, { id: 3, text: '三月'}, { id: 2, text: '二月'},{ id: 1, text: '一月' }];
@@ -82,7 +82,6 @@ valueChangeMonth = function(e){
 
 function commitFa(){
     if (grid.isChanged() == true) {
-    	
     	saveData();
     }
 	var rows = grid.getSelecteds();

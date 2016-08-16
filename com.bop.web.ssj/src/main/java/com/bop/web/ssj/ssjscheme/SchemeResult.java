@@ -380,7 +380,7 @@ public class SchemeResult {
 
 		String zone = this.userSession.getCurrentUserZone();
 		
-		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210='保存'";
+		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210='提交'";
 
 		if(null!=zone&&!"".equals(zone)){	
 			querySql += " and plan1204='"+zone+"'";

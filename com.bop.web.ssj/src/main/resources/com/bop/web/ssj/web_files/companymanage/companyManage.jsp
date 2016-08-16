@@ -8,7 +8,6 @@
 <body>
 	<div class="mini-panel" style="width: 100%; height: 100%"
 		showHeader="false" showToolbar="true" showFooter="false">
-		
 		<div property="toolbar">
 			<table>
 				<tr>
