@@ -87,6 +87,10 @@ commitFa = function(){
 				alert("提交完毕！");
 				gird.reload();
 			}
+			
+			
+			
+			
 		}
 	});
 }

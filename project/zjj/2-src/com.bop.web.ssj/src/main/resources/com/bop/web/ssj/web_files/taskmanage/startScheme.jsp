@@ -133,6 +133,7 @@ removeRow = function(){
 				}else{
 					alert("删除失败！");
 				}
+				datagrid.reload();
 			}
 		});
 		datagrid.reload();
@@ -145,6 +146,8 @@ removeRow = function(){
 qdRow = function(){
 	var selectRows = datagrid.getSelecteds();
 
+	grid.load("启动中");
+	
 	if(selectRows.length>0){
 		if(selectRows[0].zt == "已启用"){
 			alert("该方案已启用！");
@@ -178,10 +181,10 @@ function hideWindow() {
     win.hide();
 }
 
+//
 function commitWindow(){
 	var formdata = new mini.Form("#newForm");
 	//验证表单
-
 	formdata.validate();
  	if(!formdata.isValid()){
  		return;	

@@ -90,7 +90,6 @@ gridLoad = function(value){
 	grid.setUrl(url);
 	grid.reload();
 }
-
 </script>
 </body>
 </html>
