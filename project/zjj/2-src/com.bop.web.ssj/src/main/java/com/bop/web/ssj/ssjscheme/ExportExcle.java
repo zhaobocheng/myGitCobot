@@ -142,15 +142,12 @@ public class ExportExcle {
 		if  (null!=month &&!"".equals(month)){
 			querySql += " and a.plan0102='"+month+"'";
 		}
-		
-		
+
 		try {
 			result = this.exportExcel(gridcolmun, querySql);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
-		
+		}
 		return result;
 	}
 	/**

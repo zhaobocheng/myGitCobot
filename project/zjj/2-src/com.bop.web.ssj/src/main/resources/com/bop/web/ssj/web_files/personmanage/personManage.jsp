@@ -216,6 +216,7 @@ function sbRow(){
 
 			if(inf.flag=="success"||inf.flag=="alls"){
 				alert("上报成功！");
+				datagrid.reload();
 			}else if(inf.flag=="select"){
 				alert("请先选择随机人员再上报！");
 			}else if(inf.flag=="allu"){

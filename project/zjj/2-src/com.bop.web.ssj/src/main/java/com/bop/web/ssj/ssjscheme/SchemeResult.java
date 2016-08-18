@@ -386,7 +386,7 @@ public class SchemeResult {
 		if(null!=zone&&!"".equals(zone)){	
 			querySql += " and plan1204='"+zone+"'";
 		}
-		
+
 		if  (null!=rwmc &&!"".equals(rwmc)){
 			querySql += " and plan0107 like '%"+rwmc+"%'";
 		}
