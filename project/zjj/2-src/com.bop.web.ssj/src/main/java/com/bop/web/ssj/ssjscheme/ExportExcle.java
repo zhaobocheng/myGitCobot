@@ -142,12 +142,15 @@ public class ExportExcle {
 		if  (null!=month &&!"".equals(month)){
 			querySql += " and a.plan0102='"+month+"'";
 		}
-
+		
+		
 		try {
 			result = this.exportExcel(gridcolmun, querySql);
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}		
+		
 		return result;
 	}
 	/**
@@ -156,12 +159,15 @@ public class ExportExcle {
 	 * @return
 	 */
 	@Action
-	public String SchemeViewExportExcel(String zfnd){
+	public String SchemeViewExportExcel(){
 		String result = null;
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String gridcolmun = request.getParameter("gridcolmun");
+		String rwmc = request.getParameter("rwmc")==null?null:request.getParameter("rwmc").toString();
+		String zfnd = request.getParameter("zfnd")==null?null:request.getParameter("zfnd").toString();
+
 		String sql = "select  t.plan00,tt.recordid,tt.parentid,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys , "+
-				 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 ='5' then '是' else '否' end as cz from plan01 t  "+
+				 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 ='5' then '是' else '否' end as cz,case when tt.plan0302 ='6' then '是' else '否' end as sfgs from plan01 t  "+
 				 " inner join plan03 tt on tt.parentid = t.plan00 "+				   
 				" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
 				 " left join (select count(*) qys,org.reg_district_dic from org01 org group by org.reg_district_dic) counorg on counorg.reg_district_dic = tt.plan0301"+
@@ -169,7 +175,7 @@ public class ExportExcle {
 				" left join (select count(*) fqs , p4.plan2103,p4.parentid from plan21 p4 group by p4.plan2103 ,p4.parentid) countorg on countorg.parentid=t.plan00 and countorg.plan2103=tt.plan0301 " + 
 				" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
 	
-	String sql1="select plan00,plan00 as recordid,null as parentid,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz from plan01 where plan0105 = 1  ";
+	String sql1="select plan00,plan00 as recordid,null as parentid,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz,'' as sfgs from plan01 where plan0105 = 1  ";
 	
 	String wheresql = " t.plan0105 = 1 ";
 	String zone=this.userSession.getCurrentUserZone();
@@ -180,7 +186,10 @@ public class ExportExcle {
 		wheresql += " and t.plan0101 = "+zfnd;
 		sql1+=" and plan0101="+zfnd;
 	}		
-	
+	if  (null!=rwmc &&!"".equals(rwmc)){
+		wheresql += " and plan0107 like '%"+rwmc+"%'";
+		sql1+= " and plan0107 like '%"+rwmc+"%'";
+	}	
 	try {
 		result = this.exportExcel(gridcolmun,sql+wheresql+" UNION ALL "+sql1+" order by zfyf,parentid desc");
 
@@ -227,6 +236,7 @@ public class ExportExcle {
 	 */
     @Action
     public String exportExcel(String faid) throws Exception {
+        
     	ExtResultObject ero = new ExtResultObject();
         ActionContext context = ActionContext.getActionContext();
         HttpServletRequest request = context.getHttpServletRequest();
@@ -243,14 +253,17 @@ public class ExportExcle {
             List<String> titleList = new ArrayList<String>();
             List<String> fieldList = new ArrayList<String>();
             
+            
+            titleList.add("地区");
             titleList.add("机构代码");
             titleList.add("单位名称");
             titleList.add("地址");
             titleList.add("联系人");
             titleList.add("电话");
             titleList.add("检查人");
-            titleList.add("涉及领域");
+            titleList.add("涉及事项");
             
+            fieldList.add("dq");
             fieldList.add("jgdm");
             fieldList.add("dwmc");
             fieldList.add("dz");

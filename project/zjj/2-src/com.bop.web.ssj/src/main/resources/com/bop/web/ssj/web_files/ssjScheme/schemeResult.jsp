@@ -8,17 +8,18 @@
 <body>
 <div><span>执法结果回填</span></div>
 <div>
-	<span>任务名称：</span><input class="mini-textbox" id="rwmc" name="rwmc" style="width:150px;"/>
+	<span>任务名称：</span><input class="mini-textbox" id="rwmc" name="rwmc" style="width:150px;" onvaluechanged="valueChangeMonth"/>
 	<span>抽查月份：</span><input class="mini-combobox" id="month" style="width:150px;" textField="text" valueField="id" onvaluechanged="valueChangeMonth" data="Months"/>
 	 <a class="mini-button" id="find" iconCls = "icon-find"  onclick="search()">查找</a>
 </div>
 <div style="padding:5px;10px;5px;0">
 	<a class="mini-button" id="createBut" iconCls = "icon-save"  onclick="saveData()" >保存</a>
 	<a class="mini-button" id="commitBut" iconCls = "icon-ok" onclick="commitFa()" >提交</a>
+	<a class="mini-button" id="commitGS" iconCls = "icon-node"  onclick="onCommitGS()" >公示</a>	
 	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
 </div>
 <div class="mini-fit">
-<div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;" showPager="false"
+<div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;" showPager="false" 
         url="/ssj/ssjScheme/SchemeResult/getSchemeDate?theme=none" idField="id" allowResize="true" allowCellEdit="true" allowCellSelect="true" multiSelect="true"
         allowCellValid="true" oncellvalidation="onCellValidation" oncellbeginedit="OnCellBeginEdit" >
     <div property="columns">
@@ -26,6 +27,8 @@
         <div type="indexcolumn">序号</div>
         <div field="PLAN1202" width="100">机构代码</div>
         <div field="PLAN1203" width="100" align="right">单位名称</div>
+        <div field="PLAN1210" visible="false">PLAN1210</div>
+        <div field="parentid" visible="false">parentid</div>
         <div field="PLAN1221" vtype="required" width="100"   align="center" headerAlign="center" type="comboboxcolumn">是否发现问题
             <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY06?theme=none"/>                
         </div>  
@@ -59,6 +62,8 @@ var Bits=[{id:0,text:'否'},{id:1,text:'是'}];
 mini.parse();
 var grid = mini.get("datagrid1");
 //grid.load();
+var btngs = mini.get("commitGS");
+btngs.setEnabled(false);
 
 function OnCellBeginEdit(e) {
      var record = e.record, field = e.field;
@@ -79,9 +84,28 @@ valueChangeMonth = function(e){
 	
 	search();
 }
+function onCommitGS(){
+	var data=grid.data;
+	if (data.length>0){
+		var faid=data[0].parentid;
+		grid.loading("提交公示中，请稍后......");
+		$.ajax({
+			url:'/ssj/ssjScheme/SchemeResult/commitGSData/'+faid+'?theme=none',
+			type:'post',
+			success:function(e){
+				if(e=="success"){
+					alert("公示成功！");				
+				}else{
+					alert("公示失败！");
+				}
+			}
+		})  		
+	}
+}
 
 function commitFa(){
     if (grid.isChanged() == true) {
+    	
     	saveData();
     }
 	var rows = grid.getSelecteds();
@@ -95,8 +119,19 @@ function commitFa(){
 			data:{data:json},
 			success:function(e){
 				if(e=="success"){
+					grid.reload();					
 					alert("提交成功！");
-					grid.reload();
+					//方案中的所有企业全部提交完，才允许公示					
+					var data=grid.data;
+					var isTrue=true;
+					for (var i = data.length - 1; i >= 0; i--) { 
+						if (data[i].PLAN1210<'3'){
+							isTrue=false;
+							break;
+						}
+					}
+					btngs.setEnabled(isTrue);
+					
 				}else{
 					alert("提交失败！");
 				}
@@ -143,7 +178,8 @@ function search(){
 	var month=mini.get("month").value;	
 
 	grid.load({rwmc:rwmc,month:month});
-
+	//var data=grid.data;
+	
 }
 
 function getColumns(columns) {

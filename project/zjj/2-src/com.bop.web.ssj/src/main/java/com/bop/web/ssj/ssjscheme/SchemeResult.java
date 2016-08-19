@@ -232,11 +232,15 @@ public class SchemeResult {
 	 * @return
 	 */
 	@Action
-	public String getFALBData(String zfnd){ 
-
+	public String getFALBData(){ 
 		ExtObjectCollection eoc = new ExtObjectCollection();
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String zfnd = request.getParameter("zfnd")==null?null:request.getParameter("zfnd").toString();
+		String rwmc = request.getParameter("rwmc")==null?null:request.getParameter("rwmc").toString();
+
+
 		String sql = "select  t.plan00,tt.recordid,tt.parentid,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys , "+
-					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 ='5' then '是' else '否' end as cz from plan01 t  "+
+					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 ='5' then '是' else '否' end as cz,case when tt.plan0302 ='6' then '是' else '否' end as sfgs from plan01 t  "+
 					 " inner join plan03 tt on tt.parentid = t.plan00 "+				   
 					" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
 					 " left join (select count(*) qys,org.reg_district_dic from org01 org group by org.reg_district_dic) counorg on counorg.reg_district_dic = tt.plan0301"+
@@ -244,7 +248,7 @@ public class SchemeResult {
 					" left join (select count(*) fqs , p4.plan2103,p4.parentid from plan21 p4 group by p4.plan2103 ,p4.parentid) countorg on countorg.parentid=t.plan00 and countorg.plan2103=tt.plan0301 " + 
 					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
 		
-		String sql1="select plan00,plan00 as recordid,null as parentid,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz from plan01 where plan0105 = 1  ";
+		String sql1="select plan00,plan00 as recordid,null as parentid,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz,'' as sfgs from plan01 where plan0105 = 1  ";
 		
 		String wheresql = " t.plan0105 = 1 ";
 		String zone=this.userSession.getCurrentUserZone();
@@ -254,6 +258,10 @@ public class SchemeResult {
 		if(zfnd!=null&&!"".equals(zfnd)){
 			wheresql += " and t.plan0101 = "+zfnd;
 			sql1+=" and plan0101="+zfnd;
+		}
+		if  (null!=rwmc &&!"".equals(rwmc)){
+			wheresql += " and plan0107 like '%"+rwmc+"%'";
+			sql1+= " and plan0107 like '%"+rwmc+"%'";
 		}
 		
 		//List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" order by t.plan0102 desc");
@@ -299,6 +307,7 @@ public class SchemeResult {
 				eo.add("zffa", map.get("zffa"));
 				eo.add("wtjfas", map.get("wtjfas"));
 				eo.add("cz", map.get("cz"));//是否提交过
+				eo.add("sfgs", map.get("sfgs"));
 				if (map.get("fqfas")==null){
 					eo.add("fqfas","");
 				}else {				
@@ -380,13 +389,12 @@ public class SchemeResult {
 
 		String zone = this.userSession.getCurrentUserZone();
 		
-		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210='2'";
-
+		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210<'3'";
 
 		if(null!=zone&&!"".equals(zone)){	
 			querySql += " and plan1204='"+zone+"'";
 		}
-
+		
 		if  (null!=rwmc &&!"".equals(rwmc)){
 			querySql += " and plan0107 like '%"+rwmc+"%'";
 		}
@@ -400,6 +408,7 @@ public class SchemeResult {
 			for(Map<String,Object> map:resultList){
 				ExtObject eo = new ExtObject();
 				eo.add("id", map.get("RECORDID"));
+				eo.add("parentid", map.get("parentid"));				
 				eo.add("PLAN1202", map.get("PLAN1202"));
 				eo.add("PLAN1203", map.get("PLAN1203"));
 				eo.add("PLAN1221",  map.get("PLAN1221"));
@@ -409,14 +418,34 @@ public class SchemeResult {
 				eo.add("PLAN1225",  map.get("PLAN1225"));
 				eo.add("PLAN1226",  map.get("PLAN1226"));
 				eo.add("PLAN1227",  map.get("PLAN1227"));
-				
+				eo.add("PLAN1210", map.get("PLAN1210"));
 				eoc.add(eo);
 			}
 		}
 		return eoc.toString();	
 		
 	}
-	
+	/**
+	 * 保存提交的公示数据
+	 * @param 
+	 */
+	@Action
+	public String commitGSData(String faid){
+		String zone = this.userSession.getCurrentUserZone();
+		
+		String whereSql=" PARENTID='"+faid+"'";
+		if(null!=zone&&!"".equals(zone)){	
+			whereSql += " and plan0301='"+zone+"'";
+		}
+		
+		Records ires  = this.recordDao.queryRecord("PLAN03", whereSql);
+		if (ires.size()>0){
+			IRecord ire =ires.get(0);
+			ire.put("PLAN0302", "6");
+			this.recordDao.saveObject(ire);
+		}	
+		return "success";
+	}
 	/**
 	 * 保存数据
 	 */
@@ -470,7 +499,7 @@ public class SchemeResult {
 			//IRecord ire = this.recordDao.getRecord("PLAN12", UUID.fromString(faid));
 			if (ires.size()>0){
 				IRecord ire =ires.get(0);
-				ire.put("PLAN1210", "3");
+				ire.put("PLAN1210", "2");
 				this.recordDao.saveObject(ire);
 			}
 		}
