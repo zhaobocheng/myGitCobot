@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta name="decorator" content="miniui">
-<title>企业列表</title>
+<title>人员列表</title>
 </head>
 <body>
 <div id="datagrid" class="mini-datagrid" style="width:100%;height:100%;" url=""  idFiled="id"  allowResize="true" showPager="false" >
@@ -24,7 +24,7 @@ var faid ='<%=faid %>';
 var flag = '<%= request.getParameter("flag") %>';
 
 var grid = mini.get("datagrid");
-var url = "/ssj/ssjscheme/SchemeInfoShow/getORGcount/" +faid+"?theme=none&flag="+flag;
+var url = "/ssj/ssjscheme/SchemeInfoShow/getRYcount/" +faid+"?theme=none&flag="+flag;
 grid.setUrl(url);
 grid.load();
 </script>

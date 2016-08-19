@@ -8,6 +8,7 @@
 <body>
 	<div class="mini-panel" style="width: 100%; height: 100%"
 		showHeader="false" showToolbar="true" showFooter="false">
+		
 		<div property="toolbar">
 			<table>
 				<tr>
@@ -38,20 +39,21 @@
 				url="/ssj/companymanage/CompanyManage/getGridData//?theme=none"
 				idFiled="id" showPager="false" multiSelect="true"
 				allowCellEdit="true" allowCellSelect="true"
-				editNextOnEnterKey="true" editNextRowCell="true"
-				oncellvalidation="onCellValidation(e)" onselectionchanged="onSelectionChanged"  >
+				editNextOnEnterKey="true" editNextRowCell="true" oncellbeginedit="OnCellBeginEdit" 
+				oncellvalidation="onCellValidation(e)" >
 				<div property="columns">
 					<div type="checkcolumn" width="10"></div>
 					<div type="indexcolumn" width="20" headerAlign="center" align="center">序号</div>
 					<div field="id" name="id" width="100" visible="false">id</div>
+					<div field="PLAN0302" name="PLAN0302" width="100" visible="false">plan0302</div>
 					<div field="mc" name="mc" width="100" headerAlign="center" align="center" allowSort="true">任务名称</div>
-					<div field="zfyf" name="zfyf" width="100" headerAlign="center" align="center" >执法月份</div>
+					<div field="zfyf" name="zfyf" width="60" headerAlign="center" align="center" >执法月份</div>
 					<div field="cyqys" name="cyqys" width="80" headerAlign="center" align="center" allowSort="true">参与抽查企业数</div>
 					<div field="cyzfrys" name="cyzfrys" width="60" headerAlign="center" align="center" allowSort="true">参与执法人员数</div>
-					<div field="sjqyzs" name="sjqyzs" vtype="required;int" width="60" headerAlign="center" allowSort="true">
+					<div field="sjqyzs" name="sjqyzs" vtype="required;int" width="60" headerAlign="center" align="center" allowSort="true">
 						抽查总数 <input property="editor" class="mini-spinner" minValue="0" maxValue="200" value="4" style="width: 100%;" />
 					</div>
-					<div field="cz" name="cz" vtype="required" width="60" headerAlign="center" allowSort="true">
+					<div field="cz" name="cz" vtype="required" width="120" headerAlign="center" allowSort="true">
 						操作 <!-- <input property="editor" class="mini-button"  style="width: 100%;" value="上报"/> -->
 					</div>
 				</div>
@@ -129,7 +131,11 @@ var url = "/ssj/companymanage/CompanyManage/getGridData/" + zfnd.value+"/"+zfzt.
 grid.setUrl(url);
 grid.load();
 
-		
+function OnCellBeginEdit(e) {
+    var record = e.record, field = e.field;
+
+
+}		
 
 function isup(e){
 	var setWeigBut = mini.get("setWeigBut");
@@ -220,7 +226,28 @@ function hideWindow() {
 	win.hide();
 }
 
-		//提交按钮触发
+//取消提交，重设人员权重等
+function unmommit(){
+	grid.validate();
+	var selectData = grid.getSelected();	
+	var zfid = selectData.id;
+
+	grid.loading("修改中，请稍后......");
+	$.ajax({
+		url : "/ssj/companymanage/companymanage/UnCommit/" + zfid + "?theme=none",
+		//data : { sdata: mini.encode(selectData) },
+		type : "post",
+		success : function(text) {
+			var inf = mini.decode(text);
+				grid.reload();
+				alert(inf.text);
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			alert(jqXHR.responseText);
+		}
+	});		
+}
+//提交按钮触发
 function mommit() {
 
 	grid.validate();

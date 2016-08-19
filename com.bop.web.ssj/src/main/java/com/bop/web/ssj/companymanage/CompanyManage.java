@@ -57,7 +57,7 @@ public class CompanyManage {
 	@Action
 	public String getGridData(String zfnd,String zfzt){
 		ExtObjectCollection eoc = new ExtObjectCollection();
-		String sql = "select  t.plan00,t.plan0107 as mc,t.plan0101||t.plan0102 as zfyf,counorg.qys as qys , counp2.rs as rs, "+
+		String sql = "select  t.plan00,t.plan0107 as mc,tt.plan0302,t.plan0101||t.plan0102 as zfyf,counorg.qys as qys , counp2.rs as rs, "+
 					 " case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as sbqys from plan01 t  left join plan03 tt on tt.parentid = t.plan00"+
 					" left join (select count(*) qys,org.parentid, org.plan0404  from plan04 org group by org.parentid,org.plan0404) counorg on counorg.plan0404 =  tt.plan0301 and tt.parentid = counorg.parentid"+
 					" left join (select count(*) rs ,p2.plan0205,p2.parentid from plan02 p2 where p2.plan0204 = 2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
@@ -85,15 +85,21 @@ public class CompanyManage {
 				eo.add("id", map.get("plan00"));
 				eo.add("mc", map.get("mc"));
 				eo.add("zfyf", map.get("zfyf"));
-				eo.add("cyqys", map.get("qys"));
+				eo.add("PLAN0302", map.get("plan0302"));
+				eo.add("cyqys", map.get("qys"));				
 				eo.add("cyzfrys", map.get("rs"));
 				eo.add("sjqyzs", map.get("sbqys"));
 				eo.add("cz", "");//是否提交过
 				
 				if("0".equals(zfzt)){
-					eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 50%;height:100%\" onclick=\"mommit()\">上报</a>");
+					eo.add("cz", "<a class=\"mini-button\" id = \"unupbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"unmommit()\">重新确认执法人员</a><a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"mommit()\">上报</a>");
 				}else{
-					eo.add("cz", "上报");
+					if ("3".equals(map.get("plan0302"))){
+						eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"unmommit()\">重新确认执法人员</a>");
+						
+					} else {						
+						eo.add("cz", "上报");
+					}
 				}
 				eoc.add(eo);
 			}
@@ -402,8 +408,29 @@ public class CompanyManage {
 		
 		return ero.toString();
 	}
-	
-	
+	/**
+	 * 
+	 */
+	@Action
+	public String UnCommit(String fzid){
+		ExtResultObject ero = new ExtResultObject();
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String zone = this.userSession.getCurrentUserZone();
+		//String sdata = request.getParameter("sdata");
+		//JSONObject jsonObject = JSONObject.fromObject(sdata);
+		
+		String upSql = "update plan03 set plan0302 = 0 where parentid = '"+fzid+"' and plan0301 = '"+zone+"'";
+		
+		this.jdbcTemplate.execute(upSql);
+		upSql= " update plan02 set plan0204=0 where parentid='"+fzid+"' and plan0205='"+zone+"' ";
+		this.jdbcTemplate.execute(upSql);
+		upSql =" delete from plan06 where parentid='"+fzid+"' and plan0601='"+zone+"' ";
+		this.jdbcTemplate.execute(upSql);
+		
+		ero.add("text", "退回成功");
+		ero.add("flag", "f1");		
+		return ero.toString();		
+	}
 	/**
 	 * 各区县提交抽查的企业数
 	 * @return

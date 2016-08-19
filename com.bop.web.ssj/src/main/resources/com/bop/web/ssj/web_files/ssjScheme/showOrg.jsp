@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta name="decorator" content="miniui">
-<title>人员列表展示</title>
+<title>企业列表展示</title>
 </head>
 <body>
 <div id="datagrid" class="mini-datagrid" style="width:100%;height:100%;" url=""  idFiled="id"  allowResize="true" showPager="false" >

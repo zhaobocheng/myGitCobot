@@ -77,8 +77,12 @@ public class CreateScheme {
 	@Action
 	public String commitSchemeDate(String faid){
 		String zone = this.userSession.getCurrentUserZone();
+		
+		//String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
+		//zxy 修改plan1210 保存为代码 
 		String plan12UpSql = "update plan12 set plan1210 = '2' where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
-		String plan1201UpSql = "update plan1201 set plan120104 = '2' where parentid in (select t.recordid from plan12 t where t.parentid = '"+faid+"' and t.plan1204 = '"+zone+"' )";
+		
+		String plan1201UpSql = "update plan1201 set plan120104 = '提交' where parentid in (select t.recordid from plan12 t where t.parentid = '"+faid+"' and t.plan1204 = '"+zone+"' )";
 		
 		this.jdbcTemplate.execute(plan1201UpSql);
 		this.jdbcTemplate.execute(plan12UpSql);
@@ -190,6 +194,8 @@ public class CreateScheme {
 	private void saveReplacedSchema(String faid,String zone,String ss){
 		this.createPlan21(faid, zone);    //创建废弃信息主表
 	//	this.jdbcTemplate.execute("delete from PLAN1201 where parentid in (select recordid from PLAN12 where parentid = '"+faid+"' and plan1210 = '保存' and plan1204 = '"+zone+"')");
+		//this.jdbcTemplate.execute("delete from PLAN12 where parentid = '"+faid+"' and plan1210 = '保存' and plan1204 = '"+zone+"'");   //上一步不用操作，因为这里使用的是级联删除，同时触发删除的表记录到废弃表中
+		//zxy 修改 plan1210 改为代码
 		this.jdbcTemplate.execute("delete from PLAN12 where parentid = '"+faid+"' and plan1210 = '1' and plan1204 = '"+zone+"'");   //上一步不用操作，因为这里使用的是级联删除，同时触发删除的表记录到废弃表中
 
 	}
@@ -411,7 +417,7 @@ public class CreateScheme {
 		ire.put("PLAN1207", informIRe.get("LEGAL_REPRE_TEL"));
 		ire.put("PLAN1208", "");
 		ire.put("PLAN1209", 0);
-		ire.put("PLAN1210", "1");
+		ire.put("PLAN1210", "1"); //zxy 修改为代码 
 		this.recordDao.saveObject(ire);
 		
 		

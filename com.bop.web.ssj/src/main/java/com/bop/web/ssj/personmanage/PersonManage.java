@@ -60,47 +60,81 @@ public class PersonManage {
 		int pageSize = request.getParameter("pageSize")==null?20:Integer.parseInt(request.getParameter("pageSize").toLowerCase());
 		Object key=request.getParameter("key");
 		String zone = this.userSession.getCurrentUserZone();
-		
+		String zfnd=request.getParameter("nd");
+		String whereSql = "plan0204 = '1' ";
+		String sql=null,sql1="",sql2="";
 		// 获取第几页
 		int start = 0;
 		if (pageIndex != 0){
 			start = pageSize*pageIndex;
 		}
 		
-		String whereSql = "plan0204 = '1' ";
 		if(zone==null||"".equals(zone)){
 			whereSql += " and parentid = '"+faid+"'";
+			sql="select * from plan02 t "+
+					" left join (select plan0201,plan0202,count(*) as cs from plan02 t"+
+					" inner join plan01 a on a.plan00=t.parentid and plan0101='"+zfnd+"' "+					
+					" group by plan0201,plan0202 ) a on a.plan0201=t.plan0201 "+
+					" where t.plan0204 = '1' and t.parentid='"+faid+"'";
+			sql1="select count(*) from plan02 t "+
+					" inner join plan01 a on a.plan00=t.parentid "+
+					" where a.plan0101='"+zfnd+"'";	
+			sql2="select sum(plan0602) from plan06 t "+
+					" inner join plan01 a on a.plan00=t.parentid "+
+					" where a.plan0101='"+zfnd+"'";
 		}else{
-			whereSql += " and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
-		}
-
-		if(key!=null&& !"".equals(key)){
-			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
+			whereSql += "  and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
+			sql="select * from plan02 t "+
+					" left join (select plan0201,plan0202,count(*) as cs from plan02 t"+
+					" inner join plan01 a on a.plan00=t.parentid and plan0101='"+zfnd+"' "+
+					" where  t.plan0205='"+zone+"' "+
+					" group by plan0201,plan0202 ) a on a.plan0201=t.plan0201 "+
+					" where t.plan0204 = '1' and t.plan0205='"+zone+"' and t.parentid='"+faid+"'";
+			sql1="select count(*) from plan02 t "+
+					" inner join plan01 a on a.plan00=t.parentid "+
+					" where  t.plan0205='"+zone+"' and a.plan0101='"+zfnd+"'";
+			sql2="select sum(plan0602) from plan06 t "+
+					" inner join plan01 a on a.plan00=t.parentid "+
+					" where t.plan0601='"+zone+"' and a.plan0101='"+zfnd+"'";
 		}
 		
-		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);
+		if(key!=null&& !"".equals(key)){
+			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
+			sql+=" and t.plan0202 like '%"+key.toString()+"%'";
+		}
+
+		String strSQL="SELECT * FROM  "+ 
+					"(SELECT A.*, ROWNUM RN "+   
+					" FROM (" +sql+") A "+   
+					" WHERE ROWNUM < "+start+pageSize+" )WHERE RN >= "+ start ;
+							
+		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(strSQL);
+
+		
+		int ryzs=this.jdbcTemplate.queryForInt(sql1);
+		
+		int qys=this.jdbcTemplate.queryForInt(sql2);
+		double yj=qys*2/ryzs;
+		
+		//Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);
 		Records totalrds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205");
 		
 		ExtGrid eg = new ExtGrid();
 		eg.setTotal(totalrds.size());
+		
+		if(resultList.size()>0){
+			for(Map<String,Object> map:resultList){
 
-		for(IRecord ird:rds){
-			ExtGridRow eo = new ExtGridRow();
-			eo.add("id", ird.getRecordId());
-			eo.add("unSeletedName", ird.get("plan0202"));
-			eo.add("unSeletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
-			eg.rows.add(eo);
+		//for(IRecord ird:rds){
+				ExtGridRow eo = new ExtGridRow();
+				eo.add("id", map.get("recordid"));
+				eo.add("unSeletedName", map.get("plan0202"));
+				//eo.add("seletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
+				eo.add("bnyj", map.get("cs").toString()+"-"+qys+"-"+yj);
+				eg.rows.add(eo);
+			}
 		}
 		
-
-/*		ExtObjectCollection eoc = new ExtObjectCollection();
-		for(IRecord ird:rds){
-			ExtObject eo = new ExtObject();
-			eo.add("id", ird.getRecordId());
-			eo.add("unSeletedName", ird.get("plan0202"));
-			eo.add("unSeletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
-			eoc.add(eo);
-		}*/
 		return eg.toString();
 	}
 	/**
@@ -116,38 +150,81 @@ public class PersonManage {
 		int pageIndex = request.getParameter("pageIndex")==null?0:Integer.parseInt(request.getParameter("pageIndex").toLowerCase());
 		int pageSize = request.getParameter("pageSize")==null?20:Integer.parseInt(request.getParameter("pageSize").toLowerCase());
 		Object key=request.getParameter("key");
-
+		String zfnd=request.getParameter("nd");
 		String zone = this.userSession.getCurrentUserZone();
 		String whereSql = "plan0204 <> '1' ";
-		if(zone==null||"".equals(zone)){
-			whereSql += " and parentid = '"+faid+"'";
-		}else{
-			whereSql += "  and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
-		}
 		
-		if(key!=null&& !"".equals(key)){
-			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
-		}
-
+		String sql=null,sql1="",sql2="";;
 		// 获取第几页
 		int start = 0;
 		if (pageIndex != 0){
 			start = pageSize*pageIndex;
 		}
-				
-		Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);
+		
+		if(zone==null||"".equals(zone)){
+			whereSql += " and parentid = '"+faid+"'";
+			sql="select * from plan02 t "+
+					" left join (select plan0201,plan0202,count(*) as cs from plan02 t"+
+					" inner join plan01 a on a.plan00=t.parentid and plan0101='"+zfnd+"' "+					
+					" group by plan0201,plan0202 ) a on a.plan0201=t.plan0201 "+
+					" where t.plan0204 <> '1' and t.parentid='"+faid+"'";
+			sql1="select count(*) from plan02 t "+
+					" inner join plan01 a on a.plan00=t.parentid "+
+					" where a.plan0101='"+zfnd+"'";	
+			sql2="select sum(plan0602) from plan06 t "+
+					" inner join plan01 a on a.plan00=t.parentid "+
+					" where a.plan0101='"+zfnd+"'";			
+		}else{
+			whereSql += "  and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
+			sql="select * from plan02 t "+
+					" left join (select plan0201,plan0202,count(*) as cs from plan02 t"+
+					" inner join plan01 a on a.plan00=t.parentid and plan0101='"+zfnd+"' "+
+					" where  t.plan0205='"+zone+"' "+
+					" group by plan0201,plan0202 ) a on a.plan0201=t.plan0201 "+
+					" where t.plan0204 <> '1' and t.plan0205='"+zone+"' and t.parentid='"+faid+"'";  					
+			sql1="select count(*) from plan02 t "+
+					" inner join plan01 a on a.plan00=t.parentid "+
+					" where  t.plan0205='"+zone+"' and a.plan0101='"+zfnd+"'";
+			sql2="select sum(plan0602) from plan06 t "+
+					" inner join plan01 a on a.plan00=t.parentid "+
+					" where t.plan0601='"+zone+"' and a.plan0101='"+zfnd+"'";
+
+		}
+		
+		if(key!=null&& !"".equals(key)){
+			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
+			sql+=" and t.plan0202 like '%"+key.toString()+"%'";
+		}
+
+		String strSQL="SELECT * FROM  "+ 
+					"(SELECT A.*, ROWNUM RN "+   
+					" FROM (" +sql+") A "+   
+					" WHERE ROWNUM < "+start+pageSize+" )WHERE RN >= "+ start ;
+							
+		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(strSQL);
+		//
+		 
+		int ryzs=this.jdbcTemplate.queryForInt(sql1);
+		
+		int qys=this.jdbcTemplate.queryForInt(sql2);
+		double yj=qys*2/ryzs;
+		//Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);		
 		Records totalrds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205");
 		ExtGrid eg = new ExtGrid();
 		eg.setTotal(totalrds.size());
 
-		for(IRecord ird:rds){
-			ExtGridRow eo = new ExtGridRow();
-			eo.add("id", ird.getRecordId());
-			eo.add("seletedName", ird.get("plan0202"));
-			eo.add("seletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
-			eg.rows.add(eo);
+		if(resultList.size()>0){
+			for(Map<String,Object> map:resultList){
+
+		//for(IRecord ird:rds){
+				ExtGridRow eo = new ExtGridRow();
+				eo.add("id", map.get("recordid"));
+				eo.add("seletedName", map.get("plan0202"));
+				//eo.add("seletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
+				eo.add("bnyj", map.get("cs").toString()+"-"+qys+"-"+yj);
+				eg.rows.add(eo);
+			}
 		}
-		
 		return eg.toString();
 	}
 	/**
@@ -194,9 +271,9 @@ public class PersonManage {
 			eo.add("zt", "0".equals(rd.get("PLAN0302").toString())?"未上报":"已上报");
 			
 			if("0".equals(rd.get("PLAN0302").toString())){
-				eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\"  onclick=\"sbRow()\">上报</a>");
+				eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\"  onclick=\"sbRow()\">选择人员</a>");
 			}else{
-				eo.add("cz", "上报");
+				eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\"  onclick=\"sbRow('ll')\">浏览人员</a>");
 			}
 			
 			eoc.add(eo);
@@ -322,10 +399,15 @@ public class PersonManage {
 		}else{
 			Records rds = this.recordDao.queryRecord("plan03", "parentid='"+faid+"' and plan0301 = '"+zone+"'");
 			if(rds.size()>0){
-				return "ups";  //以上报
-			}else{
-				return zone;   //需要选择对象
+				for(IRecord ire:rds){
+					if(ire.get("plan0302")=="1"){
+						return "ups";  //以上报
+					}else{
+						return zone;   //需要选择对象
+					}
+				}
 			}
+			return zone;
 		}
 	}
 
