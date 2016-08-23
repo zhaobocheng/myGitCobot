@@ -273,17 +273,16 @@ public class SchemeResult {
 				ExtObject eo = new ExtObject();
 				UUID uid = UUID.randomUUID();
 				eo.add("id", map.get("recordid"));
-				eo.add("mc", map.get("mc"));
+				eo.add("zfyf", map.get("zfyf"));
 				eo.add("yf", map.get("yf"));
 				eo.add("qx", map.get("qx"));
 				eo.add("parentid", map.get("parentid"));
 				if (map.get("parentid")==null){
-					eo.add("zfyf", map.get("zfyf"));
+					eo.add("mc", map.get("mc"));
 				} else{
-					eo.add("zfyf","<a  id = \"zfyf\"   Style=\"color:black;\" onclick=\"showSchemeView()\">"+map.get("zfyf")+"</a>");
+					eo.add("mc","<a  id = \"mc\"   Style=\"color:black;\" onclick=\"showSchemeView()\">"+map.get("mc")+"</a>");
 				}
 
-				
 				if (map.get("zfryzs")==null){
 					eo.add("zfryzs","");
 				} else {
