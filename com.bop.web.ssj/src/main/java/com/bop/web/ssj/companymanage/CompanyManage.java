@@ -97,7 +97,7 @@ public class CompanyManage {
 					if ("3".equals(map.get("plan0302"))){
 						eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"unmommit()\">重新确认执法人员</a>");
 						
-					} else {						
+					} else {				
 						eo.add("cz", "上报");
 					}
 				}
@@ -422,7 +422,7 @@ public class CompanyManage {
 		String upSql = "update plan03 set plan0302 = 0 where parentid = '"+fzid+"' and plan0301 = '"+zone+"'";
 		
 		this.jdbcTemplate.execute(upSql);
-		upSql= " update plan02 set plan0204=0 where parentid='"+fzid+"' and plan0205='"+zone+"' ";
+		upSql= " update plan02 set plan0204=0 where parentid='"+fzid+"' and plan0205='"+zone+"' and plan0204=2 ";
 		this.jdbcTemplate.execute(upSql);
 		upSql =" delete from plan06 where parentid='"+fzid+"' and plan0601='"+zone+"' ";
 		this.jdbcTemplate.execute(upSql);
