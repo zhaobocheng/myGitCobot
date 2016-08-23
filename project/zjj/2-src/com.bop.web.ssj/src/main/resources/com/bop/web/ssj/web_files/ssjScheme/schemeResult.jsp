@@ -61,9 +61,29 @@ var Bits=[{id:0,text:'否'},{id:1,text:'是'}];
 
 mini.parse();
 var grid = mini.get("datagrid1");
-//grid.load();
 var btngs = mini.get("commitGS");
-btngs.setEnabled(false);
+
+var mc=mini.get("rwmc").value;
+var yf=mini.get("month").value;
+
+
+getGSzt = function(rwmc,month){
+	
+	$.ajax({
+		url:'/ssj/ssjScheme/SchemeResult/getGSstatus/'+rwmc+'/'+month+'?theme=none',
+		type:'post',
+		success:function(e){
+			var info = mini.decode(e);
+			if(info.flag){
+				btngs.setEnabled(true);		
+			}else{
+				btngs.setEnabled(false);
+			}
+		}
+	}); 
+}
+
+getGSzt(mc,yf);
 
 function OnCellBeginEdit(e) {
      var record = e.record, field = e.field;
@@ -81,7 +101,6 @@ function onCellValidation(e) {
 }
 
 valueChangeMonth = function(e){
-	
 	search();
 }
 function onCommitGS(){
@@ -98,6 +117,7 @@ function onCommitGS(){
 				}else{
 					alert("公示失败！");
 				}
+				grid.reload();
 			}
 		})  		
 	}
@@ -105,7 +125,6 @@ function onCommitGS(){
 
 function commitFa(){
     if (grid.isChanged() == true) {
-    	
     	saveData();
     }
 	var rows = grid.getSelecteds();
@@ -175,10 +194,9 @@ function saveData() {
 
 function search(){
 	var rwmc=mini.get("rwmc").value;	
-	var month=mini.get("month").value;	
-
+	var month=mini.get("month").value;
+	getGSzt(rwmc,month);
 	grid.load({rwmc:rwmc,month:month});
-	//var data=grid.data;
 	
 }
 

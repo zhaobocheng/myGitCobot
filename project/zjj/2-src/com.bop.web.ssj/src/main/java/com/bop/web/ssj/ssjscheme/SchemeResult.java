@@ -391,7 +391,7 @@ public class SchemeResult {
 		
 		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210<'3'";
 
-		if(null!=zone&&!"".equals(zone)){	
+		if(null!=zone&&!"".equals(zone)){
 			querySql += " and plan1204='"+zone+"'";
 		}
 		
@@ -434,16 +434,19 @@ public class SchemeResult {
 		String zone = this.userSession.getCurrentUserZone();
 		
 		String whereSql=" PARENTID='"+faid+"'";
-		if(null!=zone&&!"".equals(zone)){	
+		if(null!=zone&&!"".equals(zone)){
 			whereSql += " and plan0301='"+zone+"'";
 		}
-		
+
 		Records ires  = this.recordDao.queryRecord("PLAN03", whereSql);
 		if (ires.size()>0){
 			IRecord ire =ires.get(0);
 			ire.put("PLAN0302", "6");
 			this.recordDao.saveObject(ire);
-		}	
+		}
+		String upsql = "update plan12 t set t.plan1210=3 where t.parentid='"+faid+"' and t.plan1204='"+zone+"'";
+		this.jdbcTemplate.execute(upsql);
+		
 		return "success";
 	}
 	/**
@@ -503,7 +506,38 @@ public class SchemeResult {
 				this.recordDao.saveObject(ire);
 			}
 		}
-		return "success";		
+		return "success";
+	}
 
+	@Action
+	public String getGSstatus(String rwmc,String month){
+		String zone=this.userSession.getCurrentUserZone();
+		ExtResultObject eor=new ExtResultObject();
+
+		String wheresql = " 1=1 ";
+		if  (null!=rwmc &&!"".equals(rwmc)){
+			wheresql += " and plan0107 like '%"+rwmc+"%'";
+		}
+		if  (null!=month &&!"".equals(month)){
+			wheresql += " and plan0102='"+month+"'";
+		}
+		 
+		IRecord p1 = this.recordDao.queryTopOneRecord("plan01", wheresql, "plan0107");
+		
+		if(p1.get("PLAN00")==null){
+			eor.add("flag", false);
+		}else{
+			String faid = p1.get("PLAN00").toString();
+			IRecord plan6 = this.recordDao.queryTopOneRecord("PLAN06", "parentid='"+faid+"' and plan0601='"+zone+"'", "pindex");
+			int p12 = this.jdbcTemplate.queryForInt("select count(*) from plan12 t where t.parentid = '"+faid+"' and t.PLAN1204 = '"+zone+"' and plan1210=2");
+			
+			if(p12<plan6.get("PLAN0602",Integer.class)){
+				eor.add("flag", false);
+			}else{
+				eor.add("flag", true);
+			}
+		}
+
+		return eor.toString();
 	}
 }

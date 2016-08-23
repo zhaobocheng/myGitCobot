@@ -109,6 +109,7 @@ createFa=function(){
     			                if (action == "ok") {
     			                	createRepert('replace');
     			                } else {
+    			                	
     			                }
     			            }
     			        );
@@ -139,7 +140,7 @@ createRepert = function(e){
 				alert("有未设置人员或企业数的区县请先设置！");
 			}
 		}
-	}); 
+	});
 }
 
 importExc = function(){
@@ -162,8 +163,6 @@ importExc = function(){
 		}
 	});
 }
-
-
 gridLoad = function(value){
 	grid.setUrl(url);
 	grid.reload();

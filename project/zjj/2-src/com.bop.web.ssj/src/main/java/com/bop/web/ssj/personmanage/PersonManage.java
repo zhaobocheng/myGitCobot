@@ -271,9 +271,9 @@ public class PersonManage {
 			eo.add("zt", "0".equals(rd.get("PLAN0302").toString())?"未上报":"已上报");
 			
 			if("0".equals(rd.get("PLAN0302").toString())){
-				eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\"  onclick=\"sbRow()\">选择人员</a>");
+				eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\"  onclick=\"sbRow()\">上报</a>");
 			}else{
-				eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\"  onclick=\"sbRow('ll')\">浏览人员</a>");
+				/*eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\"  onclick=\"sbRow('ll')\">浏览人员</a>");*/
 			}
 			
 			eoc.add(eo);
