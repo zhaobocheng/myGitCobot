@@ -9,17 +9,18 @@
 <div style="padding:5px;10px;5px;0">
 	<span>年度：</span><input class="mini-combobox" id="zfnd" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getCBData/nd?theme=none"/>
 	<span>任务名称：</span><input class="mini-textbox" id="rwmc" name="rwmc" style="width:150px;" onvaluechanged="valueChange"/>	
+	<a class="mini-button" id="find" iconCls = "icon-find"  onclick="search()">查找</a>
 	<a class="mini-button" iconCls = "icon-new" onclick="importExc()">导出Excel</a>
 </div>
 <div class="mini-fit">
 	<div id="treegrid1" class="mini-treegrid" style="width:100%;height:100%;"     
-    url="" showTreeIcon="true" treeColumn="zfyf" idField="id" parentField="parentid" resultAsTree="false"  
+    url="" showTreeIcon="true" treeColumn="mc" idField="id" parentField="parentid" resultAsTree="false"  
     allowResize="false" expandOnLoad="true" showPager="false" >
 	    <div property="columns">
 	        <div type="indexcolumn" headerAlign="center" >序号</div>
 	        <div field="id" visible="false">id</div>
 	        <div field="yf" visible="false">yf</div>
-	        <div name="zfyf" field="zfyf" width="60" headerAlign="center" >任务名称</div>
+	        <div name="mc" field="mc" width="60" headerAlign="center" >任务名称</div>
 	        <div field="qx" width="60" headerAlign="center" align="center">区县</div>
 	        <div field="zfryzs" width="60" headerAlign="center"  align="center">执法人员总数</div>
 	        <div field="cyzfrs" width="60" headerAlign="center"  align="center">参与执法人员数</div>
@@ -43,15 +44,22 @@ var rwmc=mini.get("rwmc").value;
 var grid = mini.get("treegrid1");
 var url = "/ssj/ssjscheme/SchemeResult/getFALBData?zfnd=" + zfnd.value + "&rwmc="+rwmc+"&theme=none";
 grid.setUrl(url);
-//grid.load();
+grid.load();
+
+
+
+function search(){
+	var mc=mini.get("rwmc").value;
+	var zfnd=mini.get("zfnd").value;
+	var url2 = "/ssj/ssjscheme/SchemeResult/getFALBData?zfnd=" + zfnd + "&rwmc="+mc+"&theme=none";
+	
+	grid.load(url2);
+	/* grid.load({rwmc:rwmc,month:month}); */
+	
+}
 
 valueChange = function(){
-	var nd = mini.get("zfnd").value;
-	rwmc=mini.get("rwmc").value;	
-	//url = "/ssj/ssjscheme/SchemeResult/getFALBData/"+nd+"?theme=none";
-	//grid.setUrl(url);
-	//grid.reload();
-	grid.load({rwmc:rwmc,zfnd:zfnd});
+	search();
 }
 
 importExc = function(){
@@ -95,7 +103,7 @@ showRy = function(e){
 	    
 	    }	
 	});
-} 
+}
 
 showOrg = function(e){
 	var faid = grid.getSelected().parentid;
