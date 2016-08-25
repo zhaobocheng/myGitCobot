@@ -58,7 +58,7 @@ createFa=function(){
     	success:function(e){
     		var info = mini.decode(e);
     		if(info.flag==4){
-    			 mini.confirm("该任务已经生成方案，重新生成将产生记录,确定重新生成？", "确定",
+    			 mini.confirm("随机抽查方案已生成，点击「确定」将重新生成方案，现有方案将自动作废，并记录，放弃重新生成方案点击「取消」", "确定",
     			            function (action) {
     			                if (action == "ok") {
     			                	createRepert('replace');
@@ -117,7 +117,6 @@ viewFa = function(e){
 	    	
 	    }	
 	});
-	
 }
 
 showRy = function(e){
@@ -145,14 +144,13 @@ showOrg = function(e){
 		url:'/ssj/ssjscheme/showOrg.jsp?theme=2&faid='+faid+"&flag="+e,
 		showMaxButton: false,
 	    allowResize: true,
-	    title: '执法人员情况',
+	    title: '企业信息',
 	    width: 800,
 	    height: 600,
 	    onload: function(){
 	        var iframe = this.getIFrameEl();
 	    },
 	    ondestroy: function (action) {
-	    
 	    }	
 	});
 }
@@ -180,6 +178,29 @@ importExc = function(){
 			}
 			grid.reload();
 		}
+	});
+}
+
+showFQScheme = function(e){
+	var faid = grid.getSelected().id;
+	var zfyf=grid.getSelected().zfyf;
+	
+	var nd=zfyf.substr(0,4);
+	var yf = zfyf.substr(4);
+	mini.open({
+		url:'/ssj/ssjscheme/showFeiQiScheme.jsp?theme=2&faid='+faid+"&yf="+yf+"&nd="+nd,
+		showMaxButton: false,
+	    allowResize: true,
+	    title: '废弃方案',
+	    width: 800,
+	    height: 600,
+	    onload: function(){
+	        var iframe = this.getIFrameEl();
+	       // iframe.contentWindow.setData(data);
+	    },
+	    ondestroy: function (action) {
+	    
+	    }	
 	});
 }
 

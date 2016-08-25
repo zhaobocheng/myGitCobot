@@ -1,6 +1,7 @@
 package com.bop.web.ssj.ssjscheme;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.jdbc.core.JdbcOperations;
 
+import com.bop.common.DateUtility;
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
 import com.bop.domain.dao.DmCodetables;
@@ -61,7 +63,7 @@ public class SchemeResult {
 		ero.add("rs", map.get("rs"));
 		ero.add("qys", map.get("qys"));
 		return ero.toString();
-	}	
+	}
 	/**
 	 * 浏览方案和执法结果信息
 	 * @param faid
@@ -225,30 +227,32 @@ public class SchemeResult {
 			}
 		}
 		return retStr.substring(0, retStr.length()-1);
-	}	
+	}
+
+	
 	/**
 	 * 获取方案浏览列表数据
 	 * @param 年份
 	 * @return
 	 */
 	@Action
-	public String getFALBData(){ 
+	public String getFALBData(){
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String zfnd = request.getParameter("zfnd")==null?null:request.getParameter("zfnd").toString();
 		String rwmc = request.getParameter("rwmc")==null?null:request.getParameter("rwmc").toString();
 
 
-		String sql = "select  t.plan00,tt.recordid,tt.parentid,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys , "+
+		String sql = " select  t.plan00,tt.recordid,tt.parentid,to_char(tt.plan0303,'yyyy-MM-dd') as tjsj,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys , "+
 					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 ='5' then '是' else '否' end as cz,case when tt.plan0302 ='6' then '是' else '否' end as sfgs from plan01 t  "+
-					 " inner join plan03 tt on tt.parentid = t.plan00 "+				   
+					 " inner join plan03 tt on tt.parentid = t.plan00 "+
 					" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
 					 " left join (select count(*) qys,org.reg_district_dic from org01 org group by org.reg_district_dic) counorg on counorg.reg_district_dic = tt.plan0301"+
 					" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
 					" left join (select count(*) fqs , p4.plan2103,p4.parentid from plan21 p4 group by p4.plan2103 ,p4.parentid) countorg on countorg.parentid=t.plan00 and countorg.plan2103=tt.plan0301 " + 
 					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
-		
-		String sql1="select plan00,plan00 as recordid,null as parentid,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz,'' as sfgs from plan01 where plan0105 = 1  ";
+
+		String sql1="select plan00,plan00 as recordid,null as parentid,null as tjsj,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz,'' as sfgs from plan01 where plan0105 = 1  ";
 		
 		String wheresql = " t.plan0105 = 1 ";
 		String zone=this.userSession.getCurrentUserZone();
@@ -305,7 +309,10 @@ public class SchemeResult {
 				}
 				eo.add("zffa", map.get("zffa"));
 				eo.add("wtjfas", map.get("wtjfas"));
-				eo.add("cz", map.get("cz"));//是否提交过
+				eo.add("cz", map.get("cz"));
+				eo.add("tjsj", map.get("tjsj"));
+				
+				
 				eo.add("sfgs", map.get("sfgs"));
 				if (map.get("fqfas")==null){
 					eo.add("fqfas","");
@@ -341,7 +348,7 @@ public class SchemeResult {
 		for(Map<String,Object> map:list){
 			ExtObject eo = new ExtObject();
 			eo.add("id", map.get("recordid"));
-			eo.add("mc", "第 "+map.get("plan0107")+" 次");
+			eo.add("mc", "第 "+map.get("plan2104")+" 次");
 			ero.add(eo);
 		}
 		return ero.toString();		
@@ -357,17 +364,16 @@ public class SchemeResult {
 		ExtObjectCollection eoc = new ExtObjectCollection();
 
 		String querySql = null;
-
 		querySql = "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = '"+tableName+"'";
-
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(querySql);
 
 		if(resultList.size()>0){
 			for(Map<String,Object> map:resultList){
 				ExtObject eo = new ExtObject();	
-				eo.add("id", map.get("cid"));				
+				eo.add("id", "0"+map.get("cid"));
+				//eo.add("id", map.get("cid"));
 				eo.add("text", map.get("caption"));
-				eo.add("value", map.get("cid"));
+			//	eo.add("value", map.get("cid"));
 				eoc.add(eo);
 			}
 		}

@@ -5,15 +5,14 @@
 <head>
 <meta name="decorator" content="miniui">
 <title>废弃方案浏览</title>
-<%String qx = request.getParameter("qx"); 
+<%
 	String yf=request.getParameter("yf");
 	String nd=request.getParameter("nd");
 	String faid = request.getParameter("faid");
-	
 %>
 </head>
 <body>
-<div><h2><span><%=nd %> 年<%=yf %>月 <%=qx %> 废弃执法方案</span></h2></div>
+<div><h2><span><%=nd%> 年<%=yf %>月废弃执法方案</span></h2></div>
 <div>
 	<span>生成的次数：</span><input class="mini-combobox" id="sccs" style="width:150px;"  onvaluechanged="valueChange" textField="mc" valueField="id" url=""/>
 </div>
@@ -43,16 +42,16 @@ sccs.select(0);
 
 valueChange = function(){
 	var nd = mini.get("sccs").value;
-	
+
 	url = "/ssj/ssjscheme/SchemeResult/getFQCYQYData/"+nd+"?theme=none";
 	grid.setUrl(url);
 	grid.reload();
 }
 
 var grid = mini.get("datagrid");
-var url = "/ssj/ssjscheme/SchemeResult/getFQCYQYData/" +sccs+"?theme=none";
-//grid.setUrl(url);
-//grid.load();
+var url = "/ssj/ssjscheme/SchemeResult/getFQCYQYData/" +sccs.value+"?theme=none";
+grid.setUrl(url);
+grid.load();
 
 
 </script>

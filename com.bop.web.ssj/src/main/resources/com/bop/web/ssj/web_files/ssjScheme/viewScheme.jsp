@@ -38,7 +38,7 @@
 	       <!--  <div field="jcnr" width="80" >检查内容</div> -->
 	        <div field="jcr" width="80" >检查人</div> 
 	         <div field="jcrid" width="80" visible="false" >检查人id</div> 
-	        <div field="sjly" width="80" >涉及检查事项</div>                  
+	        <div field="sjly" width="80" >涉及检查事项</div>           
 	    </div>
 	</div>
 </div>
@@ -87,10 +87,7 @@ commitFa = function(){
 				alert("提交完毕！");
 				gird.reload();
 			}
-			
-			
-			
-			
+ 
 		}
 	});
 }
@@ -104,7 +101,7 @@ createFa=function(){
     	success:function(e){
     		var info = mini.decode(e);
     		if(info.flag==4){
-    			 mini.confirm("该任务已经生成方案，重新生成将产生记录,确定重新生成？", "确定？",
+    			 mini.confirm("随机抽查方案已生成，点击「确定」将重新生成方案，现有方案将自动作废，并记录，放弃重新生成方案点击「取消」", "确定？",
     			            function (action) {
     			                if (action == "ok") {
     			                	createRepert('replace');

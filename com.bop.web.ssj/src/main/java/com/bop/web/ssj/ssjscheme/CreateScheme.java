@@ -80,13 +80,12 @@ public class CreateScheme {
 		
 		//String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
 		//zxy 修改plan1210 保存为代码 
-		String plan12UpSql = "update plan12 set plan1210 = '2' where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
-		
+		String plan12UpSql = "update plan12 set plan1210 = '2' ,plan1211=sysdate where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
 		String plan1201UpSql = "update plan1201 set plan120104 = '提交' where parentid in (select t.recordid from plan12 t where t.parentid = '"+faid+"' and t.plan1204 = '"+zone+"' )";
 		
 		this.jdbcTemplate.execute(plan1201UpSql);
 		this.jdbcTemplate.execute(plan12UpSql);
-		String plan03Sql = "update plan03 set plan0302 = 5 where parentid = '"+faid+"' and plan0301 = '"+zone+"'";
+		String plan03Sql = "update plan03 set plan0302 = 5,plan0303=sysdate where parentid = '"+faid+"' and plan0301 = '"+zone+"'";
 		this.jdbcTemplate.execute(plan03Sql);
 		return "success";
 	}
@@ -207,10 +206,17 @@ public class CreateScheme {
 	 */
 	private void createPlan21(String faid,String zone){
 		UUID uid=UUID.randomUUID();
+		int latestIndex = 0;
+
+		IRecord latestIre = this.recordDao.queryTopOneRecord("PLAN21", "parentid='"+faid+"'", "PLAN2104 desc");
+		if(latestIre!=null){
+			latestIndex = latestIre.get("PLAN2104",Integer.class)+1;
+		}
 		IRecord ire=this.recordDao.createNew("PLAN21", uid, UUID.fromString(faid));
 		ire.put("PLAN2101", "废弃原因");
 		ire.put("PLAN2102", new Date());
 		ire.put("PLAN2103", zone);
+		ire.put("PLAN2104", latestIndex);
 		this.recordDao.saveObject(ire);
 	}
 

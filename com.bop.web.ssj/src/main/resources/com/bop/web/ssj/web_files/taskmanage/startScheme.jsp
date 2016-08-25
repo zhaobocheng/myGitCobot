@@ -28,7 +28,7 @@
 	<div id="griddata" class="mini-datagrid" style="width:100%;height:98%" url="/ssj/taskmanage/taskoperation/getGridData?theme=none"  idFiled="id" allowResize="true" sizeList="[20,30,50,100]" pageSize="20" showFooter="true">
 		<div property="columns">
 			<div type="checkcolumn" width="10"></div>
-			<div type="indexcolumn" width="10">序号</div>
+			<div type="indexcolumn" width="20">序号</div>
 			<div field="id" name="id"  width="100" visible="false">方案id</div>
 			<div field="famc" name="famc" width="100" headerAlign="center"   allowSort="true">方案名称</div>
 			<div field="zftime" name="zftime" width="100" headerAlign="center"   allowSort="true">执法日期</div>
@@ -112,7 +112,6 @@ addRow = function(){
 	addYearcom.setValue(nowTime.getFullYear());
 	addMonthcom.setData(monthData);
 	addMonthcom.setValue(nowTime.getMonth()+1);
-
 	newwin.show();
 }
 //删除记录
@@ -145,7 +144,8 @@ removeRow = function(){
 
 qdRow = function(){
 	var selectRows = datagrid.getSelecteds();
-//	datagrid.loading("启动中");
+	datagrid.loading("正在启动，请稍后......");
+
 	if(selectRows.length>0){
 		if(selectRows[0].zt == "已启用"){
 			alert("该方案已启用！");
@@ -168,9 +168,6 @@ qdRow = function(){
 	}else{
 		alert("请选择要启用的方案！");
 	}
-	
-	
-	
 }
 
 //窗口函数

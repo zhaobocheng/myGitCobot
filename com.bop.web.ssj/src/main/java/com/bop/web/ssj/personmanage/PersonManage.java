@@ -62,83 +62,55 @@ public class PersonManage {
 		String zone = this.userSession.getCurrentUserZone();
 		String zfnd=request.getParameter("nd");
 		String whereSql = "plan0204 = '1' ";
-		String sql=null,sql1="",sql2="";
+		String sql=null,ryssql="",zqysslq="";
 		// 获取第几页
 		int start = 0;
 		if (pageIndex != 0){
 			start = pageSize*pageIndex;
 		}
-		
-		if(zone==null||"".equals(zone)){
-			whereSql += " and parentid = '"+faid+"'";
-			sql="select * from plan02 t "+
-					" left join (select plan0201,plan0202,count(*) as cs from plan02 t"+
-					" inner join plan01 a on a.plan00=t.parentid and plan0101='"+zfnd+"' "+					
-					" group by plan0201,plan0202 ) a on a.plan0201=t.plan0201 "+
-					" where t.plan0204 = '1' and t.parentid='"+faid+"'";
-			sql1="select count(*) from plan02 t "+
-					" inner join plan01 a on a.plan00=t.parentid "+
-					" where a.plan0101='"+zfnd+"'";	
-			sql2="select sum(plan0602) from plan06 t "+
-					" inner join plan01 a on a.plan00=t.parentid "+
-					" where a.plan0101='"+zfnd+"'";
-		}else{
-			whereSql += "  and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
-			sql="select * from plan02 t "+
-					" left join (select plan0201,plan0202,count(*) as cs from plan02 t"+
-					" inner join plan01 a on a.plan00=t.parentid and plan0101='"+zfnd+"' "+
-					" where  t.plan0205='"+zone+"' "+
-					" group by plan0201,plan0202 ) a on a.plan0201=t.plan0201 "+
-					" where t.plan0204 = '1' and t.plan0205='"+zone+"' and t.parentid='"+faid+"'";
-			sql1="select count(*) from plan02 t "+
-					" inner join plan01 a on a.plan00=t.parentid "+
-					" where  t.plan0205='"+zone+"' and a.plan0101='"+zfnd+"'";
-			sql2="select sum(plan0602) from plan06 t "+
-					" inner join plan01 a on a.plan00=t.parentid "+
-					" where t.plan0601='"+zone+"' and a.plan0101='"+zfnd+"'";
-		}
-		
+
+		whereSql += "  and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
+		sql = " select t.plan0202,t.plan0204,decode(rw.rws,null,0,rw.rws) as rws,decode(ccs.qys,null,0,ccs.qys) as qys,case when rws is null then 0 else qys/rws end as bl"+
+				" from plan02 t left join ( select count(*) rws,p2.plan0203,p2.plan0202  from plan02 p2 "+
+				" where p2.plan0204 = 2 and p2.plan0205 ='"+zone+"' and p2.parentid in (select plan00 from plan01 p1 where p1.plan0101='"+zfnd+"') group by p2.plan0203,p2.plan0202) rw on rw.plan0203 = t.plan0203"+
+				" left join (select count(*) qys,t.plan120103 ,t.plan120102  from plan1201 t  where t.parentid in ( select p12.recordid from plan12 p12 "+
+				" where p12.parentid in (select plan00 from plan01 p1 where p1.plan0101='"+zfnd+"') and p12.plan1204 = '"+zone+"') group by t.plan120103 ,t.plan120102) ccs on ccs.plan120103 = t.plan0203"+
+				" where t.parentid = '"+faid+"' and t.plan0205 = '"+zone+"' and t.plan0204 = 1 ";
+ 
 		if(key!=null&& !"".equals(key)){
 			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
 			sql+=" and t.plan0202 like '%"+key.toString()+"%'";
 		}
 
 		String strSQL="SELECT * FROM  "+ 
-					"(SELECT A.*, ROWNUM RN "+   
-					" FROM (" +sql+") A "+   
-					" WHERE ROWNUM < "+start+pageSize+" )WHERE RN >= "+ start ;
+					"(SELECT A.*, ROWNUM RN "+
+					" FROM (" +sql+" order by plan0202 ) A "+  
+					" WHERE ROWNUM <= "+pageSize*(pageIndex+1)+" )WHERE RN > "+ start ;
 							
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(strSQL);
 
-		
-		int ryzs=this.jdbcTemplate.queryForInt(sql1);
-		
-		int qys=this.jdbcTemplate.queryForInt(sql2);
-		double yj=qys*2/ryzs;
-		
+		double yj=getAveOfcompany(zone,zfnd);
 		//Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);
 		Records totalrds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205");
-		
+
 		ExtGrid eg = new ExtGrid();
 		eg.setTotal(totalrds.size());
 		
 		if(resultList.size()>0){
 			for(Map<String,Object> map:resultList){
 
-		//for(IRecord ird:rds){
 				ExtGridRow eo = new ExtGridRow();
 				eo.add("id", map.get("recordid"));
 				eo.add("unSeletedName", map.get("plan0202"));
-				//eo.add("seletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
-				eo.add("bnyj", map.get("cs").toString()+"-"+qys+"-"+yj);
+				eo.add("bnyj", map.get("rws").toString()+"/"+map.get("qys").toString()+"/"+yj);
+				double bl = Double.parseDouble(map.get("qys").toString());
+				eo.add("ys", bl>=yj?false:true);   //true表示需要亮显或预警
 				eg.rows.add(eo);
 			}
 		}
-		
 		return eg.toString();
 	}
 	/**
-	 * getP1ReocrdId
 	 * 得到已选中人员列表数据
 	 * @return
 	 */
@@ -154,43 +126,21 @@ public class PersonManage {
 		String zone = this.userSession.getCurrentUserZone();
 		String whereSql = "plan0204 <> '1' ";
 		
-		String sql=null,sql1="",sql2="";;
+		String sql=null;
 		// 获取第几页
 		int start = 0;
 		if (pageIndex != 0){
 			start = pageSize*pageIndex;
 		}
 		
-		if(zone==null||"".equals(zone)){
-			whereSql += " and parentid = '"+faid+"'";
-			sql="select * from plan02 t "+
-					" left join (select plan0201,plan0202,count(*) as cs from plan02 t"+
-					" inner join plan01 a on a.plan00=t.parentid and plan0101='"+zfnd+"' "+					
-					" group by plan0201,plan0202 ) a on a.plan0201=t.plan0201 "+
-					" where t.plan0204 <> '1' and t.parentid='"+faid+"'";
-			sql1="select count(*) from plan02 t "+
-					" inner join plan01 a on a.plan00=t.parentid "+
-					" where a.plan0101='"+zfnd+"'";	
-			sql2="select sum(plan0602) from plan06 t "+
-					" inner join plan01 a on a.plan00=t.parentid "+
-					" where a.plan0101='"+zfnd+"'";			
-		}else{
-			whereSql += "  and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
-			sql="select * from plan02 t "+
-					" left join (select plan0201,plan0202,count(*) as cs from plan02 t"+
-					" inner join plan01 a on a.plan00=t.parentid and plan0101='"+zfnd+"' "+
-					" where  t.plan0205='"+zone+"' "+
-					" group by plan0201,plan0202 ) a on a.plan0201=t.plan0201 "+
-					" where t.plan0204 <> '1' and t.plan0205='"+zone+"' and t.parentid='"+faid+"'";  					
-			sql1="select count(*) from plan02 t "+
-					" inner join plan01 a on a.plan00=t.parentid "+
-					" where  t.plan0205='"+zone+"' and a.plan0101='"+zfnd+"'";
-			sql2="select sum(plan0602) from plan06 t "+
-					" inner join plan01 a on a.plan00=t.parentid "+
-					" where t.plan0601='"+zone+"' and a.plan0101='"+zfnd+"'";
+		sql = " select t.plan0202,t.plan0204,decode(rw.rws,null,0,rw.rws) as rws,decode(ccs.qys,null,0,ccs.qys) as qys,case when rws is null then 0 else qys/rws end as bl "+
+				" from plan02 t left join ( select count(*) rws,p2.plan0203,p2.plan0202  from plan02 p2 "+
+				" where p2.plan0204 = 2 and p2.plan0205 ='"+zone+"' and p2.parentid in (select plan00 from plan01 p1 where p1.plan0101='"+zfnd+"') group by p2.plan0203,p2.plan0202) rw on rw.plan0203 = t.plan0203"+
+				" left join (select count(*) qys,t.plan120103 ,t.plan120102  from plan1201 t  where t.parentid in ( select p12.recordid from plan12 p12 "+
+				" where p12.parentid in (select plan00 from plan01 p1 where p1.plan0101='"+zfnd+"') and p12.plan1204 = '"+zone+"') group by t.plan120103 ,t.plan120102) ccs on ccs.plan120103 = t.plan0203"+
+				" where t.parentid = '"+faid+"' and t.plan0205 = '"+zone+"' and t.plan0204 <> 1 ";
 
-		}
-		
+		whereSql += "  and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
 		if(key!=null&& !"".equals(key)){
 			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
 			sql+=" and t.plan0202 like '%"+key.toString()+"%'";
@@ -198,17 +148,13 @@ public class PersonManage {
 
 		String strSQL="SELECT * FROM  "+ 
 					"(SELECT A.*, ROWNUM RN "+   
-					" FROM (" +sql+") A "+   
-					" WHERE ROWNUM < "+start+pageSize+" )WHERE RN >= "+ start ;
+					" FROM (" +sql+" order by plan0202 ) A "+   
+					" WHERE ROWNUM < "+(pageIndex+1)*pageSize+" )WHERE RN >= "+ start ;
 							
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(strSQL);
-		//
 		 
-		int ryzs=this.jdbcTemplate.queryForInt(sql1);
-		
-		int qys=this.jdbcTemplate.queryForInt(sql2);
-		double yj=qys*2/ryzs;
-		//Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);		
+		double yj=getAveOfcompany(zone,zfnd);
+		//Records rds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205", start, pageSize);
 		Records totalrds = this.recordDao.queryRecord("PLAN02", whereSql,"plan0205");
 		ExtGrid eg = new ExtGrid();
 		eg.setTotal(totalrds.size());
@@ -220,24 +166,27 @@ public class PersonManage {
 				ExtGridRow eo = new ExtGridRow();
 				eo.add("id", map.get("recordid"));
 				eo.add("seletedName", map.get("plan0202"));
-				//eo.add("seletedDept", ird.get("PLAN0205",DmCodetables.class).getCaption());
-				eo.add("bnyj", map.get("cs").toString()+"-"+qys+"-"+yj);
+				eo.add("bnyj", map.get("rws").toString()+"/"+map.get("qys").toString()+"/"+yj);
+				double bl = Double.parseDouble(map.get("qys").toString());
+				eo.add("ys", bl>yj?false:true);   //true表示需要亮显或预警
 				eg.rows.add(eo);
 			}
 		}
 		return eg.toString();
 	}
-	/**
-	 * 根据方案列表时间得到对应的方案ID
-	 */
-	private String getP1ReocrdId(String faid){
-		String year = faid.substring(0, 4);
-		String month = faid.substring(4);
-		Records p1rds = this.recordDao.queryRecord("PLAN01", "plan0101 ="+year+" and plan0102 ="+month);
-		return p1rds.get(0).getRecordId().toString();
+
+	private double getAveOfcompany(String zone,String zfnd){
+		String ryssql=null;
+		String zqysslq=null;
+		ryssql="select count(distinct t.plan0203) from plan02 t inner join plan01 a on a.plan00=t.parentid  where  t.plan0205='"+zone+"' and a.plan0101='"+zfnd+"' and t.plan0204=2";
+		zqysslq="select sum(plan0602) from plan06 t  inner join plan01 a on a.plan00=t.parentid "+
+				" where t.plan0601='"+zone+"' and a.plan0101='"+zfnd+"'";
+		int ryzs=this.jdbcTemplate.queryForInt(ryssql);
+		int qys=this.jdbcTemplate.queryForInt(zqysslq);
+		return qys*2/ryzs;
 	}
-
-
+	
+	
 	/**
 	 * 得到方案列表数据
 	 * @return

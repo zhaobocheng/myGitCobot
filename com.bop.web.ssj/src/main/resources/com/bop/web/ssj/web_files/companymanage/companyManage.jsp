@@ -269,9 +269,6 @@ function mommit() {
 			alert(jqXHR.responseText);
 		}
 	});
-	
-	
-	
 }
 //每次数值校验企业的数量不能为空
 grid.on("cellcommitedit", function(e) {

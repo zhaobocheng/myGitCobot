@@ -36,7 +36,7 @@
 	        <div field="phone" width="60" >电话</div>
 	        <div field="jcr" width="80" >检查人</div> 
 	         <div field="jcrid" width="80" visible="false" >检查人id</div> 
-	        <div field="sjly" width="80" >涉及领域</div>  
+	        <div field="sjly" width="80" >涉及领域</div>
 	        <div field="PLAN1221" vtype="required" width="100"   align="center" headerAlign="center" type="comboboxcolumn">是否发现问题
 	            <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY06?theme=none"/>                
 	        </div>  
@@ -45,7 +45,7 @@
 	        </div> 
 	  		<div field="PLAN1223"  width="120" headerAlign="center" allowSort="true">问题描述
 	               <input property="editor" class="mini-textarea" style="width:100%;" minHeight="80"/>
-	        </div> 
+	        </div>
 	         <div field="PLAN1224" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">立案情况
 	             <input property="editor" class="mini-combobox" style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY08?theme=none"/>                
 	         </div>       

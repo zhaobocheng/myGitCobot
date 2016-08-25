@@ -4,6 +4,12 @@
 <head>
 <meta name="decorator" content="miniui">
 <title>执法人员管理</title>
+<style>
+   .color
+   {
+           background-color: #f3b198;
+   }
+</style>
 </head>
 <body>
 
@@ -19,7 +25,7 @@
    <!-- 上侧选择人员 -->
     <div title="方案列表" region="north"   showSplitIcon="true" minHeight = "200px"  >
 		<div id="griddata" class="mini-datagrid" style="width:100%;height:100%" url="/ssj/personmanage/personmanage/getFALBData//?theme=none"  
-		idFiled="id"  showPager="false"  onselectionchanged="onSelectionChanged" >
+		idFiled="id"  showPager="false"  onselectionchanged="onSelectionChanged">
 			<div property="columns">
 				<div type="checkcolumn" width="10"></div>
 				<div type="indexcolumn" width="10">序号</div>
@@ -51,9 +57,9 @@
 				<div type="checkcolumn" width="20"></div>
 				<div type="indexcolumn" width="20">序号</div>
 				<div field="id" name="id"  width="100" visible="false">id</div>
-				<div field="unSeletedName" name="unSeletedName" width="60" headerAlign="center"   allowSort="true">姓名</div>
+				<div field="unSeletedName" name="unSeletedName" width="40" headerAlign="center"   allowSort="true">姓名</div>
 				<div field="unSeletedDept" name="unSeletedDept" visible="false" width="80" headerAlign="center"   allowSort="true">区县</div>
-				<div field="bnyj" name="ndyj" width="100" headerAlign="center" align="center">本年度业绩</div>
+				<div field="bnyj" name="bnyj" width="120" headerAlign="center" align="center" renderer="selerender">本年度业绩(任务数、企业数、人均检查企业数)</div>
 			</div>
 		</div>
     </div>
@@ -76,9 +82,9 @@
 				<div type="checkcolumn" width="20"></div>
 				<div type="indexcolumn" width="20">序号</div>
 				<div field="id" name="id"  width="100" visible="false">id</div>
-				<div field="seletedName" name="seletedName" width="60" headerAlign="center"   allowSort="true">姓名</div>
-				<div field="seletedDept" name="seletedDept" width="80" headerAlign="center"  visible="false" allowSort="true">区县</div>
-				<div field="bnyj" name="ndyj" width="100" headerAlign="center" align="center">本年度业绩</div>				
+				<div field="seletedName" name="seletedName" width="40" headerAlign="center"   allowSort="true">姓名</div>
+				<div field="seletedDept" name="seletedDept" width="60" headerAlign="center"  visible="false" allowSort="true">区县</div>
+				<div field="bnyj" name="bnyj" width="100" headerAlign="center" align="center" renderer="selerender">本年度业绩(任务数、企业数、人均检查企业数)</div>			
 			</div>
 		</div>
     </div>
@@ -90,7 +96,7 @@
 	            <table style="width:100%;">
 	                <tr>
 	                    <td style="width:100%;" align="center">
-	                        <a class="mini-button" id="left" onclick="leftMove()"  >左移</a>
+	                        <a class="mini-button" id="left" onclick="leftMove()" >左移</a>
 	                    </td>
 	                </tr>
 	                <tr>
@@ -205,7 +211,7 @@ valueChange = function(){
 	url = "/ssj/personmanage/PersonManage/getFALBData/"+nd+"/"+zt+"?theme=none";
 	datagrid.setUrl(url);
 	datagrid.load();
-	isup(e.value);
+	/* isup(e.value); */
 }
 
 //上报
@@ -289,8 +295,14 @@ search = function(e){
 		grid.load();
 	}
 }
-
-
+selerender = function(e){
+	var record = e.record;
+	if(record.ys){
+		e.cellCls = "color";
+	}else{
+	}
+	return record.bnyj;
+}
 </script>
 
 </body>
