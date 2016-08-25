@@ -9,7 +9,7 @@
 <div><span>执法结果回填</span></div>
 <div>
 	<span>任务名称：</span><input class="mini-textbox" id="rwmc" name="rwmc" style="width:150px;" onvaluechanged="valueChangeMonth"/>
-	<span>抽查月份：</span><input class="mini-combobox" id="month" style="width:150px;" textField="text" valueField="id" onvaluechanged="valueChangeMonth" data="Months"/>
+	<span>抽查月份：</span><input class="mini-combobox" id="month" style="width:150px;" textField="text" valueField="id" value="1" onvaluechanged="valueChangeMonth" data="Months"/>
 	 <a class="mini-button" id="find" iconCls = "icon-find"  onclick="search()">查找</a>
 </div>
 <div style="padding:5px;10px;5px;0">
@@ -20,35 +20,35 @@
 </div>
 <div class="mini-fit">
 <div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;" showPager="false" 
-        url="/ssj/ssjScheme/SchemeResult/getSchemeDate?theme=none" idField="id" allowResize="true" allowCellEdit="true" allowCellSelect="true" multiSelect="true"
-        allowCellValid="true" oncellvalidation="onCellValidation" oncellbeginedit="OnCellBeginEdit" >
+        url="" idField="id" allowResize="true" allowCellEdit="true" allowCellSelect="true" multiSelect="true"
+        allowCellValid="true" oncellvalidation="onCellValidation" oncellbeginedit="OnCellBeginEdit"  >
     <div property="columns">
      <div type="checkcolumn"></div>
         <div type="indexcolumn">序号</div>
-        <div field="PLAN1202" width="100">机构代码</div>
-        <div field="PLAN1203" width="100" align="right">单位名称</div>
+        <div field="PLAN1202" width="80" headerAlign="center">机构代码</div>
+        <div field="PLAN1203" width="100" align="right" headerAlign="center">单位名称</div>
         <div field="PLAN1210" visible="false">PLAN1210</div>
         <div field="parentid" visible="false">parentid</div>
-        <div field="PLAN1221" vtype="required" width="100"   align="center" headerAlign="center" type="comboboxcolumn">是否发现问题
-            <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY06?theme=none"/>                
-        </div>  
+        <div field="PLAN1221" name="PLAN1221" vtype="required" width="100"   headerAlign="center"  allowShowPopup = "true"   type="comboboxcolumn">是否发现问题
+            <input property="editor" class="mini-combobox"  style="width:100%;" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY06&isSync=1"/>  
+        </div>
          <div field="PLAN1222" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">问题涉及事项
-            <input property="editor" class="mini-combobox" style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY01?theme=none"/>                
+            <input property="editor" class="mini-combobox" style="width:100%;"   minWidth="240" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY01?theme=none"/>                
         </div> 
   		<div field="PLAN1223"  width="120" headerAlign="center" allowSort="true">问题描述
-               <input property="editor" class="mini-textarea" style="width:100%;" minHeight="80"/>
+               <input property="editor" class="mini-textarea" style="width:100%;"  minWidth="240" minHeight="80"/>
         </div> 
          <div field="PLAN1224" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">立案情况
              <input property="editor" class="mini-combobox" style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY08?theme=none"/>                
-         </div>       
-         <div field="PLAN1225" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">企业是否变化
-             <input property="editor" class="mini-combobox" style="width:100%;" data="Bits"/>                
+         </div> 
+         <div field="PLAN1225" vtype="required" width="60" type="comboboxcolumn" align="center" headerAlign="center">企业是否变化
+             <input property="editor" class="mini-combobox" style="width:100%;" data="Bits"/>        
          </div>        
          <div field="PLAN1226" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">企业变化情况
              <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY09?theme=none"/>                
          </div>       
 		<div field="PLAN1227"  width="120" headerAlign="center" allowSort="true">实际生产地
-               <input property="editor" class="mini-textarea" style="width:100%;" minHeight="80"/>
+               <input property="editor" class="mini-textarea" style="width:100%;" minWidth="200" minHeight="80"/>
         </div>  
                        
     </div>
@@ -67,8 +67,11 @@ var mc=mini.get("rwmc").value;
 var yf=mini.get("month").value;
 
 
+var url = '/ssj/ssjScheme/SchemeResult/getSchemeDate?theme=none';
+grid.setUrl(url);
+grid.load({month:mc.value});
+
 getGSzt = function(rwmc,month){
-	
 	$.ajax({
 		url:'/ssj/ssjScheme/SchemeResult/getGSstatus/'+rwmc+'/'+month+'?theme=none',
 		type:'post',

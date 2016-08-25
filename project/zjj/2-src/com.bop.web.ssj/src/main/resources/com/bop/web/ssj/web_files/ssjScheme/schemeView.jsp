@@ -27,8 +27,9 @@
 	        <div field="cycczs" width="60" headerAlign="center"  align="center">参与抽查企业总数</div>
 	        <div field="ccqys" width="60" headerAlign="center"  align="center">抽查企业数</div>
 	        <div field="cz" width="80" headerAlign="center"  align="center">是否提交方案 </div>
+	        <div field="tjsj" width="80" headerAlign="center"  align="center">方案提交时间 </div>
 	        <div field="fqfas" width="50" headerAlign="center"  align="center">废弃方案数</div>
-	        <div field="sfgs" width="50" headerAlign="center"  align="center">是否公示</div>  
+	        <div field="sfgs" width="50" headerAlign="center"  align="center">是否确认公示</div>  
 	    </div>
 	</div>
 </div>

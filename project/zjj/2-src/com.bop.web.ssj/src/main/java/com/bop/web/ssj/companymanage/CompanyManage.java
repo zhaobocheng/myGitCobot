@@ -92,10 +92,10 @@ public class CompanyManage {
 				eo.add("cz", "");//是否提交过
 				
 				if("0".equals(zfzt)){
-					eo.add("cz", "<a class=\"mini-button\" id = \"unupbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"unmommit()\">重新确认执法人员</a><a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"mommit()\">上报</a>");
+					eo.add("cz", "<a class=\"mini-button\" id = \"unupbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"unmommit()\">重新确认人员</a><a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"mommit()\">上报</a>");
 				}else{
 					if ("3".equals(map.get("plan0302"))){
-						eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"unmommit()\">重新确认执法人员</a>");
+						eo.add("cz", "<a class=\"mini-button\" id = \"upbur\" iconCls=\"icon-upload\" style=\"width: 40%;height:100%\" onclick=\"unmommit()\">重新确认人员</a>");
 						
 					} else {				
 						eo.add("cz", "上报");

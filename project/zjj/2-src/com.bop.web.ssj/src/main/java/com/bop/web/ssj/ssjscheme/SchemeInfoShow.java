@@ -54,7 +54,7 @@ public class SchemeInfoShow {
 					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs , decode(p21.fqs,null,0,p21.fqs) as fqs,tt.plan0302 from plan01 t  left join plan03 tt on tt.parentid = t.plan00 "+
 					" left join (select count(*) qys,org.parentid, org.plan0404  from plan04 org group by org.parentid,org.plan0404) counorg on counorg.plan0404 =  tt.plan0301 and tt.parentid = counorg.parentid"+
 					" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
-					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301    left join (select count(*) as fqs ,pp.parentid from plan21 pp group by pp.parentid) p21 on p21.parentid = t.plan00 where ";
+					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301    left join (select count(*) as fqs ,pp.parentid,pp.plan2103 from plan21 pp group by pp.parentid,pp.plan2103) p21 on p21.parentid = t.plan00 and p21.plan2103 = tt.plan0301 where ";
 		String wheresql = " t.PLAN0105 = 1 and tt.plan0301='"+this.userSession.getCurrentUserZone()+"' ";
 
 		if(zfnd!=null&&!"".equals(zfnd)){
@@ -83,7 +83,7 @@ public class SchemeInfoShow {
 				eo.add("cycczs", "<a  id = \"zfrs\" Style=\"color:black;\" onclick=\"showOrg('zs')\">"+map.get("cycczs")+"</a>");
 				eo.add("ccqys", "<a  id = \"zfrs\" Style=\"color:black;\" onclick=\"showOrg('zf')\">"+map.get("ccqys")+"</a>");
 				eo.add("zffa", map.get("zffa"));
-				eo.add("wtjfas", "<a  id = \"zfrs\" Style=\"color:black;\" onclick=\"showOrg('fqb')\">"+map.get("fqs")+"</a>");
+				eo.add("wtjfas", "<a  id = \"wtjfas\" Style=\"color:black;\" onclick=\"showFQScheme()\">"+map.get("fqs")+"</a>");
 				eo.add("cz", "");//是否提交过
 				
 				int zt = Integer.parseInt(map.get("plan0302").toString());
@@ -98,7 +98,7 @@ public class SchemeInfoShow {
 		return eoc.toString();
 	}
 	
-	
+
 	/**
 	 * 浏览生成方案
 	 */
@@ -214,9 +214,9 @@ public class SchemeInfoShow {
 		public String getViewBaseInfo(String faid){
 			ExtResultObject ero = new ExtResultObject();
 			String zone = this.userSession.getCurrentUserZone();
-			String sql = " select t.plan00,t.plan0107 as mc ,t.plan0102 as yf, count(p2.recordid) as rs ,p6.plan0602 qys"+
-			" from plan01 t left join plan02 p2 on p2.parentid = t.plan00 and p2.plan0205 = '"+zone+"' and p2.plan0204 = 2 "+
-			" left join plan06 p6 on p6.parentid = t.plan00 and p6.plan0601 = '"+zone+"' where t.plan00 = '"+faid+"' group by t.plan00,t.plan0107,t.plan0102,p6.plan0602";
+			String sql = " select t.plan00,t.plan0107 as mc ,p3.plan0302 as zt ,t.plan0102 as yf, count(p2.recordid) as rs ,p6.plan0602 qys"+
+			" from plan01 t left join plan03 p3 on p3.parentid = t.plan00 and p3.plan0301 = '"+zone+"'left join plan02 p2 on p2.parentid = t.plan00 and p2.plan0205 = '"+zone+"' and p2.plan0204 = 2 "+
+			" left join plan06 p6 on p6.parentid = t.plan00 and p6.plan0601 = '"+zone+"' where t.plan00 = '"+faid+"' group by t.plan00,t.plan0107,p3.plan0302,t.plan0102,p6.plan0602";
 			
 			Map<String,Object> map = this.jdbcTemplate.queryForMap(sql);
 			ero.add("id", map.get("plan00"));
@@ -224,9 +224,10 @@ public class SchemeInfoShow {
 			ero.add("yf", map.get("yf"));
 			ero.add("rs", map.get("rs"));
 			ero.add("qys", map.get("qys"));
+			ero.add("zt", map.get("zt"));
 			return ero.toString();
 		}
-		
+
 	/**
 	 * 展现下钻的人员和抽取的人员
 	 * @return
