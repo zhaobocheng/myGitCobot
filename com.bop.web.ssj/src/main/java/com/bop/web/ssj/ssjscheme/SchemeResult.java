@@ -549,7 +549,6 @@ public class SchemeResult {
 			
 			String p1221 = jsonObject.get("PLAN1221").toString();
 			String p1224 = jsonObject.get("PLAN1224").toString();
-			
 			String p12id = jsonObject.get("id").toString();
 
 			String whereSql=" RECORDID='"+p12id+"'";

@@ -405,7 +405,6 @@ public class CompanyManage {
 			ero.add("text", "请先设置权重");
 			ero.add("flag", "f2");
 		}
-		
 		return ero.toString();
 	}
 	/**
