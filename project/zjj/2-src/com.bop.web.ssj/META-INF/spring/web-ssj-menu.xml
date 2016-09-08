@@ -112,10 +112,10 @@
 			<property name="url" value="/ssj/powerlist/checkItem.jsp" />
 		</bean>
 	</osgi:service>
-	
-		<osgi:service id="MenuItem1209" interface="com.bop.module.function.MenuItem">
+
+	<osgi:service id="MenuItem1209" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
-			<property name="id" value="1209" />
+			<property name="id" value="1301" />
 			<property name="name" value="企业人员统计" />
 			<property name="description" value="企业人员统计" />
 			<property name="url" value="/ssj/count/cqCount.jsp" />
