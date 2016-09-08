@@ -53,10 +53,12 @@ valueChange = function(){
 createFa=function(){
 	var faid = grid.getSelected().id;
     $.ajax({
-    	url:'/ssj/ssjScheme/CreateScheme/isRepertCreate/'+faid,
+    	url:'/ssj/ssjscheme/CreateScheme/isRepertCreate/'+faid,
     	type:'get',
     	success:function(e){
     		var info = mini.decode(e);
+    		
+    		debugger;
     		if(info.flag==4){
     			 mini.confirm("随机抽查方案已生成，点击「确定」将重新生成方案，现有方案将自动作废，并记录，放弃重新生成方案点击「取消」", "确定",
     			            function (action) {
@@ -103,7 +105,7 @@ createRepert = function(e){
 viewFa = function(e){
 	var faid = grid.getSelected().id;
 	mini.open({
-		url:'/ssj/ssjScheme/viewScheme.jsp?theme=2&faid='+faid+'&flag='+e,
+		url:'/ssj/ssjscheme/viewScheme.jsp?theme=2&faid='+faid+'&flag='+e,
 		showMaxButton: false,
 	    allowResize: true,
 	    title: '方案浏览',

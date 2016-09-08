@@ -70,13 +70,13 @@ public class PersonManage {
 		}
 
 		whereSql += "  and parentid = '"+faid+"' and plan0205 = '"+zone+"'";
-		sql = " select t.plan0202,t.plan0204,decode(rw.rws,null,0,rw.rws) as rws,decode(ccs.qys,null,0,ccs.qys) as qys,case when rws is null then 0 else qys/rws end as bl"+
+		sql = " select t.recordid as recordid ,t.plan0202,t.plan0204,decode(rw.rws,null,0,rw.rws) as rws,decode(ccs.qys,null,0,ccs.qys) as qys,case when rws is null then 0 else qys/rws end as bl"+
 				" from plan02 t left join ( select count(*) rws,p2.plan0203,p2.plan0202  from plan02 p2 "+
 				" where p2.plan0204 = 2 and p2.plan0205 ='"+zone+"' and p2.parentid in (select plan00 from plan01 p1 where p1.plan0101='"+zfnd+"') group by p2.plan0203,p2.plan0202) rw on rw.plan0203 = t.plan0203"+
 				" left join (select count(*) qys,t.plan120103 ,t.plan120102  from plan1201 t  where t.parentid in ( select p12.recordid from plan12 p12 "+
 				" where p12.parentid in (select plan00 from plan01 p1 where p1.plan0101='"+zfnd+"') and p12.plan1204 = '"+zone+"') group by t.plan120103 ,t.plan120102) ccs on ccs.plan120103 = t.plan0203"+
 				" where t.parentid = '"+faid+"' and t.plan0205 = '"+zone+"' and t.plan0204 = 1 ";
- 
+
 		if(key!=null&& !"".equals(key)){
 			whereSql+=" and plan0202 like '%"+key.toString()+"%'";
 			sql+=" and t.plan0202 like '%"+key.toString()+"%'";
@@ -84,8 +84,8 @@ public class PersonManage {
 
 		String strSQL="SELECT * FROM  "+ 
 					"(SELECT A.*, ROWNUM RN "+
-					" FROM (" +sql+" order by plan0202 ) A "+  
-					" WHERE ROWNUM <= "+pageSize*(pageIndex+1)+" )WHERE RN > "+ start ;
+					" FROM (" +sql+" order by qys,plan0202 ) A "+
+					" WHERE ROWNUM <= "+pageSize*(pageIndex+1)+" ) WHERE RN > "+ start ;
 							
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(strSQL);
 
@@ -125,7 +125,7 @@ public class PersonManage {
 		String zfnd=request.getParameter("nd");
 		String zone = this.userSession.getCurrentUserZone();
 		String whereSql = "plan0204 <> '1' ";
-		
+
 		String sql=null;
 		// 获取第几页
 		int start = 0;
@@ -133,7 +133,7 @@ public class PersonManage {
 			start = pageSize*pageIndex;
 		}
 		
-		sql = " select t.plan0202,t.plan0204,decode(rw.rws,null,0,rw.rws) as rws,decode(ccs.qys,null,0,ccs.qys) as qys,case when rws is null then 0 else qys/rws end as bl "+
+		sql = " select t.recordid as recordid ,t.plan0202,t.plan0204,decode(rw.rws,null,0,rw.rws) as rws,decode(ccs.qys,null,0,ccs.qys) as qys,case when rws is null then 0 else qys/rws end as bl "+
 				" from plan02 t left join ( select count(*) rws,p2.plan0203,p2.plan0202  from plan02 p2 "+
 				" where p2.plan0204 = 2 and p2.plan0205 ='"+zone+"' and p2.parentid in (select plan00 from plan01 p1 where p1.plan0101='"+zfnd+"') group by p2.plan0203,p2.plan0202) rw on rw.plan0203 = t.plan0203"+
 				" left join (select count(*) qys,t.plan120103 ,t.plan120102  from plan1201 t  where t.parentid in ( select p12.recordid from plan12 p12 "+
@@ -147,9 +147,9 @@ public class PersonManage {
 		}
 
 		String strSQL="SELECT * FROM  "+ 
-					"(SELECT A.*, ROWNUM RN "+   
-					" FROM (" +sql+" order by plan0202 ) A "+   
-					" WHERE ROWNUM < "+(pageIndex+1)*pageSize+" )WHERE RN >= "+ start ;
+					"(SELECT A.*, ROWNUM RN "+
+					" FROM (" +sql+" order by qys,plan0202 ) A "+
+					" WHERE ROWNUM <= "+pageSize*(pageIndex+1)+" ) WHERE RN > "+ start ;
 							
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(strSQL);
 		 
@@ -161,7 +161,6 @@ public class PersonManage {
 
 		if(resultList.size()>0){
 			for(Map<String,Object> map:resultList){
-
 		//for(IRecord ird:rds){
 				ExtGridRow eo = new ExtGridRow();
 				eo.add("id", map.get("recordid"));
@@ -183,7 +182,12 @@ public class PersonManage {
 				" where t.plan0601='"+zone+"' and a.plan0101='"+zfnd+"'";
 		int ryzs=this.jdbcTemplate.queryForInt(ryssql);
 		int qys=this.jdbcTemplate.queryForInt(zqysslq);
-		return qys*2/ryzs;
+		
+		if(ryzs==0){
+			return 0;
+		}else{
+			return qys*2/ryzs;
+		}
 	}
 	
 	
@@ -284,7 +288,7 @@ public class PersonManage {
 		for(int i=0;i<array.size();i++){
 			JSONObject jsonObject = (JSONObject) array.get(i);
 			IRecord ird = this.recordDao.getRecord("PLAN02", UUID.fromString(jsonObject.get("id").toString()));
-			
+
 			if("leftToright".equals(fro)){
 				ird.put("PLAN0204", "0");
 			}else{

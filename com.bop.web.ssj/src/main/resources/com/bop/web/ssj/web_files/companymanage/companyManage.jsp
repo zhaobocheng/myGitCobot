@@ -26,8 +26,11 @@
 						<span>&nbsp;&nbsp;随机结果规则：至少特设：</span><input class="mini-textbox" id="zsts"
 							style="width: 150px;" /> <span>&nbsp;&nbsp;至少计量：</span><input
 							class="mini-textbox" id="zsjl" style="width: 150px;" /> </td> <a class="mini-button" id="mommitBut" onclick="mommit()">提交</a> -->
+					
+				</tr>
+				<tr>
 					<td>
-						<span>抽取结果么人规则：至少1个特设企业，1个计量企业</span>
+						<span>抽取结果默认规则：至少1个特种设备监督检查企业，1个检验机构监督检查企业</span>
 					</td>
 				</tr>
 			</table>

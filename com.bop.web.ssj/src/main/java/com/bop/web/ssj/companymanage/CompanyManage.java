@@ -418,7 +418,7 @@ public class CompanyManage {
 		String zone = this.userSession.getCurrentUserZone();
 		//String sdata = request.getParameter("sdata");
 		//JSONObject jsonObject = JSONObject.fromObject(sdata);
-		
+
 		String upSql = "update plan03 set plan0302 = 0 where parentid = '"+fzid+"' and plan0301 = '"+zone+"'";
 		
 		this.jdbcTemplate.execute(upSql);
@@ -485,7 +485,7 @@ public class CompanyManage {
 		ird.put("PLAN0604", new Date());
 		this.recordDao.saveObject(ird);
 	}
-	
+
 	
 	@Action
 	public String getZT(String faid){

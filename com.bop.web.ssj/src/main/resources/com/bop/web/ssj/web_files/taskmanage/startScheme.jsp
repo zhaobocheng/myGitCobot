@@ -139,7 +139,6 @@ removeRow = function(){
 	}else{
 		mini.showTips({content:"请先选择一条记录",state:"default",x:"center",y:"top"});
 	}
-
 }
 
 qdRow = function(){

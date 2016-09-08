@@ -39,8 +39,13 @@
         <property name="jdbcTemplate" ref="JdbcTemplate" />
         <property name="recordDao" ref="recordDao" />
         <property name="userSession" ref="UserSession" />
-    </bean> 
+    </bean>
     <bean id="exportexcle" class="com.bop.web.ssj.ssjscheme.ExportExcle">
+        <property name="jdbcTemplate" ref="JdbcTemplate" />
+        <property name="recordDao" ref="recordDao" />
+        <property name="userSession" ref="UserSession" />
+    </bean> 
+    <bean id="count" class="com.bop.web.ssj.count.CountPage">
         <property name="jdbcTemplate" ref="JdbcTemplate" />
         <property name="recordDao" ref="recordDao" />
         <property name="userSession" ref="UserSession" />

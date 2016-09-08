@@ -5,8 +5,8 @@
 <meta name="decorator" content="miniui">
 <title>执法方案</title>
 <%String faid = request.getParameter("faid"); %>
-<%String flag = request.getParameter("flag"); %>
-<%String parentid = request.getParameter("parentid"); %>
+<%String zone = request.getParameter("zone"); %>
+<%String p3id = request.getParameter("p3id"); %>
 </head>
 <body>
 
@@ -36,13 +36,14 @@
 	        <div field="phone" width="60" >电话</div>
 	        <div field="jcr" width="80" >检查人</div> 
 	         <div field="jcrid" width="80" visible="false" >检查人id</div> 
-	        <div field="sjly" width="80" >涉及领域</div>
+	        <div field="sjly"  width="80" >对象数据来源 </div>
 	        <div field="PLAN1221" vtype="required" width="100"   align="center" headerAlign="center" type="comboboxcolumn">是否发现问题
 	            <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY06?theme=none"/>                
 	        </div>  
 	         <div field="PLAN1222" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">问题涉及事项
-	            <input property="editor" class="mini-combobox" style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY01?theme=none"/>                
+	            <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY01?theme=none"/>                
 	        </div> 
+	        
 	  		<div field="PLAN1223"  width="120" headerAlign="center" allowSort="true">问题描述
 	               <input property="editor" class="mini-textarea" style="width:100%;" minHeight="80"/>
 	        </div>
@@ -64,13 +65,14 @@
 <script >
 var Bits=[{id:0,text:'否'},{id:1,text:'是'}];
 mini.parse();
-var faid ='<%=faid %>';
+var p3id ='<%=p3id %>';
+var faid='<%=faid %>';
+var zone='<%=zone %>';
 
-var parentid='<%=parentid %>';
 $.ajax({
-	url:'/ssj/ssjScheme/SchemeResult/getViewBaseInfo/'+faid+'?theme=none',
+	url:'/ssj/ssjScheme/SchemeResult/getViewBaseInfo/'+p3id+'?theme=none',
 	type:'get',
-	data:{},
+	data:{zone:zone},
 	success:function(e){
 		var info=mini.decode(e);
 		mini.get("famc").setValue(info.mc);
@@ -81,7 +83,7 @@ $.ajax({
 });
 
 var grid = mini.get("datagrid");
-var url = '/ssj/ssjScheme/SchemeResult/getSchemeAndResult/'+parentid+'?theme=none';
+var url = '/ssj/ssjScheme/SchemeResult/getSchemeAndResult/'+faid+'/'+zone+'?theme=none';
 grid.setUrl(url);
 grid.load();
 

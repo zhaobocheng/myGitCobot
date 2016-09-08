@@ -176,7 +176,7 @@ public class CreateScheme {
 		   IRecord orgIcd = this.recordDao.getRecord("ORG01", UUID.fromString(entry.getKey()));
 		   this.saveTempPlan12(orgIcd, entry.getValue(),fzid);
 		  }
-		
+
 		//更新该区县的方案状态
 		String sql = "update plan03 set plan0302 = 4 where parentid='"+fzid+"' and plan0301 = '"+zone+"'";
 		this.jdbcTemplate.execute(sql);
@@ -208,7 +208,7 @@ public class CreateScheme {
 		UUID uid=UUID.randomUUID();
 		int latestIndex = 0;
 
-		IRecord latestIre = this.recordDao.queryTopOneRecord("PLAN21", "parentid='"+faid+"'", "PLAN2104 desc");
+		IRecord latestIre = this.recordDao.queryTopOneRecord("PLAN21", "parentid='"+faid+"' and plan2103='"+zone+"'", "PLAN2104 desc");
 		if(latestIre!=null){
 			latestIndex = latestIre.get("PLAN2104",Integer.class)+1;
 		}
@@ -233,7 +233,6 @@ public class CreateScheme {
 		String faid = rand01.get("rand0101").toString();
 		String zone = rand01.get("RAND0102",DmCodetables.class).getId();
 		
-
 		//获取抽取人员组合
 		Map<Integer ,ArrayList<String>> zhMap = this.randPerson(faid,zone,allCqOrg);  //存放按企业数随机好人员的map
 		List<IRecord> rand02s = this.recordDao.getByParentId("RAND02", rand01.getRecordId());//得到该区县所有的企业信息
@@ -246,12 +245,12 @@ public class CreateScheme {
 		for(int i=zoneqystart;i<allCqOrg;i++){
 			boolean doubleflag = false;
 			int orgindex = rd.nextInt(rand02s.size());
+		
 			IRecord  cqRand02= this.recordDao.queryTopOneRecord("RAND02", "RAND0201 = "+orgindex+"+1 and parentid = '"+rand01.getRecordId()+"'", "RAND0201");
 			UUID orgCode = cqRand02.get("RAND0202",IRecord.class).getRecordId();
-
 			for(int k=0;k<dqOrglist.size();k++){
 				String dqorg = dqOrglist.get(k);
-				if(orgCode.equals(dqorg)){
+				if(orgCode.toString().equals(dqorg) || orgCode.toString() == dqorg){
 					doubleflag = true;
 					break;
 				}
