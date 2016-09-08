@@ -38,7 +38,7 @@
 	       <!--  <div field="jcnr" width="80" >检查内容</div> -->
 	        <div field="jcr" width="80" >检查人</div> 
 	         <div field="jcrid" width="80" visible="false" >检查人id</div> 
-	        <div field="sjly" width="80" >涉及检查事项</div>           
+	        <div field="sjly" width="80" >对象数据来源</div>           
 	    </div>
 	</div>
 </div>

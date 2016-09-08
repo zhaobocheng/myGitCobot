@@ -92,7 +92,7 @@
     <!-- 中间按钮 -->
     <div title="center" region="center" >
     	<div style="width:100%;">
-    		 <div class="mini-toolbar" style="border-bottom:0;padding:2px;">
+    		 <div class="mini-toolbar" style="border-bottom:0;padding:0px,200px;">
 	            <table style="width:100%;">
 	                <tr>
 	                    <td style="width:100%;" align="center">

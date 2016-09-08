@@ -163,7 +163,7 @@ public class TaskOperation {
 			args[3]=0;
 			this.jdbcTemplate.update(sql, args);
 		}else{
-			Records irds = this.recordDao.queryRecord("dm_codetable_data", "codetablename='DB064'");
+			Records irds = this.recordDao.queryRecord("dm_codetable_data", "codetablename='DB064' and cid<>'110000'");
 			for(IRecord ird:irds){
 				Object [] args = new Object[4];
 				String sql = "insert into plan03(recordid,parentid,plan00,pindex,plan0301,plan0302) values(get_uuid,?,?,1,?,?)";

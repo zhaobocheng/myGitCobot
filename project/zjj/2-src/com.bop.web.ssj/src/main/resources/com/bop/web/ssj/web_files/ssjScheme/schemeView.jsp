@@ -18,18 +18,18 @@
     allowResize="false" expandOnLoad="true" showPager="false" >
 	    <div property="columns">
 	        <div type="indexcolumn" headerAlign="center" >序号</div>
-	        <div field="id" visible="false">id</div>
+	        <div field="id" visible="false">plan03id</div>
 	        <div field="yf" visible="false">yf</div>
-	        <div name="mc" field="mc" width="60" headerAlign="center" >任务名称</div>
-	        <div field="qx" width="60" headerAlign="center" align="center">区县</div>
-	        <div field="zfryzs" width="60" headerAlign="center"  align="center">执法人员总数</div>
-	        <div field="cyzfrs" width="60" headerAlign="center"  align="center">参与执法人员数</div>
-	        <div field="cycczs" width="60" headerAlign="center"  align="center">参与抽查企业总数</div>
-	        <div field="ccqys" width="60" headerAlign="center"  align="center">抽查企业数</div>
-	        <div field="cz" width="80" headerAlign="center"  align="center">是否提交方案 </div>
-	        <div field="tjsj" width="80" headerAlign="center"  align="center">方案提交时间 </div>
+	        <div name="mc" field="mc" width="100" headerAlign="center" >任务名称</div>
+	        <div field="qx" width="50" headerAlign="center" align="center">区县</div>
+	        <div field="zfryzs" width="50" headerAlign="center"  align="center">执法人员总数</div>
+	        <div field="cyzfrs" width="50" headerAlign="center"  align="center">参与执法人员数</div>
+	        <div field="cycczs" width="50" headerAlign="center"  align="center">参与抽查企业总数</div>
+	        <div field="ccqys" width="50" headerAlign="center"  align="center">抽查企业数</div>
+	        <div field="cz" width="60" headerAlign="center"  align="center">是否提交方案 </div>
+	        <div field="tjsj" width="60" headerAlign="center"  align="center">方案提交时间 </div>
 	        <div field="fqfas" width="50" headerAlign="center"  align="center">废弃方案数</div>
-	        <div field="sfgs" width="50" headerAlign="center"  align="center">是否确认公示</div>  
+	        <div field="sfgs" width="50" headerAlign="center"  align="center">是否确认公示</div>
 	    </div>
 	</div>
 </div>
@@ -53,10 +53,8 @@ function search(){
 	var mc=mini.get("rwmc").value;
 	var zfnd=mini.get("zfnd").value;
 	var url2 = "/ssj/ssjscheme/SchemeResult/getFALBData?zfnd=" + zfnd + "&rwmc="+mc+"&theme=none";
-	
 	grid.load(url2);
 	/* grid.load({rwmc:rwmc,month:month}); */
-	
 }
 
 valueChange = function(){
@@ -88,12 +86,19 @@ importExc = function(){
 
 showRy = function(e){
 	var faid = grid.getSelected().parentid;
+	var zone = grid.getSelected().qxid;
+	var title = '';
+	if(e=='zs'){
+		title = '执法人员情况';
+	}else{
+		title = '抽查人员情况';
+	}
 
 	mini.open({
-		url:'/ssj/ssjscheme/showPerson.jsp?theme=2&faid='+faid+"&flag="+e,
+		url:'/ssj/ssjscheme/showPerson.jsp?theme=2&faid='+faid+"&flag="+e+"&zone="+zone,
 		showMaxButton: false,
 	    allowResize: true,
-	    title: '执法人员情况',
+	    title: title,
 	    width: 800,
 	    height: 600,
 	    onload: function(){
@@ -108,11 +113,20 @@ showRy = function(e){
 
 showOrg = function(e){
 	var faid = grid.getSelected().parentid;
+	var zone = grid.getSelected().qxid;
+	
+	var title;
+	if(e=='zs'){
+		title = '参与企业情况';
+	}else{
+		title = '抽查企业情况';
+	}
+	
 	mini.open({
-		url:'/ssj/ssjscheme/showOrg.jsp?theme=2&faid='+faid+"&flag="+e,
+		url:'/ssj/ssjscheme/showOrg.jsp?theme=2&faid='+faid+"&flag="+e+"&zone="+zone,
 		showMaxButton: false,
 	    allowResize: true,
-	    title: '参与企业情况',
+	    title: title,
 	    width: 800,
 	    height: 600,
 	    onload: function(){
@@ -126,13 +140,14 @@ showOrg = function(e){
 } 
 
 showFQScheme = function(e){
-	var faid = grid.getSelected().id;
+	var faid = grid.getSelected().parentid;
 	var qx=grid.getSelected().qx;
+	var zone=grid.getSelected().qxid;
 	var yf=grid.getSelected().yf;
 	var nd = mini.get("zfnd").value;
-	
+
 	mini.open({
-		url:'/ssj/ssjscheme/showFeiQiScheme.jsp?theme=2&faid='+faid+"&flag="+e+"&qx="+qx+"&yf="+yf+"&nd="+nd,
+		url:'/ssj/ssjscheme/showFeiQiScheme.jsp?theme=2&faid='+faid+"&flag="+e+"&qx="+qx+"&yf="+yf+"&nd="+nd+"&zone="+zone,
 		showMaxButton: false,
 	    allowResize: true,
 	    title: '废弃方案',
@@ -149,10 +164,11 @@ showFQScheme = function(e){
 }
 
 showSchemeView = function(e){
-	var faid = grid.getSelected().id;
-	var parentid=grid.getSelected().parentid;
+	var p3id = grid.getSelected().id;
+	var faid=grid.getSelected().parentid;
+	var zone=grid.getSelected().qxid;
 	mini.open({
-		url:'/ssj/ssjScheme/showSchemeView.jsp?theme=2&faid='+faid+'&parentid='+parentid+'&flag='+e,
+		url:'/ssj/ssjscheme/showSchemeView.jsp?theme=2&p3id='+p3id+'&faid='+faid+'&zone='+zone,
 		showMaxButton: false,
 	    allowResize: true,
 	    title: '方案浏览',
@@ -163,7 +179,6 @@ showSchemeView = function(e){
 	       // iframe.contentWindow.setData(data);
 	    },
 	    ondestroy: function (action) {
-	    	
 	    }	
 	});
 	

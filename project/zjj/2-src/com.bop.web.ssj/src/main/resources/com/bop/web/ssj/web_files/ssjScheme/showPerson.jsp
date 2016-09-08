@@ -22,9 +22,10 @@ mini.parse();
 <%String faid = request.getParameter("faid"); %>
 var faid ='<%=faid %>';
 var flag = '<%= request.getParameter("flag") %>';
+var zone = '<%= request.getParameter("zone") %>';
 
 var grid = mini.get("datagrid");
-var url = "/ssj/ssjscheme/SchemeInfoShow/getRYcount/" +faid+"?theme=none&flag="+flag;
+var url = "/ssj/ssjscheme/SchemeInfoShow/getRYcount/" +faid+"?theme=none&flag="+flag+"&zone="+zone;
 grid.setUrl(url);
 grid.load();
 </script>

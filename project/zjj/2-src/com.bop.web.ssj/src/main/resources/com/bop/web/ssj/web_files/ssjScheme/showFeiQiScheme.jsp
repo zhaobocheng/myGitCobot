@@ -35,14 +35,14 @@ mini.parse();
 
 var faid ='<%=faid %>';
 var flag = '<%= request.getParameter("flag") %>';
+var zone = '<%= request.getParameter("zone") %>';
 
 var sccs = mini.get("sccs");
-sccs.setUrl("/ssj/ssjscheme/SchemeResult/getFQScheme/"+faid+"?theme=none");
+sccs.setUrl("/ssj/ssjscheme/SchemeResult/getFQScheme/"+faid+"?theme=none&zone="+zone);
 sccs.select(0);
 
 valueChange = function(){
 	var nd = mini.get("sccs").value;
-
 	url = "/ssj/ssjscheme/SchemeResult/getFQCYQYData/"+nd+"?theme=none";
 	grid.setUrl(url);
 	grid.reload();
