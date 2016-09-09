@@ -1,1 +1,1 @@
-mvn18 clean install deploy
+mvn clean install deploy
