@@ -43,7 +43,7 @@
          </div> 
          <div field="PLAN1225" vtype="required" width="60" type="comboboxcolumn" align="center" headerAlign="center">企业是否变化
              <input property="editor" class="mini-combobox" style="width:100%;" data="Bits"/>        
-         </div>        
+         </div>
          <div field="PLAN1226" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">企业变化情况
              <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY09?theme=none"/>                
          </div>
@@ -140,7 +140,7 @@ function onCommitGS(){
 			return;
 		}
 	}
-	
+
 	if (data.length>0){
 		var faid=data[0].parentid;
 		grid.loading("提交公示中，请稍后......");
@@ -202,27 +202,23 @@ function saveData() {
     for(var i=0;i<datas.length;i++){
     	var data = datas[i];
     	var ss = data.PLAN1222;
-
     	if(data.PLAN1221==1&&data.PLAN1222==""){
     		alert("请选择问题涉及事项及问题描述");
     		grid.validateRow(data);
     		return;
     	}
+    	if(data.PLAN1225==1){
+    		if(data.PLAN1226==""||data.PLAN1226==0){
+    			alert("请选择企业变化情况");
+        		grid.validateRow(data);
+        		return;
+    		}
+    	}
     	if(data.PLAN1224==""){
-    		alert("请选择企业变化情况");
-    		grid.validateRow(data);
-    		return;
-    	}
-    	if(data.PLAN1224==1&&data.PLAN1222==""){
     		alert("请选择立案情况");
     		grid.validateRow(data);
     		return;
     	}
-
-    	/* if(data.PLAN1224==1&&data.PLAN1222==""){
-    		alert("请选择立案情况");
-    		return;
-    	} */
     }    
     grid.loading("保存中，请稍后......");
 
