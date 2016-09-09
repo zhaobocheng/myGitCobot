@@ -7,18 +7,17 @@
 </head>
 <body>
 
-	<span style="maggin-left:20px">统计区县：</span> <div id="cbl1" class="mini-checkboxlist" repeatItems="12" repeatLayout="table" textField="text" valueField="id" url="/ssj/count/CountPage/getCheckDate" ></div>
+	<span style="maggin-left:20px">统计区县：</span> <div id="cbl1" class="mini-checkboxlist" repeatItems="12" repeatLayout="table" textField="text" valueField="id" onvaluechanged = "valuechang" url="/ssj/count/CountPage/getCheckDate" ></div>
 	<div class="mini-toolbar">
 		<span>统计开始时间：</span><input class="mini-datepicker" id="starttime" style="width:150px;" />
 		<span>统计结束时间：</span><input class="mini-datepicker" id="endtime" style="width:150px;" />
+		<a class="mini-button" onclick="count()">统计</a>
 	</div>
-
 	<div class="mini-fit"> 
 		<div class="mini-datagrid" id="datagrid" style="width:100%;height:100%;" showPager="false" allowHeaderWrap="true" url="" >
 			<div property="columns">
 				<div property="index" width="30">序号</div>
 				<div field="qx" width="60" headerAlign="center" align="center">区县</div>
-				
 				<div field="ryzs" width="60" headerAlign="center" align="center">总执法人员</div>
 				<div field="cyrys" width="60" headerAlign="center" align="center">参与人员数</div>
 				<div field="zqys" width="50" headerAlign="center" align="center">总企业数</div>
@@ -64,6 +63,23 @@
 		var id=mini.get("rwmc").value;	
 		var year=mini.get("year").value;
 		datagrid.load({id:id,year:year});
+	}
+	
+	
+	function count(){
+		var values = mini.get("cbl1").value;
+		datagrid.load({qxdm:values});
+	}
+	
+	function valuechang(){
+		var checkBox = mini.get("cbl1");
+		var checkValue = checkBox.value;
+		if(checkValue.indexOf("000000")==-1){
+			
+		}else{
+			checkBox.setValue("");
+			checkBox.select("000000");
+		};
 	}
 	</script>
 </body>
