@@ -14,7 +14,7 @@
 </div>
 <div style="padding:5px;10px;5px;0">
 	<a class="mini-button" id="createBut" iconCls = "icon-save"  onclick="saveData()" >保存</a>
-	<a class="mini-button" id="commitBut" iconCls = "icon-ok" onclick="commitFa()" >提交</a>
+	<a class="mini-button" id="commitBut" iconCls = "icon-ok" onclick="commitFa()" >提交结果</a>
 	<a class="mini-button" id="commitGS" iconCls = "icon-node"  onclick="onCommitGS()" >公示</a>	
 	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
 </div>
@@ -83,10 +83,17 @@ getGSzt = function(rwmc,year,month){
 		type:'post',
 		success:function(e){
 			var info = mini.decode(e);
-			if(info.flag){
-				btngs.setEnabled(true);		
-			}else{
+			if(info.flag=="true"){
+				btngs.setEnabled(true);
+				grid.load({rwmc:rwmc,month:month,year:year});
+			}else if(info.flag=="false"){
 				btngs.setEnabled(false);
+				grid.load({rwmc:rwmc,month:month,year:year});
+			}else if(info.flag=="unconmmit"){
+				mini.alert("由于该任务方案尚未提交，无法进行结果回填。请进入「方案生成」点击「浏览执法方案」按钮交方案后，再填写检查结果!","警告");
+				grid.setData();
+			}else{
+				return ;
 			}
 		}
 	}); 
@@ -101,7 +108,7 @@ function search(){
 	var month=mini.get("month").value;
 	var year=mini.get("year").value;
 	getGSzt(rwmc,year,month);
-	grid.load({rwmc:rwmc,month:month,year:year});
+	
 }
 
 function OnCellBeginEdit(e) {
@@ -133,10 +140,12 @@ function onCellValidation(e) {
 }
 
 function onCommitGS(){
-	var data=grid.data;
+	//var data=grid.data;
+	var data = grid.getSelecteds();
+	
 	for (var i = data.length - 1; i >= 0; i--) {
 		if (data[i].PLAN1210<'2'){
-			alert("有未提交的录入结果，请确保录入结果全部提交再进行公示！");
+			alert("有未提交结果的录入，请先确保录入结果已经提交再进行公示！");
 			return;
 		}
 	}
@@ -146,6 +155,7 @@ function onCommitGS(){
 		grid.loading("提交公示中，请稍后......");
 		$.ajax({
 			url:'/ssj/ssjScheme/SchemeResult/commitGSData/'+faid+'?theme=none',
+			data:{data:mini.encode(data)},
 			type:'post',
 			success:function(e){
 				if(e=="success"){

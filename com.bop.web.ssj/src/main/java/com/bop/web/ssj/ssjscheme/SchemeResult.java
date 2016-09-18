@@ -284,7 +284,7 @@ public class SchemeResult {
 		String rwmc = request.getParameter("rwmc")==null?null:request.getParameter("rwmc").toString();
 
 		String sql = " select  t.plan00,tt.recordid,tt.parentid,to_char(tt.plan0303,'yyyy-MM-dd') as tjsj,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,tt.PLAN0301 as qxid,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then 0  else p6.plan0602  end as ccqys , "+
-					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 >5 then '是' else '否' end as cz,case when tt.plan0302 ='6' then '是' else '否' end as sfgs from plan01 t  "+
+					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 <5 then '否' else '是' end as cz,case when tt.plan0302 ='6' then '是' else '否' end as sfgs from plan01 t  "+
 					 " inner join plan03 tt on tt.parentid = t.plan00 "+
 					" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
 					 " left join (select count(*) qys,org.PLAN0404,org.parentid from plan04 org group by org.parentid,org.PLAN0404 ) counorg on counorg.PLAN0404 = tt.plan0301 and t.plan00 = counorg.parentid "+
@@ -482,21 +482,30 @@ public class SchemeResult {
 	@Action
 	public String commitGSData(String faid){
 		String zone = this.userSession.getCurrentUserZone();
+		String data = ActionContext.getActionContext().getHttpServletRequest().getParameter("data");
+		JSONArray oa = JSONArray.fromObject(data);
 		
-		String whereSql=" PARENTID='"+faid+"'";
-		if(null!=zone&&!"".equals(zone)){
-			whereSql += " and plan0301='"+zone+"'";
+		for(int i=0;i<oa.size();i++){
+			JSONObject jo = oa.getJSONObject(i);
+			String upsql = "update plan12 t set t.plan1210=3 where t.recordid='"+jo.getString("id")+"'";
+			this.jdbcTemplate.execute(upsql);
 		}
+		
+		String querysql = " select case when zs=tjs then 0 else 1 end as zt from( select count(*) as zs,sum(decode(t.plan1210,2,1,0)) as tjs"+
+						  " from  plan12 t where t.plan1204 = '"+zone+"' and t.parentid = '"+faid+"')";
 
-		Records ires  = this.recordDao.queryRecord("PLAN03", whereSql);
-		if (ires.size()>0){
-			IRecord ire =ires.get(0);
-			ire.put("PLAN0302", "6");
-			this.recordDao.saveObject(ire);
+		int zt = this.jdbcTemplate.queryForInt(querysql);
+		if(zt==1){
+			//没有公示完还不能更新plan0302的状态
+		}else{
+			String whereSql=" PARENTID ='"+faid+"' and plan0301='"+zone+"'";
+			Records ires  = this.recordDao.queryRecord("PLAN03", whereSql);
+			if (ires.size()>0){
+				IRecord ire =ires.get(0);
+				ire.put("PLAN0302", "6");
+				this.recordDao.saveObject(ire);
+			}
 		}
-		String upsql = "update plan12 t set t.plan1210=3 where t.parentid='"+faid+"' and t.plan1204='"+zone+"'";
-		this.jdbcTemplate.execute(upsql);
-		
 		return "success";
 	}
 	/**
@@ -555,16 +564,25 @@ public class SchemeResult {
 			Records ires  = this.recordDao.queryRecord("PLAN12", whereSql);
 			if (ires.size()>0){
 				if(!"".equals(p1221) && !"".equals(p1224)){
-					IRecord ire =ires.get(0);
-					ire.put("PLAN1210", "2");
-					this.recordDao.saveObject(ire);
+					if("3".equals(jsonObject.get("PLAN1210"))){
+					}else{
+						IRecord ire =ires.get(0);
+						ire.put("PLAN1210", "2");
+						this.recordDao.saveObject(ire);
+					}
 				}else{
 					backStr+=jsonObject.get("_id")+",";
 					eor.add("flag",false);
 				}
 			}
 		}
-		eor.add("info",backStr.substring(0, backStr.length()-1));
+		
+		if(backStr.equals("")){
+			eor.add("info","方案以提交");
+		}else{
+			eor.add("info",backStr.substring(0, backStr.length()-1));
+		}
+		
 		return eor.toString();
 	}
 
@@ -590,13 +608,19 @@ public class SchemeResult {
 			eor.add("flag", false);
 		}else{
 			String faid = p1.get("PLAN00").toString();
-			IRecord plan6 = this.recordDao.queryTopOneRecord("PLAN06", "parentid='"+faid+"' and plan0601='"+zone+"'", "pindex");
-			int p12 = this.jdbcTemplate.queryForInt("select count(*) from plan12 t where t.parentid = '"+faid+"' and t.PLAN1204 = '"+zone+"' and plan1210=3");
+			IRecord plan3 = this.recordDao.queryTopOneRecord("PLAN03", "parentid='"+faid+"' and plan0301='"+zone+"' and plan0302 >4 ", "pindex");//判断这个任务是否提交
 			
-			if(p12==plan6.get("PLAN0602",Integer.class)){
-				eor.add("flag", false);
+			if(plan3==null){
+				eor.add("flag", "unconmmit");
 			}else{
-				eor.add("flag", true);
+				IRecord plan6 = this.recordDao.queryTopOneRecord("PLAN06", "parentid='"+faid+"' and plan0601='"+zone+"'", "pindex");
+				int p12 = this.jdbcTemplate.queryForInt("select count(*) from plan12 t where t.parentid = '"+faid+"' and t.PLAN1204 = '"+zone+"' and plan1210=3");
+				
+				if(p12==plan6.get("PLAN0602",Integer.class)){
+					eor.add("flag", "false");
+				}else{
+					eor.add("flag", "true");
+				}
 			}
 		}
 		return eor.toString();
