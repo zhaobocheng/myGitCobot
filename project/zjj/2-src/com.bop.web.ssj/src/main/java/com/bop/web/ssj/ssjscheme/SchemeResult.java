@@ -487,10 +487,10 @@ public class SchemeResult {
 		
 		for(int i=0;i<oa.size();i++){
 			JSONObject jo = oa.getJSONObject(i);
-			String upsql = "update plan12 t set t.plan1210=3 where t.recordid='"+jo.getString("id")+"'";
+			String upsql = "update plan12 t set t.plan1210=3,t.plan1228=sysdate where t.plan1210 = 2 and t.recordid='"+jo.getString("id")+"'";
 			this.jdbcTemplate.execute(upsql);
 		}
-		
+
 		String querysql = " select case when zs=tjs then 0 else 1 end as zt from( select count(*) as zs,sum(decode(t.plan1210,2,1,0)) as tjs"+
 						  " from  plan12 t where t.plan1204 = '"+zone+"' and t.parentid = '"+faid+"')";
 
@@ -534,7 +534,7 @@ public class SchemeResult {
 				ire.put("PLAN1227", jsonObject.get("PLAN1227"));
 				//ire.put("PLAN1210", "保存");
 				
-				this.recordDao.saveObject(ire);		
+				this.recordDao.saveObject(ire);
 			}	
 		}	
 		return "success";
@@ -576,13 +576,12 @@ public class SchemeResult {
 				}
 			}
 		}
-		
+
 		if(backStr.equals("")){
-			eor.add("info","方案以提交");
+			eor.add("info","方案已提交");
 		}else{
 			eor.add("info",backStr.substring(0, backStr.length()-1));
 		}
-		
 		return eor.toString();
 	}
 

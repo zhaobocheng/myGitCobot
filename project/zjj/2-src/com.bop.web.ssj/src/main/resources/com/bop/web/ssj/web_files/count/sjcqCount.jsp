@@ -6,9 +6,9 @@
 <title>随机抽查情况统计</title>
 </head>
 <body>
-
-	<span style="maggin-left:20px">统计区县：</span> <div id="cbl1" class="mini-checkboxlist" repeatItems="12" repeatLayout="table" textField="text" valueField="id" onvaluechanged = "valuechang" url="/ssj/count/CountPage/getCheckDate" ></div>
+	
 	<div class="mini-toolbar">
+		<span style="maggin-left:20px">统计区县：</span> <div id="cbl1" class="mini-checkboxlist" repeatItems="11" repeatLayout="table" textField="text" valueField="id" onvaluechanged = "valuechang" url="/ssj/count/CountPage/getCheckDate" ></div>
 		<span>统计开始时间：</span><input class="mini-datepicker" id="starttime" style="width:150px;" />
 		<span>统计结束时间：</span><input class="mini-datepicker" id="endtime" style="width:150px;" />
 		<a class="mini-button" onclick="count()">统计</a>
@@ -16,7 +16,7 @@
 	<div class="mini-fit"> 
 		<div class="mini-datagrid" id="datagrid" style="width:100%;height:100%;" showPager="false" allowHeaderWrap="true" url="" >
 			<div property="columns">
-				<div property="index" width="30">序号</div>
+				<div type="indexcolumn" width="30">序号</div>
 				<div field="qx" width="60" headerAlign="center" align="center">区县</div>
 				<div field="ryzs" width="60" headerAlign="center" align="center">总执法人员</div>
 				<div field="cyrys" width="60" headerAlign="center" align="center">参与人员数</div>
@@ -28,7 +28,7 @@
 	                    <div field="qys_ucc"  width="60" headerAlign="center">未成功检查</div>
 	                </div>
 				</div>
-				<div field="bz" width="40" headerAlign="center" align="center">立案数</div>
+				<div field="qys_las" width="40" headerAlign="center" align="center">立案数</div>
 				<div header="企业情况" headerAlign="center">
 	                <div property="columns" headerAlign="center">
 	                    <div field="qys_yzx" width="60" headerAlign="center">企业已注销</div>
@@ -68,9 +68,21 @@
 	
 	function count(){
 		var values = mini.get("cbl1").value;
-		datagrid.load({qxdm:values});
+		var stardata = mini.get("starttime").value;
+		var enddata = mini.get("endtime").value;
+		
+		if(stardata=="" || enddata ==""){
+			alert("请选择统计时间！");
+			return;
+		}else if(values==""){
+			alert("请选择统计区县！");
+			return;
+		}else{
+			datagrid.load({qxdm:values,startdata:stardata,enddata:enddata});
+		}
 	}
-	
+
+
 	function valuechang(){
 		var checkBox = mini.get("cbl1");
 		var checkValue = checkBox.value;

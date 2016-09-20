@@ -207,8 +207,12 @@ function saveData() {
     } */
 
     var datas = grid.getChanges();
+    
+    if(datas.length<1){
+    	alert("请先填写执法结果，在保存！");
+    	return ;
+    }
     var json = mini.encode(datas);
-
     for(var i=0;i<datas.length;i++){
     	var data = datas[i];
     	var ss = data.PLAN1222;
