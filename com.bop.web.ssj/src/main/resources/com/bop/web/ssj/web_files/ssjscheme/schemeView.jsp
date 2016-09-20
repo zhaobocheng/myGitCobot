@@ -54,7 +54,6 @@ function search(){
 	var zfnd=mini.get("zfnd").value;
 	var url2 = "/ssj/ssjscheme/SchemeResult/getFALBData?zfnd=" + zfnd + "&rwmc="+mc+"&theme=none";
 	grid.load(url2);
-	/* grid.load({rwmc:rwmc,month:month}); */
 }
 
 valueChange = function(){
@@ -103,7 +102,6 @@ showRy = function(e){
 	    height: 600,
 	    onload: function(){
 	        var iframe = this.getIFrameEl();
-	       // iframe.contentWindow.setData(data);
 	    },
 	    ondestroy: function (action) {
 	    
@@ -131,7 +129,6 @@ showOrg = function(e){
 	    height: 600,
 	    onload: function(){
 	        var iframe = this.getIFrameEl();
-	       // iframe.contentWindow.setData(data);
 	    },
 	    ondestroy: function (action) {
 	    
@@ -155,7 +152,6 @@ showFQScheme = function(e){
 	    height: 600,
 	    onload: function(){
 	        var iframe = this.getIFrameEl();
-	       // iframe.contentWindow.setData(data);
 	    },
 	    ondestroy: function (action) {
 	    
@@ -176,12 +172,10 @@ showSchemeView = function(e){
 	    height: 680,
 	    onload: function(){
 	        var iframe = this.getIFrameEl();
-	       // iframe.contentWindow.setData(data);
 	    },
 	    ondestroy: function (action) {
 	    }	
 	});
-	
 }
 </script>
 </body>
