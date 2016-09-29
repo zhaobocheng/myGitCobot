@@ -491,7 +491,7 @@ public class SchemeResult {
 			this.jdbcTemplate.execute(upsql);
 		}
 
-		String querysql = " select case when zs=tjs then 0 else 1 end as zt from( select count(*) as zs,sum(decode(t.plan1210,2,1,0)) as tjs"+
+		String querysql = " select case when zs=tjs then 0 else 1 end as zt from( select count(*) as zs,sum(decode(t.plan1210,3,1,0)) as tjs"+
 						  " from  plan12 t where t.plan1204 = '"+zone+"' and t.parentid = '"+faid+"')";
 
 		int zt = this.jdbcTemplate.queryForInt(querysql);
