@@ -138,10 +138,10 @@ public class SchemeResult {
 		if(zone==null||"".equals(zone)){
 			whereSql = "parentid = '"+fzid+"'";
 		}else{
-			whereSql = "parentid = '"+fzid+"' and PLAN2204 = '"+zone+"'";
+			whereSql = "parentid = '"+fzid+"' and FQ0204 = '"+zone+"'";
 		}
 
-		Records ires  = this.recordDao.queryRecord("PLAN22", whereSql);
+		Records ires  = this.recordDao.queryRecord("FQ02", whereSql);
 
 		if(ires.size()>0){
 			for(IRecord ire:ires){
@@ -149,18 +149,18 @@ public class SchemeResult {
 				String personInf[] = this.getJCRData(ire.getRecordId());
 
 				eo.add("id", ire.getRecordId());
-				eo.add("dq", ire.get("PLAN2204",DmCodetables.class).getCaption());
-				eo.add("jgdm", ire.get("PLAN2202"));
-				eo.add("dwmc", ire.get("PLAN2203"));
-				eo.add("dz",  ire.get("PLAN2205"));
-				eo.add("lxr", ire.get("PLAN2206"));
-				eo.add("phone", ire.get("PLAN2207"));
-				eo.add("jcnr",  ire.get("PLAN2208"));
+				eo.add("dq", ire.get("FQ0204",DmCodetables.class).getCaption());
+				eo.add("jgdm", ire.get("FQ0202"));
+				eo.add("dwmc", ire.get("FQ0203"));
+				eo.add("dz",  ire.get("FQ0205"));
+				eo.add("lxr", ire.get("FQ0206"));
+				eo.add("phone", ire.get("FQ0207"));
+				eo.add("jcnr",  ire.get("FQ0208"));
 				eo.add("jcrid", personInf[0]);
 				eo.add("jcr",  personInf[1]);
 				
-				eo.add("sjly", this.getJSLY(ire.get("PLAN2202").toString()));
-				eo.add("ParentDqId", ire.get("PLAN2204",DmCodetables.class).getId());
+				eo.add("sjly", this.getJSLY(ire.get("FQ0202").toString()));
+				eo.add("ParentDqId", ire.get("FQ0204",DmCodetables.class).getId());
 				eo.add("dqid",  null);
 				eoc.add(eo);
 			}
@@ -177,9 +177,9 @@ public class SchemeResult {
 		String names = "";
 		String inform[] = new String[2];
 		
-		List<IRecord> ires = this.recordDao.getByParentId("PLAN1201", plan12id);
+		List<IRecord> ires = this.recordDao.getByParentId("FQ03", plan12id);
 		for(IRecord ire:ires){
-			names+= ire.get("PLAN120102").toString()+",";
+			names+= ire.get("FQ0302").toString()+",";
 			ids+=ire.getRecordId().toString()+",";
 		}
 
@@ -289,7 +289,7 @@ public class SchemeResult {
 					" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
 					 " left join (select count(*) qys,org.PLAN0404,org.parentid from plan04 org group by org.parentid,org.PLAN0404 ) counorg on counorg.PLAN0404 = tt.plan0301 and t.plan00 = counorg.parentid "+
 					" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
-					" left join (select count(*) fqs , p4.plan2103,p4.parentid from plan21 p4 group by p4.plan2103 ,p4.parentid) countorg on countorg.parentid=t.plan00 and countorg.plan2103=tt.plan0301 " + 
+					" left join (select count(*) as fqs, pp.fq0105, pp.fq0103  from fq01 pp  group by pp.fq0105, pp.fq0103) countorg on countorg.fq0105=t.plan00 and countorg.fq0103=tt.plan0301 " + 
 					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
 
 		String sql1="select plan00,plan00 as recordid,null as parentid,null as tjsj,plan0102 as yf,plan0107 as mc,'' as qx,null as qxid,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz,'' as sfgs from plan01 where plan0105 = 1   ";
@@ -377,20 +377,20 @@ public class SchemeResult {
 		String flag=ActionContext.getActionContext().getHttpServletRequest().getParameter("flag");
 		String qxdm=ActionContext.getActionContext().getHttpServletRequest().getParameter("zone");
 		String zone = this.userSession.getCurrentUserZone();
-		String sql = "select a.recordid,a.plan2104+1 as cs from plan21 a "+
-					" where a.parentid='"+faid+"' ";
+		String sql = "select a.fq00,a.fq0104+1 as cs from fq01 a "+
+					" where a.fq0105='"+faid+"' ";
 		
 		if(null==zone || "".equals(zone)){
-			sql +=" and  a.plan2103='"+qxdm+"'";
+			sql +=" and  a.fq0103='"+qxdm+"'";
 		}else{
-			sql +=" and  a.plan2103='"+zone+"'";
+			sql +=" and  a.fq0103='"+zone+"'";
 		}
 
-		List<Map<String,Object>> list = this.jdbcTemplate.queryForList(sql+" order by plan2104 ");
+		List<Map<String,Object>> list = this.jdbcTemplate.queryForList(sql+" order by fq0104 ");
 		
 		for(Map<String,Object> map:list){
 			ExtObject eo = new ExtObject();
-			eo.add("id", map.get("recordid"));
+			eo.add("id", map.get("fq00"));
 			eo.add("mc", "第 "+map.get("cs")+" 次");
 			ero.add(eo);
 		}

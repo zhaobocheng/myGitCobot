@@ -208,15 +208,17 @@ public class CreateScheme {
 		UUID uid=UUID.randomUUID();
 		int latestIndex = 0;
 
-		IRecord latestIre = this.recordDao.queryTopOneRecord("PLAN21", "parentid='"+faid+"' and plan2103='"+zone+"'", "PLAN2104 desc");
+		IRecord latestIre = this.recordDao.queryTopOneRecord("FQ01", "FQ0105='"+faid+"' and FQ0103='"+zone+"'", "FQ0104 desc");
 		if(latestIre!=null){
-			latestIndex = latestIre.get("PLAN2104",Integer.class)+1;
+			latestIndex = latestIre.get("FQ0104",Integer.class)+1;
 		}
-		IRecord ire=this.recordDao.createNew("PLAN21", uid, UUID.fromString(faid));
-		ire.put("PLAN2101", "废弃原因");
-		ire.put("PLAN2102", new Date());
-		ire.put("PLAN2103", zone);
-		ire.put("PLAN2104", latestIndex);
+		IRecord ire=this.recordDao.createNew("FQ01", uid, uid);
+		
+		ire.put("FQ0101", "废弃原因");
+		ire.put("FQ0102", new Date());
+		ire.put("FQ0103", zone);
+		ire.put("FQ0104", latestIndex);
+		ire.put("FQ0105", faid);
 		this.recordDao.saveObject(ire);
 	}
 

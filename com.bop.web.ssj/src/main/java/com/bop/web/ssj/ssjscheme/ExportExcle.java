@@ -40,7 +40,10 @@ import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
 
 public class ExportExcle {
-	
+	/**
+	 * createExcelForExtRow d导出文件方法是通用
+	 * 两个导出引导方法是针对不同导出的接口exportExcel 
+	 */
 	private JdbcOperations jdbcTemplate;
 	private IRecordDao recordDao;
 	private UserSession userSession;
@@ -194,7 +197,6 @@ public class ExportExcle {
 		result = this.exportExcel(gridcolmun,sql+wheresql+" UNION ALL "+sql1+" order by zfyf,parentid desc");
 
 	} catch (Exception e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}		
 		return result;
@@ -501,13 +503,10 @@ public class ExportExcle {
 
 
 	
-	
-	
-	
-	
 	//-------------------------------重写导出方法----------------------------------
 	/**
-	 * 展示的数据不需要程序转换的都可以用这个导出方法，如果需要程序转换就要在对应个性化的方法写对应的转换展示字段
+	 * 展示的数据不需要程序转换(即可以通过sql一次查询得到显示结果的)的都可以用这个导出方法，
+	 * 如果需要程序转换就要在对应个性化的方法写对应的转换展示字段
 	 * 使用miniui的方法能够得到对应的列的header和filed,注意sql的拼写要与grid的filed一致
 	 * @param gridcolmun 前端传入的grid的列属性集合，通过mini.encode(grid.columns)得到
 	 * @param sql 查询导出列表数据的sql

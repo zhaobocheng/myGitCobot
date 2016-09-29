@@ -58,7 +58,6 @@ createFa=function(){
     	success:function(e){
     		var info = mini.decode(e);
     		
-    		debugger;
     		if(info.flag==4){
     			 mini.confirm("随机抽查方案已生成，点击「确定」将重新生成方案，现有方案将自动作废，并记录，放弃重新生成方案点击「取消」", "确定",
     			            function (action) {
