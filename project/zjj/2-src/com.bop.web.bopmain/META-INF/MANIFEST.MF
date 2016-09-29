@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-SymbolicName: com.bop.web.bopmain
 Built-By: bdsoft
 Bundle-ManifestVersion: 2
-Bnd-LastModified: 1473065784527
+Bnd-LastModified: 1474341727481
 Bundle-Level: 20
 Import-Package: com.bop.bopmain.dao;version="1.2",com.bop.common;versi
  on="4.2",com.bop.domain;version="4.2",com.bop.domain.dao;version="4.2
@@ -34,19 +34,20 @@ Export-Package: com.bop.web.bopmain;uses:="com.bop.web.rest,org.slf4j,
  .bop.module.function.service,com.bop.web,com.bop.json,javax.servlet,o
  rg.apache.shiro.authz,com.bop.domain,com.bop.hibernate.dbinit,com.bop
  .common,com.bop.module.user,com.bop.module.user.dao,com.bop.web.rest.
- renderer,com.bop.web.bopmain.internal";version="1.2.4",com.bop.web.bo
- pmain.user;uses:="javax.servlet.http,com.bop.json,com.bop.bopmain.dao
- ,com.bop.web.rest,com.bop.common,com.bop.module.user,com.bop.module.u
- ser.dao,com.bop.module.user.defaults,com.bop.web.rest.renderer,com.bo
- p.hibernate,com.bop.module.author,org.springframework.beans.factory";
- version="1.2.4",com.bop.web.bopmain.internal;uses:="com.bop.module.fu
- nction,com.bop.module.function.service,com.bop.common,com.bop.json,co
- m.bop.module.author,com.bop.web.bopmain,org.osgi.service.event,com.bo
- p.module.log,com.bop.event,org.osgi.framework,org.slf4j,com.bop.hiber
- nate.dbinit,org.springframework.beans.factory,org.springframework.jdb
- c.core,com.bop.domain.schema,com.bop.domain,com.bop.module.authorweb,
- javax.servlet.http,com.bop.domain.dao";version="1.2.4"
-Bundle-Version: 1.2.4
+ renderer,com.bop.web.bopmain.internal";version="1.2.4.SNAPSHOT",com.b
+ op.web.bopmain.user;uses:="javax.servlet.http,com.bop.json,com.bop.bo
+ pmain.dao,com.bop.web.rest,com.bop.common,com.bop.module.user,com.bop
+ .module.user.dao,com.bop.module.user.defaults,com.bop.web.rest.render
+ er,com.bop.hibernate,com.bop.module.author,org.springframework.beans.
+ factory";version="1.2.4.SNAPSHOT",com.bop.web.bopmain.internal;uses:=
+ "com.bop.module.function,com.bop.module.function.service,com.bop.comm
+ on,com.bop.json,com.bop.module.author,com.bop.web.bopmain,org.osgi.se
+ rvice.event,com.bop.module.log,com.bop.event,org.osgi.framework,org.s
+ lf4j,com.bop.hibernate.dbinit,org.springframework.beans.factory,org.s
+ pringframework.jdbc.core,com.bop.domain.schema,com.bop.domain,com.bop
+ .module.authorweb,javax.servlet.http,com.bop.domain.dao";version="1.2
+ .4.SNAPSHOT"
+Bundle-Version: 1.2.4.SNAPSHOT
 Bundle-Name: com.bop.web.bopmain
 Bundle-ClassPath: lib/bdsoftRegCall-1.0.jar,.
 Created-By: Apache Maven Bundle Plugin

@@ -18,24 +18,27 @@
 			<div property="columns">
 				<div type="indexcolumn" width="30">序号</div>
 				<div field="qx" width="60" headerAlign="center" align="center">区县</div>
-				<div field="ryzs" width="60" headerAlign="center" align="center">总执法人员</div>
-				<div field="cyrys" width="60" headerAlign="center" align="center">参与人员数</div>
-				<div field="zqys" width="50" headerAlign="center" align="center">总企业数</div>
+				<div field="ryzs" width="50" headerAlign="center" align="center">总执法人员</div>
+				<div field="cyrys" width="50" headerAlign="center" align="center">参与人员数</div>
+				<div field="zqys" width="60" headerAlign="center" align="center">总企业数</div>
 				<div header="抽查企业数" headerAlign="center">
 	                <div property="columns">
-	                    <div field="qys_uf" width="60" headerAlign="center">未发现问题</div>
-	                    <div field="qys_fd" width="50" headerAlign="center">发现问题</div>
-	                    <div field="qys_ucc"  width="60" headerAlign="center">未成功检查</div>
+	                    <div field="qys_uf" width="50" headerAlign="center">未发现问题</div>
+	                    <div field="qys_fd" width="60" headerAlign="center">发现问题</div>
+	                    <div field="qys_ucc"  width="50" headerAlign="center">未成功检查</div>
+	                    <div field="qys_qt"  width="40" headerAlign="center">其他</div>
+	                     <div field="qys_ucmt"  width="60" headerAlign="center">未提交检查结果</div>
 	                </div>
 				</div>
+				<div field="qys_jcs" width="40" headerAlign="center" align="center">检查数</div>
 				<div field="qys_las" width="40" headerAlign="center" align="center">立案数</div>
 				<div header="企业情况" headerAlign="center">
 	                <div property="columns" headerAlign="center">
-	                    <div field="qys_yzx" width="60" headerAlign="center">企业已注销</div>
-	                    <div field="qys_drrbf" width="60" headerAlign="center">企业生产地与注册地不符</div>
-	                    <div field="qys_bd"  width="60" headerAlign="center">企业执照未变，企业找不到</div>
-	                    <div field="qys_infobf"  width="60" headerAlign="center">企业实际经营内容和信息不符</div>
-	                    <div field="qys_upro"  width="60" headerAlign="center">企业停产停业</div>
+	                    <div field="qys_yzx" width="50" headerAlign="center" align="center">企业已注销</div>
+	                    <div field="qys_drrbf" width="60" headerAlign="center" align="center">企业生产地与注册地不符</div>
+	                    <div field="qys_bd"  width="60" headerAlign="center" align="center">企业执照未变，企业找不到</div>
+	                    <div field="qys_infobf"  width="70" headerAlign="center" align="center">企业实际经营内容和信息不符</div>
+	                    <div field="qys_upro"  width="60" headerAlign="center" align="center">企业停产停业</div>
 	                </div>
 				</div>
 			</div>

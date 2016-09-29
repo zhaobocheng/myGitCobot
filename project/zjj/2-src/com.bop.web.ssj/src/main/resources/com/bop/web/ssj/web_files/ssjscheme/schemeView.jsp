@@ -48,7 +48,6 @@ grid.setUrl(url);
 grid.load();
 
 
-
 function search(){
 	var mc=mini.get("rwmc").value;
 	var zfnd=mini.get("zfnd").value;
@@ -66,7 +65,6 @@ importExc = function(){
 	grid.loading("正在导出，请稍后......");
 	var columns = grid.columns;
 	var json = mini.encode(columns);
-
 	$.ajax({
 		url:'/ssj/ssjscheme/ExportExcle/SchemeViewExportExcel?zfnd='+faid+'&rwmc='+rwmc+'&theme=none',
 		type:'get',
