@@ -1,5 +1,6 @@
 package com.bop.web.ssj.taskmanage;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -74,6 +75,16 @@ public class TaskOperation {
 		red.put("PLAN0104",u1.get(0).get("user00"));
 		red.put("PLAN0105", "0");
 		red.put("PLAN0107", faname);
+		SimpleDateFormat sd=new SimpleDateFormat("yyyy-MM-dd");
+		String str =addYearcom+"-"+addMonthcom+"-"+"02";
+		Date date=null;
+		try {
+			date = sd.parse(str);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		red.put("PLAN0108", date);
 		this.recordDao.saveObject(red);
 
 		eor.add("inf", "true");
