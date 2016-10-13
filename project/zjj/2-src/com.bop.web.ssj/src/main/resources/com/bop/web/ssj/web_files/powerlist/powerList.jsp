@@ -6,28 +6,22 @@
 <title>权力清单</title>
 </head>
 <body>
-<div  class="input_form" class="width:100%;">
-	<table  style="width:100%;">
-		<tr>
-			<th width="20%">权力编码</th>
-			<td width="50%"><input class="mini-textbox" id="qlbm" name="qlbm" style="width:100%" /></td>
-			<td><a class="mini-button" iconCls="icon-find" onclick="findRow">查询</a></td>
-		</tr>
-		<tr>
-			<th width="20%">权力名称</th>
-			<td width="50%"><input class="mini-textbox" id="qlmc" style="width:100%" /></td>
-			<td><a class="mini-button" iconCls="icon-find" onclick="findRow">查询</a></td>
-		</tr>
-	</table>
+<div style="padding-top: 10px;padding-bottom: 10px;padding-left:15px">
+	<span>权力清单编码：</span><input class="mini-textbox" id="qlbm" name="rwmc" style="width:250px;" onvaluechanged="findRow()"/>
+	<span>权力清单名称：</span><input class="mini-textbox" id="qlmc" name="qlmc" style="width:250px;" onvaluechanged="findRow()"/>								 
+	<span>权力分类：</span>  <input class="mini-combobox" id="qlfl" name="qlfl" style="width:250px;" onvaluechanged="findRow()" textField="text" valueField="id"   url="/ssj/powerlist/PowerList/getPowerFL?theme=none"/>
+	 <a class="mini-button" id="find" iconCls = "icon-find"  onclick="findRow()">查找</a>
 </div>
+ 
+  
 <div class="mini-fit">
 <div class="mini-datagrid" id="datagrid" style="width:100%;height:100%;" url="/ssj/powerlist/PowerList/getPowerListData?theme=none" showFooter="true" idField="id"
 	pageSize="20" sizeList="[20,30,50,100]">
 	<div property="columns">
 		<div type="indexcolumn" width="20" headerAlign="center">序号</div>
 		<div field="qlqdbm" width="80" headerAlign="center">权力清单编码</div>
-		<div field="qlsxmc" width="220" headerAlign="center">权力事项名称</div>
-		<div field="ssqx" width="40" headerAlign="center">编码所在区</div>
+		<div field="qlsxmc" width="120" headerAlign="center">权力清单名称</div>
+		<div field="qlfl" width="80" headerAlign="center">权利分类</div>
 	</div>
 </div>
 </div>
@@ -40,8 +34,8 @@ datagrid.load();
 function findRow(){
 	var qlbm = mini.get("qlbm").value;
 	var qlmc = mini.get("qlmc").value;
-
-	datagrid.load({qlbm:qlbm,qlmc:qlmc});
+	var qlfl = mini.get("qlfl").value;
+	datagrid.load({qlbm:qlbm,qlmc:qlmc,qlfl:qlfl});
 }
 
 </script>
