@@ -366,7 +366,7 @@ public class PowerList {
 			form.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getId());			//事项分类
 			form.add("ccdx", ird.get("ITEM0103",DmCodetables.class).getId());			//抽查对象Id
 			 
-			List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList("select q.q00,q.q0103　from Q01 q, Item01 I1, Item02 I2 where  I1.Item00=I2.PARENTID and  I2.ITEM0201=q.q00");
+			List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList("select q.q00,q.q0103　from Q01 q, Item01 I1, Item02 I2 where  I1.Item00=I2.PARENTID and  I2.ITEM0201=q.q00 and I1.Item00='"+ird.get("ITEM00")+"'");
 			
 			String qlqdid="";
 			String qlqdName="";
