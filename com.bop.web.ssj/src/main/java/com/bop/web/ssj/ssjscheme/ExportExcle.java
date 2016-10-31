@@ -3,8 +3,11 @@ package com.bop.web.ssj.ssjscheme;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -13,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.JdbcOperations;
 
@@ -34,6 +38,8 @@ import com.bop.domain.dao.DmCodetables;
 import com.bop.domain.dao.IRecord;
 import com.bop.json.ExtGrid;
 import com.bop.json.ExtGridRow;
+import com.bop.json.ExtObject;
+import com.bop.json.ExtObjectCollection;
 import com.bop.json.ExtResultObject;
 import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
@@ -202,6 +208,200 @@ public class ExportExcle {
 		return result;
 	}
 	
+	/*
+	 * 抽查情况统计导出excel
+	 */
+	@Action 
+	public String RandomStaticsExportExcel(){
+		String result=null;
+		try {
+			HttpServletRequest request=ActionContext.getActionContext().getHttpServletRequest();
+			String gridcolmun = request.getParameter("gridcolmun");
+			String qx = request.getParameter("qx");
+			String starttime = request.getParameter("starttime"); 
+			String endtime = request.getParameter("endtime");
+			 
+			String startDate =DateUtil.formatDate(new Date(starttime), "yyyy-MM-dd");
+			String endDate =DateUtil.formatDate(new Date(endtime), "yyyy-MM-dd");
+			
+			String faidQuery = " select plan00 from plan01 t where to_char(t.plan0108,'yyyy-MM-dd') >= '"+ startDate +"' and to_char(t.plan0108,'yyyy-MM-dd') <= '" + endDate+"'";
+			String lasttQuery = " select tt.plan00  from (select plan00 from plan01 sp where to_char(sp.plan0108,'yyyy-MM-dd') >= '"+ startDate +"' and to_char(sp.plan0108,'yyyy-MM-dd') <= '" + endDate+"' order by sp.plan0108 desc) tt where rownum =1";
+			String qxidQuery ="" ;
+			if("000000".equals(qx)){
+				qxidQuery = "select t.cid from dm_codetable_data t where t.codetablename = 'DB064' and t.cid <>'110000'";
+			}else{
+				qxidQuery = "'"+qx.replaceAll(",", "','")+"'";
+			}
+			String	querysql ="select  cp.caption as qxmc,qy.*,cyry.cyrys as cyrys,zqys.zs as zqys,zrys.zs as ryzs from dm_codetable_data cp "+
+				  	"  left join ( select t.plan1204,dm.caption, count(*) qys_jcs,   sum(decode(t.plan1221,2,1,0)) as qys_uf,  sum(decode(t.plan1221,1,1,0)) as qys_fd,sum(decode(t.plan1221,4,1,0)) as qys_qt,"+
+				    " sum(decode(t.plan1221,3,1,0)) as qys_ucc, sum(case when t.plan1221 is null then 1 else 0 end) as qys_ucmt,sum(decode(t.plan1224,1,0,1)) as qys_las,  sum(decode(t.plan1226,1,1,0)) as qys_yzx,  sum(decode(t.plan1226,2,1,0)) as qys_drrbf,"+
+				    " sum(decode(t.plan1226,3,1,0)) as qys_bd, sum(decode(t.plan1226,4,1,0)) as qys_infobf,  sum(decode(t.plan1226,5,1,0)) as qys_upro "+
+				    " from plan12 t "+
+				    " left join dm_codetable_data dm on dm.codetablename = 'DB064' and dm.cid = t.plan1204   where t.parentid in ("+faidQuery+")  and t.plan1204 in ("+qxidQuery+") group by t.plan1204,dm.caption) qy on qy.plan1204 = cp.cid"+ 
+				    " left join (select count(distinct p2.plan0201) as cyrys ,p2.plan0205  from plan02 p2  where p2.plan0204 = 2 and p2.parentid in ("+faidQuery+")  and p2.plan0205 in ("+qxidQuery+") group by p2.plan0205) cyry on cyry.plan0205 = qy.plan1204 "+
+				    " left join (select count(*) zs,t.plan0404 from plan04 t where t.parentid = ("+lasttQuery+") group by t.plan0404) zqys on zqys.plan0404 = qy.plan1204 "+
+				    " left join (select count(*) zs,t.plan0205 from plan02 t where t.parentid = ("+lasttQuery+") group by t.plan0205) zrys on zrys.plan0205 = qy.plan1204 "+
+				    " where cp.codetablename = 'DB064' and cp.cid in ("+qxidQuery+") order by cp.cid ";
+		    List<Map<String,Object>> list = this.jdbcTemplate.queryForList(querysql);
+		    
+		    ExtGrid eg= new ExtGrid();
+		    int index=1;
+		    int ryzsAll=0;
+		    int cyrysAll=0;
+		    int zqysAll=0;
+		    int qys_ufAll=0;
+		    int qys_fdAll=0;
+		    int qys_uccAll=0;
+		    int qys_qtAll=0;
+		    int qys_ucmtAll=0;
+		    int qys_jcsAll=0;
+		    int qys_lasAll=0;
+		    int qys_yzxAll=0;
+		    int qys_drrbfAll=0;
+		    int qys_bdAll=0;
+		    int qys_infobfAll=0;
+		    int qys_uproAll=0;
+		    
+		    for(Map<String,Object> map:list){
+				ExtObject eo = new ExtObject();
+				eo.add("xh", index++);
+				
+				eo.add("qx", map.get("qxmc"));
+				if(map.get("ryzs")!=null||"".equals(map.get("ryzs"))){
+					int ryzsNum=Integer.valueOf(map.get("ryzs").toString());
+					ryzsAll+=ryzsNum;
+					eo.add("ryzs", ryzsNum);
+				}else{
+					eo.add("ryzs", "");
+				}
+				if(map.get("cyrys")!=null||"".equals(map.get("cyrys"))){
+					int cyrysNum=Integer.valueOf(map.get("cyrys").toString());
+					cyrysAll+=cyrysNum;
+					eo.add("cyrys", cyrysNum);
+				}else{
+					eo.add("cyrys", "");
+				}
+				if(map.get("zqys")!=null||"".equals(map.get("zqys"))){
+					int zqysNum=Integer.valueOf(map.get("zqys").toString());
+					zqysAll+=zqysNum;
+					eo.add("zqys", zqysNum);
+				}else{
+					eo.add("zqys", "");
+				}
+				if(map.get("qys_uf")!=null||"".equals(map.get("qys_uf"))){
+					int qys_ufNum=Integer.valueOf(map.get("qys_uf").toString());
+					qys_ufAll+=qys_ufNum;
+					eo.add("qys_uf", qys_ufNum);
+				}else{
+					eo.add("qys_uf", "");
+				}
+				if(map.get("qys_fd")!=null||"".equals(map.get("qys_fd"))){
+					int qys_fdNum=Integer.valueOf(map.get("qys_fd").toString());
+					qys_fdAll+=qys_fdNum;
+					eo.add("qys_fd", qys_fdNum);
+				}else{
+					eo.add("qys_fd", "");
+				}
+				if(map.get("qys_ucc")!=null||"".equals(map.get("qys_ucc"))){
+					int qys_uccNum=Integer.valueOf(map.get("qys_ucc").toString());
+					qys_uccAll+=qys_uccNum;
+					eo.add("qys_ucc", qys_uccNum);
+				}else{
+					eo.add("qys_ucc", "");
+				}
+				if(map.get("qys_qt")!=null||"".equals(map.get("qys_qt"))){
+					int qys_qtNum=Integer.valueOf(map.get("qys_qt").toString());
+					qys_qtAll+=qys_qtNum;
+					eo.add("qys_qt", qys_qtNum);
+				}else{
+					eo.add("qys_qt", "");
+				}
+				if(map.get("qys_ucmt")!=null||"".equals(map.get("qys_ucmt"))){
+					int qys_ucmtNum=Integer.valueOf(map.get("qys_ucmt").toString());
+					qys_ucmtAll+=qys_ucmtNum;
+					eo.add("qys_ucmt",qys_ucmtNum);
+				}else{
+					eo.add("qys_ucmt", "");
+				}
+				if(map.get("qys_jcs")!=null||"".equals(map.get("qys_jcs"))){
+					int qys_jcsNum=Integer.valueOf(map.get("qys_jcs").toString());
+					qys_jcsAll+=qys_jcsNum;
+					eo.add("qys_jcs",qys_jcsNum);
+				}else{
+					eo.add("qys_jcs", "");
+				}
+				if(map.get("qys_las")!=null||"".equals(map.get("qys_las"))){
+					int qys_lasNum=Integer.valueOf(map.get("qys_las").toString());
+					qys_lasAll+=qys_lasNum;
+					eo.add("qys_las", qys_lasNum);
+				}else{
+					eo.add("qys_las", "");
+				} 
+				if(map.get("qys_yzx")!=null||"".equals(map.get("qys_yzx"))){
+					int qys_yzxNum=Integer.valueOf(map.get("qys_yzx").toString());
+					qys_yzxAll+=qys_yzxNum;
+					eo.add("qys_yzx", qys_yzxNum);
+				}else{
+					eo.add("qys_yzx", "");
+				} 
+				if(map.get("qys_drrbf")!=null||"".equals(map.get("qys_drrbf"))){
+					int qys_drrbfNum=Integer.valueOf(map.get("qys_drrbf").toString());
+					qys_drrbfAll+=qys_drrbfNum;
+					eo.add("qys_drrbf", qys_drrbfNum);
+				}else{
+					eo.add("qys_drrbf", "");
+				} 
+				
+				if(map.get("qys_bd")!=null||"".equals(map.get("qys_bd"))){
+					int qys_bdNum=Integer.valueOf(map.get("qys_bd").toString());
+					qys_bdAll+=qys_bdNum;
+					eo.add("qys_bd", qys_bdNum);
+				}else{
+					eo.add("qys_bd", "");
+				} 
+				if(map.get("qys_infobf")!=null||"".equals(map.get("qys_infobf"))){
+					int qys_infobfNum=Integer.valueOf(map.get("qys_infobf").toString());
+					qys_infobfAll+=qys_infobfNum;
+					eo.add("qys_infobf", qys_infobfNum);
+				}else{
+					eo.add("qys_infobf", "");
+				}
+				if(map.get("qys_upro")!=null||"".equals(map.get("qys_upro"))){
+					int qys_uproNum=Integer.valueOf(map.get("qys_upro").toString());
+					qys_uproAll+=qys_uproNum;
+					eo.add("qys_upro",qys_uproNum);
+				}else{
+					eo.add("qys_upro", "");
+				} 
+				eg.rows.add(eo);
+			}
+		    ExtObject eo = new ExtObject();
+		    eo.add("qx", "合计");
+		    eo.add("ryzs", ryzsAll);
+			eo.add("cyrys", cyrysAll);
+			eo.add("zqys",zqysAll);
+			eo.add("qys_uf", qys_ufAll);
+			eo.add("qys_fd", qys_fdAll);
+			eo.add("qys_ucc", qys_uccAll);
+			eo.add("qys_qt", qys_qtAll);
+			eo.add("qys_ucmt", qys_ucmtAll);
+			eo.add("qys_jcs", qys_jcsAll);
+			eo.add("qys_las", qys_lasAll);
+			eo.add("qys_yzx", qys_yzxAll);
+			eo.add("qys_drrbf", qys_drrbfAll);
+			eo.add("qys_bd", qys_bdAll);
+			eo.add("qys_infobf", qys_infobfAll);
+			eo.add("qys_upro",qys_uproAll);
+			eg.rows.add(eo);
+			String sub=gridcolmun.substring(1, gridcolmun.length());
+			sub="[{\"header\":\"序号\",\"field\":\"xh\",\"visible\":true},"+sub;
+		    result = this.exportExcel(sub,eg);
+	} catch (Exception e) {
+		e.printStackTrace();
+	}		
+		return result;
+	 
+	}
 	
 	
 	

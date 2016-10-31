@@ -67,7 +67,7 @@ importExc = function(){
 	var json = mini.encode(columns);
 	$.ajax({
 		url:'/ssj/ssjscheme/ExportExcle/SchemeViewExportExcel?zfnd='+faid+'&rwmc='+rwmc+'&theme=none',
-		type:'get',
+		type:'post',
 		data:{gridcolmun:json},
 		success:function(e){
 			var inf = mini.decode(e);

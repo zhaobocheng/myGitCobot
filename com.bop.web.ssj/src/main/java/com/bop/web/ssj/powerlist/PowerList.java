@@ -45,7 +45,7 @@ public class PowerList {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 	/**
-	 * 获取拉列表里面的值(权利分类)
+	 * 获取拉列表里面的值(权力分类)
 	 * @author liupx
 	 * @return
 	 */
@@ -67,28 +67,28 @@ public class PowerList {
 		return eoc.toString();
 	}
 	/**
-	 * 权利清单查询
+	 * 权力清单查询
 	 * @author liupx
 	 * @return
 	 */
 	@Action
 	public String getPowerListData(){
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
-		String qlbm = request.getParameter("qlbm")==null?null:request.getParameter("qlbm").toString();
-		String qlmc = request.getParameter("qlmc")==null?null:request.getParameter("qlmc").toString();
+		String qlbm = request.getParameter("qlbm")==null?null:request.getParameter("qlbm").toString().trim();
+		String qlmc = request.getParameter("qlmc")==null?null:request.getParameter("qlmc").toString().trim();
 		String qlfl = request.getParameter("qlfl")==null?null:request.getParameter("qlfl").toString();
 		
 		int pageIndex =Integer.parseInt(request.getParameter("pageIndex").toString());
 		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
 		String whereString = "1=1";
 		
-		if(qlbm!=null&&!"".equals(qlbm)){//权利清单
+		if(qlbm!=null&&!"".equals(qlbm)){//权力清单
 			whereString +=" and Q0101 like '%"+qlbm+"%'";
 		}
-		if(qlmc!=null&&!"".equals(qlmc)){//权利名称
+		if(qlmc!=null&&!"".equals(qlmc)){//权力名称
 			whereString +=" and Q0103 like '%"+qlmc+"%'";
 		}
-		if(qlfl!=null&&!"".equals(qlfl)&&!"0000".equals(qlfl)){//权利分类
+		if(qlfl!=null&&!"".equals(qlfl)&&!"0000".equals(qlfl)){//权力分类
 			whereString +=" and Q0102 ='"+qlfl+"'";
 		}
 		
@@ -169,24 +169,24 @@ public class PowerList {
 			}
 			//两者都为空
 			if(((qlmc==null||"".equals(qlmc))&&(qlbm==null||"".equals(qlbm)))){
-				 eo.add("qlqdStr", qlqdStr);	//权利清单编码和名称
+				 eo.add("qlqdStr", qlqdStr);	//权力清单编码和名称
 				 eoc.add(eo);
 			//两者都不为空
 			}else if(qlmc!=null&&!"".equals(qlmc)&&qlbm!=null&&!"".equals(qlbm)){
 				if(qlqdStr.contains(qlmc)&&qlqdStr.contains(qlmc)){
-					eo.add("qlqdStr", qlqdStr);	//权利清单编码和名称
+					eo.add("qlqdStr", qlqdStr);	//权力清单编码和名称
 					eoc.add(eo);
 				}
 			// 名称为空 编码不为空 
 			}else if((qlmc==null||"".equals(qlmc)) &&qlbm!=null&&!"".equals(qlbm)){
 				if(qlqdStr.contains(qlbm)){
-					eo.add("qlqdStr", qlqdStr);	//权利清单编码和名称
+					eo.add("qlqdStr", qlqdStr);	//权力清单编码和名称
 					eoc.add(eo);
 				}
 			//名称不为空 编码为空	
 			}else if((qlmc!=null&&!"".equals(qlmc)) &&(qlbm==null||"".equals(qlbm))){
 				if(qlqdStr.contains(qlmc)){
-					eo.add("qlqdStr", qlqdStr);	//权利清单编码和名称
+					eo.add("qlqdStr", qlqdStr);	//权力清单编码和名称
 					eoc.add(eo);
 				}
 			}
@@ -256,7 +256,7 @@ public class PowerList {
 			HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 			String sxmc = request.getParameter("sxmc").toString();
 			String sxfl = request.getParameter("sxfl").toString();
-			String dyqlqd = request.getParameter("dyqlqdid").toString();  //权利清单
+			String dyqlqd = request.getParameter("dyqlqdid").toString();  //权力清单
 			String ccdx = request.getParameter("ccdx").toString();
 			String ccyj = request.getParameter("ccyj").toString(); 
 			String username=userSession.getCurrentUserName();
@@ -275,7 +275,7 @@ public class PowerList {
 				red.put("ITEM0193", username);			//建立人
 				red.put("ITEM0191", new Date());					//创建时间
 				this.recordDao.saveObject(red);
-				for(String powerId:powerIds){			//对应权利清单
+				for(String powerId:powerIds){			//对应权力清单
 					UUID cuid = UUID.randomUUID();
 					IRecord cred =this.recordDao.createNew("ITEM02",cuid,cuid);
 					cred.put("PARENTID", uid);				 
@@ -297,11 +297,11 @@ public class PowerList {
 				this.recordDao.saveObject(rds.get(0));
 				UUID uid=rds.get(0).getObjectId();
 				
-				//先删除原有的关联的对应权利清单记录。
+				//先删除原有的关联的对应权力清单记录。
 				String qlqdSql="delete  item02 t where t.parentid='"+uid+"'";
 				this.jdbcTemplate.execute(qlqdSql);
 				if(powerIds.length>0){
-					for(String powerId:powerIds){				//对应权利清单
+					for(String powerId:powerIds){				//对应权力清单
 						UUID cuid = UUID.randomUUID();
 						IRecord cred =this.recordDao.createNew("ITEM02",cuid,cuid);
 						cred.put("PARENTID", uid);				 
@@ -364,7 +364,20 @@ public class PowerList {
 			form.add("id", ird.get("ITEM00"));
 			form.add("sxmc", ird.get("ITEM0101"));										//事项名称
 			form.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getId());			//事项分类
-			form.add("ccdx", ird.get("ITEM0103",DmCodetables.class).getId());			//抽查对象
+			form.add("ccdx", ird.get("ITEM0103",DmCodetables.class).getId());			//抽查对象Id
+			 
+			List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList("select q.q00,q.q0103　from Q01 q, Item01 I1, Item02 I2 where  I1.Item00=I2.PARENTID and  I2.ITEM0201=q.q00");
+			
+			String qlqdid="";
+			String qlqdName="";
+			for(Map<String, Object> mp:ndlist){
+				 
+				qlqdid+=mp.get("q00")+";";
+				qlqdName+=mp.get("q0103")+";";
+			}
+			form.add("dyqlqdid", qlqdid.substring(0,qlqdid.length()-1));
+			form.add("dyqlqdName", qlqdName.substring(0,qlqdName.length()-1));
+			
 		}
 		return form.toString();
 	}
@@ -429,7 +442,7 @@ public class PowerList {
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String qymc = request.getParameter("qymc")==null?null:request.getParameter("qymc").toString();
 		String jgdm = request.getParameter("jgdm")==null?null:request.getParameter("jgdm").toString();
-		String jgxydm = request.getParameter("jgxydm")==null?null:request.getParameter("jgxydm").toString();
+		String jgxydm = request.getParameter("jgxydm")==null?null:request.getParameter("jgxydm").toString();//机构信用代码未确定
 		String jcsx = request.getParameter("jcsx")==null?null:request.getParameter("jcsx").toString();
 		String qlbm = request.getParameter("qlbm")==null?null:request.getParameter("qlbm").toString();
 		
@@ -469,7 +482,10 @@ public class PowerList {
 				  continue;
 				}
 			} catch (DataAccessException e) {
-				eo.add("sjjcsx", "");
+				if(jcsx==null||"".equals(jcsx)){
+					eo.add("sjjcsx", "");
+				}else
+				   continue;
 			}
 			
 			//涉及的权力清单
@@ -533,7 +549,9 @@ public class PowerList {
 				
 			} catch (DataAccessException e) {
 				eo.add("sjqlqd", "");
-				//eg.rows.add(eo);
+				if(qlbm==null||"".equals(qlbm)){
+					eg.rows.add(eo);
+				} 
 			}
 			
 		}

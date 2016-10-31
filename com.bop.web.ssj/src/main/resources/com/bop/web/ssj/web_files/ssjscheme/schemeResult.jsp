@@ -280,7 +280,7 @@ importExc = function(){
 	
 	$.ajax({
 		url:'/ssj/ssjscheme/ExportExcle/ResultExportExcel?month='+faid+'&rwmc='+rwmc+'&theme=none',
-		type:'get',
+		type:'post',
 		data:{gridcolmun:json},
 		success:function(e){
 			var inf = mini.decode(e);

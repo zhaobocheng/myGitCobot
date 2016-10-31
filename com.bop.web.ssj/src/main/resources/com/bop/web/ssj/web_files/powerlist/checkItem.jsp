@@ -9,13 +9,13 @@
 <div style="padding-top: 10px;padding-bottom: 10px;padding-left:15px">
 	<span>事项名称：</span><input class="mini-textbox"  id="sxmc" name="sxmc" style="width:230px;" onvaluechanged="findItemRow()"/>
 	<span>事项分类：</span><input class="mini-combobox" id="sxflei" name="sxfl" style="width:230px;" onvaluechanged="findItemRow()" textField="text" valueField="id" url="/ssj/powerlist/PowerList/getItemFL?theme=none"/>
-	<span>权力编码：</span><input class="mini-textbox" id="qlbma" name="qlbm" style="width:180px;" onvaluechanged="findItemRow()"/>
-	</br>
-	<span>权力名称：</span><input class="mini-textbox" id="qlmcing" name="qlmc" style="width:230px;" onvaluechanged="findItemRow()"/>
 	<span>是否显示废弃：</span>
 	<label><input style="width:20px;" name="feiqi" type="radio" checked="checked" onclick="findItemRow()" value="1" />是</label> 
 	<label><input style="width:20px;" name="feiqi" type="radio" value="2" onclick="findItemRow()" />否 </label>
-	<span style="padding-left:110px">
+	</br>
+	<span>权力名称：</span><input class="mini-textbox" id="qlmcing" name="qlmc" style="width:230px;" onvaluechanged="findItemRow()"/>
+	<span>权力编码：</span><input class="mini-textbox" id="qlbma" name="qlbm" style="width:230px;" onvaluechanged="findItemRow()"/>
+	<span style="padding-left:50px">
 		<a  class="mini-button" id="find" iconCls = "icon-find"  onclick="findItemRow()">查找</a>
 	</span>
 </div>
@@ -48,7 +48,7 @@
 			<div field="ccdx" 	width="60"  headerAlign="center" align="center">抽查对象</div>
 			<div field="ccyj"	width="100" headerAlign="center"  align="center">抽查依据</div>
 			<div field="sxfl" width="80" headerAlign="center"  align="center">事项分类</div>
-			<div field="qlqdStr"  width="100" headerAlign="center"  align="center">权利清单名称[编码+名称]</div>
+			<div field="qlqdStr"  width="100" headerAlign="center"  align="center">权力清单名称[编码+名称]</div>
 			<div field="status"  width="30" headerAlign="center"  align="center">状态</div>
 		</div>
 	</div>
@@ -68,7 +68,7 @@
 			<tr height="72px"><th width="20%"><label>事项分类<font color="red">*</font>：</label></th>
 				<td><input class="mini-combobox" id="sxfl" name="sxfl" style="width:90%" required="true" textField="text" valueField="id" url="/ssj/powerlist/PowerList/getItemFL?theme=none"/></td>
 			</tr>
-			<tr height="72px"><th width="20%"><label>对应权利清单<font color="red">*</font>：</label></th>
+			<tr height="72px"><th width="20%"><label>对应权力清单<font color="red">*</font>：</label></th>
 					
 					<td  hidden="true"><input id="dyqlqdId"  class="mini-textbox"   name="dyqlqdid"   style="width:75%" /></td>
 					<td>
@@ -103,11 +103,11 @@
 			<tr height="72px"><th width="20%"><label>事项分类<font color="red">*</font>：</label></th>
 				<td><input class="mini-combobox" id="sxfl" name="sxfl" style="width:90%" required="true" textField="text" valueField="id" url="/ssj/powerlist/PowerList/getItemFL?theme=none"/></td>
 			</tr>
-			<tr height="72px"><th width="20%"><label>对应权利清单<font color="red">*</font>：</label></th>
+			<tr height="72px"><th width="20%"><label>对应权力清单<font color="red">*</font>：</label></th>
 					
-					<td  hidden="true"><input id="dyqlqdIdEdit"  class="mini-textbox"   name="dyqlqdid"   style="width:75%" /></td>
+					<td hidden="true"><input id="dyqlqdIdEdit"  class="mini-textbox"   name="dyqlqdid"   style="width:75%" /></td>
 					<td>
-						<input id="dyqlqdEdit"   class="mini-textbox"  style="width:75%"  required="true"/>
+						<input id="dyqlqdEdit"  name="dyqlqdName"  class="mini-textbox"  style="width:75%"    required="true"/>
 						<span> <a class="mini-button" iconCls="icon-search"  style="width:15%" onclick="chooseItem()"  tooltip="">搜索</a></span>
 					</td>
 			</tr>
@@ -138,11 +138,11 @@
 			<tr height="72px"><th width="20%"><label>事项分类<font color="red">*</font>：</label></th>
 				<td><input class="mini-combobox" id="sxfl" name="sxfl" style="width:90%" required="true" textField="text" valueField="id" url="/ssj/powerlist/PowerList/getItemFL?theme=none"/></td>
 			</tr>
-			<tr height="72px"><th width="20%"><label>对应权利清单<font color="red">*</font>：</label></th>
+			<tr height="72px"><th width="20%"><label>对应权力清单<font color="red">*</font>：</label></th>
 					
 					<td  hidden="true"><input id="dyqlqdIdUpdate"  class="mini-textbox"   name="dyqlqdid"   style="width:75%" /></td>
 					<td>
-						<input id="dyqlqdUpdate"   class="mini-textbox"  style="width:75%"  required="true"/>
+						<input id="dyqlqdUpdate"   class="mini-textbox" value=""  style="width:75%"  required="true"/>
 						<span> <a class="mini-button" iconCls="icon-search"  style="width:15%" onclick="chooseItem()"  tooltip="">搜索</a></span>
 					</td>
 			</tr>
@@ -162,8 +162,8 @@
 </div>
 
 
-<!-- 选择权利清单页面 -->
-<div id="chooseItemWin" class="mini-window" title="选择权利清单" style="width:870px;height:580px;" showToolbar="true" showFooter="true" >
+<!-- 选择权力清单页面 -->
+<div id="chooseItemWin" class="mini-window" title="选择权力清单" style="width:870px;height:580px;" showToolbar="true" showFooter="true" >
 	<div style="padding-top: 10px;padding-bottom: 10px;padding-left:15px">
 		<table>
 			<tr>
@@ -190,7 +190,7 @@
 				<div type="indexcolumn" width="20" headerAlign="center">序号</div>
 				<div field="qlqdbm" width="80" headerAlign="center">权力清单编码</div>
 				<div field="qlsxmc" width="120" headerAlign="center">权力清单名称</div>
-				<div field="qlfl" width="80" headerAlign="center">权利分类</div>
+				<div field="qlfl" width="80" headerAlign="center">权力分类</div>
 			</div>
 		</div>
 	</div>
@@ -224,12 +224,12 @@ addItem = function(){
 	$("#temp").val(1);//新增
 	newItemWin.show();
 }
-<!--选择权利页面-->
+<!--选择权力页面-->
 chooseItem=function(){
 	chooseItemWin=mini.get("chooseItemWin");
 	chooseItemWin.show();
 }
-<!--保存勾选的权利清单-->
+<!--保存勾选的权力清单-->
 function savePowerList(){
 	var st = powerDatagrid.getSelecteds();
 	var strId="";
@@ -266,7 +266,7 @@ function savePowerList(){
 }
 
 
-<!--保存新增-->
+<!--保存-->
 function submitAddItem(flag){
 	var formdata
 	if(flag==1){
