@@ -77,7 +77,7 @@ public class CreateScheme {
 	@Action
 	public String commitSchemeDate(String faid){
 		String zone = this.userSession.getCurrentUserZone();
-		
+
 		//String plan12UpSql = "update plan12 set plan1210 = '提交' where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
 		//zxy 修改plan1210 保存为代码 
 		String plan12UpSql = "update plan12 set plan1210 = '2' ,plan1211=sysdate where parentid = '"+faid+"' and plan1204 = '"+zone+"'";
@@ -116,8 +116,6 @@ public class CreateScheme {
 			}
 		}
 	}
-	
-
 
 	//----------------------------------------------------------------------方案生成---------------------------------------------------------
 	
@@ -169,7 +167,11 @@ public class CreateScheme {
 		IRecord rand01 = this.recordDao.queryTopOneRecord("RAND01", "RAND0101 = '"+fzid+"' and RAND0102='"+zone+"'","RAND0101");
 		IRecord plan06ire = this.recordDao.queryTopOneRecord("PLAN06", "parentid='"+fzid+"' and plan0601='"+zone+"'","pindex");
 		int allCqOrg = Integer.parseInt(plan06ire.get("PLAN0602").toString());
-		this.getQxCqOrg(allCqOrg,rand01,orgmap);
+		
+		//20161028加入专项的概念，得到专项的企业由getQxCqOrg统一抽取。
+		List<Map<String,Object>> list = this.jdbcTemplate.queryForList("select sp2.SP0201 from sp02 sp2 where sp2.parentid in (select p1.plan0111 from plan01 p1  where p1.plan00 = '"+fzid+"')");
+
+		this.getQxCqOrg(allCqOrg,rand01,list,orgmap);
 
 		//储存抽取的结果
 		for (Map.Entry<String, ArrayList> entry : orgmap.entrySet()) {
@@ -180,7 +182,6 @@ public class CreateScheme {
 		//更新该区县的方案状态
 		String sql = "update plan03 set plan0302 = 4 where parentid='"+fzid+"' and plan0301 = '"+zone+"'";
 		this.jdbcTemplate.execute(sql);
-		
 		return "seccess";
 	}
 	
@@ -229,7 +230,7 @@ public class CreateScheme {
 	 * @param rand01ID	区县的ID（rand01）
 	 * @param orglist	存放抽取的企业code的容器
 	 */
-	private void getQxCqOrg(int allCqOrg,IRecord rand01,Map<String,ArrayList> orgmap){
+	private void getQxCqOrg(int allCqOrg,IRecord rand01,List<Map<String,Object>> spObjecOrg,Map<String,ArrayList> orgmap){
 		List<String> dqOrglist = new ArrayList<String>();//本次已经抽取过的企业，记录用来判重
 		Random rd = new Random();
 		String faid = rand01.get("rand0101").toString();
@@ -239,9 +240,13 @@ public class CreateScheme {
 		Map<Integer ,ArrayList<String>> zhMap = this.randPerson(faid,zone,allCqOrg);  //存放按企业数随机好人员的map
 		List<IRecord> rand02s = this.recordDao.getByParentId("RAND02", rand01.getRecordId());//得到该区县所有的企业信息
 
-		//抽取特殊企业
 		int zoneqystart=0;
-		zoneqystart = this.getSpecileOrg(zoneqystart,rand01.getRecordId().toString(),orgmap,zhMap);
+		//抽取专项企业
+		if(spObjecOrg.size()>0){
+			zoneqystart = getSpecileObjectOrg(zoneqystart,spObjecOrg,orgmap,zhMap,dqOrglist);
+		}
+		//抽取特殊企业
+		zoneqystart = this.getSpecileOrg(zoneqystart,rand01.getRecordId().toString(),orgmap,zhMap,dqOrglist);
 
 		//抽取特殊企业外的
 		for(int i=zoneqystart;i<allCqOrg;i++){
@@ -250,6 +255,7 @@ public class CreateScheme {
 		
 			IRecord  cqRand02= this.recordDao.queryTopOneRecord("RAND02", "RAND0201 = "+orgindex+"+1 and parentid = '"+rand01.getRecordId()+"'", "RAND0201");
 			UUID orgCode = cqRand02.get("RAND0202",IRecord.class).getRecordId();
+			
 			for(int k=0;k<dqOrglist.size();k++){
 				String dqorg = dqOrglist.get(k);
 				if(orgCode.toString().equals(dqorg) || orgCode.toString() == dqorg){
@@ -257,7 +263,6 @@ public class CreateScheme {
 					break;
 				}
 			}
-
 			if(doubleflag){
 				i--;
 			}else{
@@ -273,24 +278,43 @@ public class CreateScheme {
 	 * @param zoneqystart  记录特殊抽取的企业数
 	 * @param rand01id	 rand01的ID
 	 * @param orgmap	存储抽取内容的容器
+	 * @param dqOrglist 判重容器
 	 */
-	private int getSpecileOrg(int zoneqystart,String rand01id,Map<String,ArrayList> orgmap,Map<Integer ,ArrayList<String>> zhMap){
+	private int getSpecileOrg(int zoneqystart,String rand01id,Map<String,ArrayList> orgmap,Map<Integer ,ArrayList<String>> zhMap, List<String> dqOrglist){
 		Records jlIre = this.recordDao.queryRecord("RAND02", "parentid = '"+rand01id+"' and RAND0204 = 1");
 		Records tsIre = this.recordDao.queryRecord("RAND02", "parentid = '"+rand01id+"' and RAND0203 = 1");
 
 		if(jlIre.size()>0){
 			Random rd = new Random();
-			int jlorgindex = rd.nextInt(jlIre.size());
-			orgmap.put(jlIre.get(jlorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(zoneqystart));
-			zoneqystart++;
+			boolean flog ;
+			do{
+				int jlorgindex = rd.nextInt(jlIre.size());
+				String orgId = jlIre.get(jlorgindex).get("RAND0202",IRecord.class).getRecordId().toString();
+				flog = isRepeat(dqOrglist,orgId);
+				//如果不是重复的就装入，抽查列表中
+				if(!flog){
+					orgmap.put(orgId, zhMap.get(zoneqystart));
+					dqOrglist.add(orgId);
+					zoneqystart++;
+				};
+			}while(flog);
 		}
+
 		if(tsIre.size()>0){
-			Random rd = new Random();
-			int tsorgindex = rd.nextInt(tsIre.size());
-			orgmap.put(tsIre.get(tsorgindex).get("RAND0202",IRecord.class).getRecordId().toString(), zhMap.get(zoneqystart));
-			zoneqystart++;
+			Random rd2 = new Random();
+			boolean flog ;
+			do{
+				int tsorgindex = rd2.nextInt(tsIre.size());
+				String orgId = tsIre.get(tsorgindex).get("RAND0202",IRecord.class).getRecordId().toString();
+				flog = isRepeat(dqOrglist,orgId);
+				//如果不是重复的就装入，抽查列表中
+				if(!flog){
+					orgmap.put(orgId, zhMap.get(zoneqystart));
+					dqOrglist.add(orgId);
+					zoneqystart++;
+				};
+			}while(flog);
 		}
-		
 		return zoneqystart;
 	}
 
@@ -441,7 +465,46 @@ public class CreateScheme {
 		}
 	}
 	
+
+	/**
+	 * 用于抽查专项的企业信息
+	 * @param startcount  抽取的企业数
+	 * @param spObjecOrg  专项企业内容
+	 * @param orgmap	总抽取企业容器
+	 * @param zhMap		人员内容
+	 * @param dqOrglist	判重组
+	 * @return
+	 */
+	private int getSpecileObjectOrg(int startcount,List<Map<String,Object>> spObjecOrg,Map<String,ArrayList> orgmap,Map<Integer ,ArrayList<String>> zhMap,List<String> dqOrglist){
+
+		for(int i=0;i<spObjecOrg.size();i++){
+			Map<String,Object> orgMap = spObjecOrg.get(i);
+			orgmap.put(orgMap.get("sp0201").toString(), zhMap.get(startcount));
+			dqOrglist.add(orgMap.get("sp0201").toString());
+			startcount++;
+		}		
+		return startcount;
+	};
 	
+	
+	
+	/**
+	 * 判断抽取企业有没有重复的
+	 * @param dqOrglist   判重底数
+	 * @param orgCode	判重项
+	 * @return
+	 */
+	private boolean isRepeat(List<String> dqOrglist,String orgCode){
+		boolean doubleflag = false;
+		for(int k=0;k<dqOrglist.size();k++){
+			String dqorg = dqOrglist.get(k);
+			if(orgCode.equals(dqorg) || orgCode == dqorg){
+				doubleflag = true;
+				break;
+			}
+		}
+		return doubleflag;
+	}
 	
 
 }
