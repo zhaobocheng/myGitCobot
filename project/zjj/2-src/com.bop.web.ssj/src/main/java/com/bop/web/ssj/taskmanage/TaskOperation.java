@@ -4,11 +4,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.jdbc.core.JdbcOperations;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
