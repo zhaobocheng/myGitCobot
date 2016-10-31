@@ -113,9 +113,19 @@ function search(){
 
 function OnCellBeginEdit(e) {
      var record = e.record, field = e.field;
+     
+     //企业是否变化 PLAN1225
+     if (field == "PLAN1225" && record.PLAN1225 == "1") {
+    	 record.PLAN1226="88888";
+     }
+     
+     //企业变化情况
      if (field == "PLAN1226" && record.PLAN1225 == "0") {
          e.cancel = true;
      }
+     
+     
+     
       if (field == "PLAN1227" && record.PLAN1226 != "2") {
          e.cancel = true;
      }
@@ -131,6 +141,10 @@ function OnCellBeginEdit(e) {
       if (field == "PLAN1223" && record.PLAN1221 != "1") {
           e.cancel = true;
       }
+      
+      
+      //
+      
  }
 
 function onCellValidation(e) {
