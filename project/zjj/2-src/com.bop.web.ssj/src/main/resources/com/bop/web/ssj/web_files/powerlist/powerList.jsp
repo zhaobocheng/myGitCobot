@@ -21,7 +21,7 @@
 		<div type="indexcolumn" width="20" headerAlign="center">序号</div>
 		<div field="qlqdbm" width="80" headerAlign="center">权力清单编码</div>
 		<div field="qlsxmc" width="120" headerAlign="center">权力清单名称</div>
-		<div field="qlfl" width="80" headerAlign="center">权利分类</div>
+		<div field="qlfl" width="80" headerAlign="center">权力分类</div>
 	</div>
 </div>
 </div>
