@@ -122,13 +122,16 @@ public class TaskOperation {
 		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
 		for(IRecord rd :rds){
 			ExtObject eo = new ExtObject();
-
 			eo.add("id", rd.getObjectId());
-			eo.add("zftime",rd.get("PLAN0101").toString()+"0"+rd.get("PLAN0102").toString());
+			
+			if(rd.get("PLAN0102").toString().length()>1){
+				eo.add("zftime",rd.get("PLAN0101").toString()+rd.get("PLAN0102").toString());
+			}else{
+				eo.add("zftime",rd.get("PLAN0101").toString()+"0"+rd.get("PLAN0102").toString());
+			}
 			eo.add("cjtime",format.format(rd.get("PLAN0103")));
 			eo.add("famc",rd.get("PLAN0107").toString());
 			eo.add("zt", "1".equals(rd.get("PLAN0105").toString())?"已启用":"未启用");
-			
 			eoc.add(eo);
 		}
 		return eoc.toString();
