@@ -136,7 +136,6 @@ public class SchemeInfoShow {
 				eo.add("dqid",  null);
 				String planId=ire.get("PLAN1201",IRecord.class).getObjectId().toString();
 				String ZXJC=this.getZXJC(fzid,planId);
-				
 				eo.add("zxjc",ZXJC);
 				eoc.add(eo);
 			}

@@ -463,7 +463,8 @@ public class ExportExcle {
             titleList.add("联系人");
             titleList.add("电话");
             titleList.add("检查人");
-            titleList.add("涉及事项");
+            titleList.add("对象数据来源");
+            titleList.add("专项名称");
             
             fieldList.add("dq");
             fieldList.add("jgdm");
@@ -473,6 +474,7 @@ public class ExportExcle {
             fieldList.add("phone");
             fieldList.add("jcr");
             fieldList.add("sjly");
+            fieldList.add("zxjc");
 
             String sheetName = "随机方案清单";
             String list = this.getData(faid);
@@ -624,6 +626,7 @@ public class ExportExcle {
 			eRow.add("jcrid", personInf[0]);
 			eRow.add("jcr",  personInf[1]);
 			eRow.add("sjly", this.getJSLY(ire.get("PLAN1202").toString()));
+			eRow.add("zxjc",  this.getZXJC(fzid,ire.get("PLAN1201",IRecord.class).getObjectId().toString()));
             rowlist2.add(eRow);
         }
         rtnExtGrid.rows.addAll(rowlist2);
@@ -632,6 +635,17 @@ public class ExportExcle {
         return rtnlist;
     }
     
+	private String getZXJC(String fzid,String  planId) {
+		List<Map<String,Object>> SPList = this.jdbcTemplate.queryForList("select  vp.SP0101 from v_ssj_sp vp where  vp.PLAN00='"+fzid+"' and vp.sp0201 ='"+planId+"'");
+		String zxjc=null;
+		
+		if(SPList.size()>0){
+			for(Map<String,Object> map:SPList){
+				zxjc=map.get("SP0101").toString();
+			}
+		}
+		return zxjc;
+	}
     
     
     /**
@@ -672,7 +686,11 @@ public class ExportExcle {
 				retStr+=codeMap.get("caption")+"，";
 			}
 		}
-		return retStr.substring(0, retStr.length()-1);
+		if(retStr.length()>0){
+			return retStr.substring(0, retStr.length()-1);
+		}else{
+			return "";
+		}
 	}
 
 	/**

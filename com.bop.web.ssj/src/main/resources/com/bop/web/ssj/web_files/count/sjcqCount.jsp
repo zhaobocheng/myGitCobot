@@ -24,6 +24,7 @@
 				<div field="ryzs" width="50" headerAlign="center" align="center" summaryType="sum">总执法人员</div>
 				<div field="cyrys" width="50" headerAlign="center" align="center" summaryType="sum">参与人员数</div>
 				<div field="zqys" width="60" headerAlign="center" align="center" summaryType="sum">总企业数</div>
+				<div field="qys_jcs" width="40" headerAlign="center" align="center" summaryType="sum">检查任务数</div>
 				<div header="抽查企业数" headerAlign="center">
 	                <div property="columns">
 	                    <div field="qys_uf" width="50" headerAlign="center" summaryType="sum">未发现问题</div>
@@ -33,7 +34,6 @@
 	                     <div field="qys_ucmt"  width="60" headerAlign="center" summaryType="sum">未提交检查结果</div>
 	                </div>
 				</div>
-				<div field="qys_jcs" width="40" headerAlign="center" align="center" summaryType="sum">检查数</div>
 				<div field="qys_las" width="40" headerAlign="center" align="center" summaryType="sum">立案数</div>
 				<div header="企业情况" headerAlign="center">
 	                <div property="columns" headerAlign="center">

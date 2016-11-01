@@ -116,7 +116,12 @@ function OnCellBeginEdit(e) {
      
      //企业是否变化 PLAN1225
      if (field == "PLAN1225" && record.PLAN1225 == "1") {
-    	 record.PLAN1226="88888";
+    	 record.PLAN1226="";
+     }
+     
+     if (field == "PLAN1221" && record.PLAN1221 == "1") {
+    	 record.PLAN1222="";
+    	 record.PLAN1223="";
      }
      
      //企业变化情况

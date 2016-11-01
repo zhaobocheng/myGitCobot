@@ -456,7 +456,7 @@ public class SchemeResult {
 		String year = request.getParameter("year")==null?null:request.getParameter("year").toString();
 
 		String zone = this.userSession.getCurrentUserZone();
-		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210<='3'";
+		String querySql = "select * from plan01,plan12 where plan01.plan00=plan12.parentid and plan1210<='5'";
 
 		if(null!=zone&&!"".equals(zone)){
 			querySql += " and plan1204='"+zone+"'";
@@ -488,6 +488,16 @@ public class SchemeResult {
 				eo.add("PLAN1226",  map.get("PLAN1226"));
 				eo.add("PLAN1227",  map.get("PLAN1227"));
 				eo.add("PLAN1210", map.get("PLAN1210"));
+				
+				 if("3".equals(map.get("PLAN1210").toString())){
+					 eo.add("zf","已保存");
+				 }else if("4".equals(map.get("PLAN1210").toString())){
+					 eo.add("zf","已提交");
+				 }else if("5".equals(map.get("PLAN1210").toString())){
+					 eo.add("zf","已公示");
+				 }else{
+					 eo.add("zf","未保存");
+				 }
 				eoc.add(eo);
 			}
 		}
@@ -506,7 +516,7 @@ public class SchemeResult {
 		
 		for(int i=0;i<oa.size();i++){
 			JSONObject jo = oa.getJSONObject(i);
-			String upsql = "update plan12 t set t.plan1210=3,t.plan1228=sysdate where t.plan1210 = 2 and t.recordid='"+jo.getString("id")+"'";
+			String upsql = "update plan12 t set t.plan1210=4,t.plan1228=sysdate where t.plan1210 = 3 and t.recordid='"+jo.getString("id")+"'";
 			this.jdbcTemplate.execute(upsql);
 		}
 
@@ -551,10 +561,11 @@ public class SchemeResult {
 				ire.put("PLAN1225", jsonObject.get("PLAN1225"));
 				ire.put("PLAN1226", jsonObject.get("PLAN1226"));
 				ire.put("PLAN1227", jsonObject.get("PLAN1227"));
+				ire.put("PLAN1210", 3);
 				//ire.put("PLAN1210", "保存");
 				
 				this.recordDao.saveObject(ire);
-			}	
+			}
 		}	
 		return "success";
 	}
@@ -583,10 +594,11 @@ public class SchemeResult {
 			Records ires  = this.recordDao.queryRecord("PLAN12", whereSql);
 			if (ires.size()>0){
 				if(!"".equals(p1221) && !"".equals(p1224)){
-					if("3".equals(jsonObject.get("PLAN1210"))){
+					if("5".equals(jsonObject.get("PLAN1210"))){
+						
 					}else{
 						IRecord ire =ires.get(0);
-						ire.put("PLAN1210", "2");
+						ire.put("PLAN1210", "4");
 						this.recordDao.saveObject(ire);
 					}
 				}else{
@@ -632,7 +644,7 @@ public class SchemeResult {
 				eor.add("flag", "unconmmit");
 			}else{
 				IRecord plan6 = this.recordDao.queryTopOneRecord("PLAN06", "parentid='"+faid+"' and plan0601='"+zone+"'", "pindex");
-				int p12 = this.jdbcTemplate.queryForInt("select count(*) from plan12 t where t.parentid = '"+faid+"' and t.PLAN1204 = '"+zone+"' and plan1210=3");
+				int p12 = this.jdbcTemplate.queryForInt("select count(*) from plan12 t where t.parentid = '"+faid+"' and t.PLAN1204 = '"+zone+"' and plan1210=5");
 				
 				if(p12==plan6.get("PLAN0602",Integer.class)){
 					eor.add("flag", "false");
