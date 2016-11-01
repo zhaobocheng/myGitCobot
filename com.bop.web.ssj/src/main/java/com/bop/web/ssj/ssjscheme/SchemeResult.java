@@ -117,13 +117,30 @@ public class SchemeResult {
 				eo.add("sjly", this.getJSLY(fzid,zone,ire.get("PLAN1202").toString()));
 				eo.add("ParentDqId", ire.get("PLAN1204"));
 				eo.add("dqid",  null);
-				
+				 
 				eoc.add(eo);
+				String planId=ire.get("PLAN1201").toString();
+				String ZXJC=this.getZXJC(fzid,planId);
+				
+				eo.add("zxjc",ZXJC);
+				 
 			}
 		}
 		return eoc.toString();		
 	}
 	
+	private String getZXJC(String fzid, String planId) {
+		List<Map<String,Object>> SPList = this.jdbcTemplate.queryForList("select  vp.SP0101 from v_ssj_sp vp where  vp.PLAN00='"+fzid+"' and vp.sp0201 ='"+planId+"'");
+		String zxjc=null;
+		
+		if(SPList.size()>0){
+			for(Map<String,Object> map:SPList){
+				zxjc=map.get("SP0101").toString();
+			}
+		}
+		return zxjc;
+	}
+
 	/**
 	 * 获取某次废弃执法方案包含的企业
 	 * @param sccs
@@ -266,8 +283,10 @@ public class SchemeResult {
 				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
 				retStr+=codeMap.get("caption")+"，";
 			}
+			return retStr.substring(0, retStr.length()-1);
+		}else{
+			return "";
 		}
-		return retStr.substring(0, retStr.length()-1);
 	}
 	
 	

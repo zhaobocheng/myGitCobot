@@ -167,7 +167,7 @@ showSchemeView = function(e){
 	    allowResize: true,
 	    title: '方案浏览',
 	    width: 1000,
-	    height: 680,
+	    height: 580,
 	    onload: function(){
 	        var iframe = this.getIFrameEl();
 	    },

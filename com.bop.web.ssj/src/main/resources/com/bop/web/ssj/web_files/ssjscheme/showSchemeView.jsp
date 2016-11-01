@@ -6,7 +6,7 @@
 <title>执法方案</title>
 <%String faid = request.getParameter("faid"); %>
 <%String zone = request.getParameter("zone"); %>
-<%String p3id = request.getParameter("p3id"); %>
+<%String p3id = request.getParameter("p3id"); %> 
 </head>
 <body>
 
@@ -43,7 +43,7 @@
 	         <div field="PLAN1222" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">问题涉及事项
 	            <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY01?theme=none"/>                
 	        </div> 
-	        
+	         <div field="zxjc" width="80" >专项名称</div> 
 	  		<div field="PLAN1223"  width="120" headerAlign="center" allowSort="true">问题描述
 	               <input property="editor" class="mini-textarea" style="width:100%;" minHeight="80"/>
 	        </div>
@@ -58,7 +58,8 @@
 	         </div>       
 			<div field="PLAN1227"  width="120" headerAlign="center" allowSort="true">实际生产地
 	               <input property="editor" class="mini-textarea" style="width:100%;" minHeight="80"/>
-	        </div>  	                        
+	        </div> 
+	        
 	    </div>
 	</div>
 </div>

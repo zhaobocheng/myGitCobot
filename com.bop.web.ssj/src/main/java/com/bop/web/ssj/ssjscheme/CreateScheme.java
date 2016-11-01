@@ -169,7 +169,7 @@ public class CreateScheme {
 		int allCqOrg = Integer.parseInt(plan06ire.get("PLAN0602").toString());
 		
 		//20161028加入专项的概念，得到专项的企业由getQxCqOrg统一抽取。
-		List<Map<String,Object>> list = this.jdbcTemplate.queryForList("select sp2.SP0201 from sp02 sp2 where sp2.parentid in (select p1.plan0111 from plan01 p1  where p1.plan00 = '"+fzid+"')");
+		List<Map<String,Object>> list = this.jdbcTemplate.queryForList("select sp2.SP0201 from sp02 sp2 where sp2.sp0204 = '"+zone+"'  and sp2.parentid in (select p1.plan0111 from plan01 p1  where p1.plan00 = '"+fzid+"')");
 
 		this.getQxCqOrg(allCqOrg,rand01,list,orgmap);
 
