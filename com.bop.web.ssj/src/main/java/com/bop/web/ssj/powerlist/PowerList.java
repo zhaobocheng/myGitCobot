@@ -102,7 +102,6 @@ public class PowerList {
 			eo.add("id", ird.getObjectId());
 			eo.add("qlqdbm", ird.get("Q0101"));
 			eo.add("qlsxmc", ird.get("Q0103"));
-			DmCodetables s=ird.get("Q0102",DmCodetables.class);
 			eo.add("qlfl", ird.get("Q0102",DmCodetables.class).getCaption());
 			eg.rows.add(eo);
 		}
