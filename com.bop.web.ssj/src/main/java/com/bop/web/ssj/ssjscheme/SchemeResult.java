@@ -303,12 +303,13 @@ public class SchemeResult {
 		String rwmc = request.getParameter("rwmc")==null?null:request.getParameter("rwmc").toString();
 
 		String sql = " select  t.plan00,tt.recordid,tt.parentid,to_char(tt.plan0303,'yyyy-MM-dd') as tjsj,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,tt.PLAN0301 as qxid,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then 0  else p6.plan0602  end as ccqys , "+
-					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 <5 then '否' else '是' end as cz,case when tt.plan0302 ='6' then '是' else '否' end as sfgs from plan01 t  "+
+					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 <5 then '否' else '是' end as cz, to_char(ppp.gss) as sfgs from plan01 t  "+
 					 " inner join plan03 tt on tt.parentid = t.plan00 "+
 					" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
 					 " left join (select count(*) qys,org.PLAN0404,org.parentid from plan04 org group by org.parentid,org.PLAN0404 ) counorg on counorg.PLAN0404 = tt.plan0301 and t.plan00 = counorg.parentid "+
 					" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
 					" left join (select count(*) as fqs, pp.fq0105, pp.fq0103  from fq01 pp  group by pp.fq0105, pp.fq0103) countorg on countorg.fq0105=t.plan00 and countorg.fq0103=tt.plan0301 " + 
+					" left join (select sum(decode(p12.plan1210,5,1,0)) as gss,p12.parentid,p12.plan1204 from plan12 p12 group by p12.parentid ,p12.plan1204) ppp on ppp.parentid = t.plan00 and ppp.plan1204 = tt.plan0301"+
 					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
 
 		String sql1="select plan00,plan00 as recordid,null as parentid,null as tjsj,plan0102 as yf,plan0107 as mc,'' as qx,null as qxid,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz,'' as sfgs from plan01 where plan0105 = 1   ";
@@ -516,7 +517,7 @@ public class SchemeResult {
 		
 		for(int i=0;i<oa.size();i++){
 			JSONObject jo = oa.getJSONObject(i);
-			String upsql = "update plan12 t set t.plan1210=4,t.plan1228=sysdate where t.plan1210 = 3 and t.recordid='"+jo.getString("id")+"'";
+			String upsql = "update plan12 t set t.plan1210=5,t.plan1228=sysdate where t.plan1210 = 4 and t.recordid='"+jo.getString("id")+"'";
 			this.jdbcTemplate.execute(upsql);
 		}
 

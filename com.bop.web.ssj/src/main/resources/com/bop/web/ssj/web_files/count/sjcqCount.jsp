@@ -44,6 +44,7 @@
 	                    <div field="qys_upro"  width="60" headerAlign="center" align="center" summaryType="sum">企业停产停业</div>
 	                </div>
 				</div>
+				<div field="qys_gss" width="40" headerAlign="center" align="center" summaryType="sum">已公示数</div>
 			</div>
 		</div>
 	</div>
@@ -126,7 +127,7 @@
 					if(inf.flag){
 						location.href = decodeURI("/ResourceFiles"+inf.path);
 					}else{
-						alert("导出失败咧！");
+						alert("导出失败！");
 					}
 					datagrid.reload();
 				}

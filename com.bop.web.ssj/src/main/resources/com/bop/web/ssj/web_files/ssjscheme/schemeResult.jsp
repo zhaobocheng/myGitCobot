@@ -25,6 +25,7 @@
     <div property="columns">
      <div type="checkcolumn"></div>
         <div type="indexcolumn">序号</div>
+        <div field="zf" headerAlign="center" align="center" >状态</div>
         <div field="PLAN1202" width="80" headerAlign="center">机构代码</div>
         <div field="PLAN1203" width="100" align="right" headerAlign="center">单位名称</div>
         <div field="PLAN1210" visible="false">PLAN1210</div>
