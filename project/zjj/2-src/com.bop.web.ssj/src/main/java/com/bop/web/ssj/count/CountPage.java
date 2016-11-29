@@ -102,7 +102,7 @@ public class CountPage {
 		}
 
 		String	querysql ="select  cp.caption as qxmc,qy.*,cyry.cyrys as cyrys,zqys.zs as zqys,zrys.zs as ryzs from dm_codetable_data cp "+
-	  	"  left join ( select t.plan1204,dm.caption, count(*) qys_jcs,   sum(decode(t.plan1221,2,1,0)) as qys_uf,  sum(decode(t.plan1221,1,1,0)) as qys_fd,sum(decode(t.plan1221,4,1,0)) as qys_qt,"+
+	  	"  left join ( select t.plan1204,dm.caption, count(*) qys_jcs,   sum(decode(t.plan1221,2,1,0)) as qys_uf,  sum(decode(t.plan1210, 5, 1, 0)) as qys_gss, sum(decode(t.plan1221,1,1,0)) as qys_fd,sum(decode(t.plan1221,4,1,0)) as qys_qt,"+
 	    " sum(decode(t.plan1221,3,1,0)) as qys_ucc, sum(case when t.plan1221 is null then 1 else 0 end) as qys_ucmt,sum(case when t.plan1224=2 or t.plan1224 = 3 then 1 else 0 end )  as qys_las,  sum(decode(t.plan1226,1,1,0)) as qys_yzx,  sum(decode(t.plan1226,2,1,0)) as qys_drrbf,"+
 	    " sum(decode(t.plan1226,3,1,0)) as qys_bd, sum(decode(t.plan1226,4,1,0)) as qys_infobf,  sum(decode(t.plan1226,5,1,0)) as qys_upro "+
 	    " from plan12 t "+
@@ -132,6 +132,7 @@ public class CountPage {
 			eo.add("qys_bd", map.get("qys_bd"));
 			eo.add("qys_infobf", map.get("qys_infobf"));
 			eo.add("qys_upro", map.get("qys_upro"));
+			eo.add("qys_gss", map.get("qys_gss"));
 			exc.add(eo);
 		}
 		return exc.toString();
