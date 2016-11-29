@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.jdbc.core.JdbcOperations;
 
 import com.aspose.cells.BorderType;
@@ -152,11 +152,9 @@ public class ExportExcle {
 			querySql += " and a.plan0102='"+month+"'";
 		}
 		
-		
 		try {
 			result = this.exportExcel(gridcolmun, querySql);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 		
@@ -175,16 +173,17 @@ public class ExportExcle {
 		String rwmc = request.getParameter("rwmc")==null?null:request.getParameter("rwmc").toString();
 		String zfnd = request.getParameter("zfnd")==null?null:request.getParameter("zfnd").toString();
 
-		String sql = "select  t.plan00,tt.recordid,tt.parentid,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys , "+
-				 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 ='5' then '是' else '否' end as cz,case when tt.plan0302 ='6' then '是' else '否' end as sfgs from plan01 t  "+
+		String sql = "select  t.plan00,tt.recordid,tt.parentid,tt.PLAN0301 as qxid,to_char(tt.plan0303,'yyyy-MM-dd') as tjsj,t.plan0102 as yf,t.plan0107 as mc,aa.caption as qx,t.plan0101||t.plan0102 as zfyf,counorg.qys as cycczs , case when p6.plan0602 is null then 0 else p6.plan0602  end as ccqys , "+
+				 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs,fqs as fqfas,case when tt.plan0302 ='5' then '是' else '否' end as cz,to_char(ppp.gss) as sfgs from plan01 t  "+
 				 " inner join plan03 tt on tt.parentid = t.plan00 "+				   
 				" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
 				 " left join (select count(*) qys,org.reg_district_dic from org01 org group by org.reg_district_dic) counorg on counorg.reg_district_dic = tt.plan0301"+
 				" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
 				" left join (select count(*) fqs , p4.plan2103,p4.parentid from plan21 p4 group by p4.plan2103 ,p4.parentid) countorg on countorg.parentid=t.plan00 and countorg.plan2103=tt.plan0301 " + 
+				" left join (select sum(decode(p12.plan1210,5,1,0)) as gss,p12.parentid,p12.plan1204 from plan12 p12 group by p12.parentid ,p12.plan1204) ppp on ppp.parentid = t.plan00 and ppp.plan1204 = tt.plan0301"+
 				" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
 	
-	String sql1="select plan00,plan00 as recordid,null as parentid,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz,'' as sfgs from plan01 where plan0105 = 1  ";
+	String sql1="select plan00,plan00 as recordid,null as parentid,null as qxid,'' as tjsj,plan0102 as yf,plan0107 as mc,'' as qx,plan0101||plan0102 as zfyf,null as cycczs , null as ccqys , null as zfryzs,  null as cyzfrs,null as fqfas,'' as cz,'' as sfgs from plan01 where plan0105 = 1  ";
 	
 	String wheresql = " t.plan0105 = 1 ";
 	String zone=this.userSession.getCurrentUserZone();
@@ -200,8 +199,7 @@ public class ExportExcle {
 		sql1+= " and plan0107 like '%"+rwmc+"%'";
 	}	
 	try {
-		result = this.exportExcel(gridcolmun,sql+wheresql+" UNION ALL "+sql1+" order by zfyf,parentid desc");
-
+		result = this.exportExcel(gridcolmun,sql+wheresql+" UNION ALL "+sql1+" order by yf,qxid desc");
 	} catch (Exception e) {
 		e.printStackTrace();
 	}		
@@ -221,9 +219,10 @@ public class ExportExcle {
 			String starttime = request.getParameter("starttime"); 
 			String endtime = request.getParameter("endtime");
 			 
-			String startDate =DateUtil.formatDate(new Date(starttime), "yyyy-MM-dd");
-			String endDate =DateUtil.formatDate(new Date(endtime), "yyyy-MM-dd");
-			
+			SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
+
+			String startDate = sfd.format(new Date(starttime));
+			String endDate  = sfd.format(new Date(endtime));
 			String faidQuery = " select plan00 from plan01 t where to_char(t.plan0108,'yyyy-MM-dd') >= '"+ startDate +"' and to_char(t.plan0108,'yyyy-MM-dd') <= '" + endDate+"'";
 			String lasttQuery = " select tt.plan00  from (select plan00 from plan01 sp where to_char(sp.plan0108,'yyyy-MM-dd') >= '"+ startDate +"' and to_char(sp.plan0108,'yyyy-MM-dd') <= '" + endDate+"' order by sp.plan0108 desc) tt where rownum =1";
 			String qxidQuery ="" ;
@@ -233,7 +232,7 @@ public class ExportExcle {
 				qxidQuery = "'"+qx.replaceAll(",", "','")+"'";
 			}
 			String	querysql ="select  cp.caption as qxmc,qy.*,cyry.cyrys as cyrys,zqys.zs as zqys,zrys.zs as ryzs from dm_codetable_data cp "+
-				  	"  left join ( select t.plan1204,dm.caption, count(*) qys_jcs,   sum(decode(t.plan1221,2,1,0)) as qys_uf,  sum(decode(t.plan1221,1,1,0)) as qys_fd,sum(decode(t.plan1221,4,1,0)) as qys_qt,"+
+				  	"  left join ( select t.plan1204,dm.caption, count(*) qys_jcs, sum(decode(t.plan1210, 5, 1, 0)) as qys_gss,   sum(decode(t.plan1221,2,1,0)) as qys_uf,  sum(decode(t.plan1221,1,1,0)) as qys_fd,sum(decode(t.plan1221,4,1,0)) as qys_qt,"+
 				    " sum(decode(t.plan1221,3,1,0)) as qys_ucc, sum(case when t.plan1221 is null then 1 else 0 end) as qys_ucmt,sum(case when t.plan1224=2 or t.plan1224 = 3 then 1 else 0 end ) as qys_las,  sum(decode(t.plan1226,1,1,0)) as qys_yzx,  sum(decode(t.plan1226,2,1,0)) as qys_drrbf,"+
 				    " sum(decode(t.plan1226,3,1,0)) as qys_bd, sum(decode(t.plan1226,4,1,0)) as qys_infobf,  sum(decode(t.plan1226,5,1,0)) as qys_upro "+
 				    " from plan12 t "+
@@ -261,6 +260,7 @@ public class ExportExcle {
 		    int qys_bdAll=0;
 		    int qys_infobfAll=0;
 		    int qys_uproAll=0;
+		    int qys_gssAll=0;
 		    
 		    for(Map<String,Object> map:list){
 				ExtObject eo = new ExtObject();
@@ -373,6 +373,14 @@ public class ExportExcle {
 				}else{
 					eo.add("qys_upro", "");
 				} 
+				
+				if(map.get("qys_gss")!=null||"".equals(map.get("qys_gss"))){
+					int qys_uproNum=Integer.valueOf(map.get("qys_gss").toString());
+					qys_gssAll+=qys_uproNum;
+					eo.add("qys_gss",qys_uproNum);
+				}else{
+					eo.add("qys_gss", "");
+				} 
 				eg.rows.add(eo);
 			}
 		    ExtObject eo = new ExtObject();
@@ -392,6 +400,7 @@ public class ExportExcle {
 			eo.add("qys_bd", qys_bdAll);
 			eo.add("qys_infobf", qys_infobfAll);
 			eo.add("qys_upro",qys_uproAll);
+			eo.add("qys_gss",qys_gssAll);
 			eg.rows.add(eo);
 			String sub=gridcolmun.substring(1, gridcolmun.length());
 			sub="[{\"header\":\"序号\",\"field\":\"xh\",\"visible\":true},"+sub;
