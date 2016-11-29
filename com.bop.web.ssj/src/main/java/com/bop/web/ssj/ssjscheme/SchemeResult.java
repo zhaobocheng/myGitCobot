@@ -104,7 +104,7 @@ public class SchemeResult {
 				eo.add("PLAN1225",  ire.get("PLAN1225"));
 				eo.add("PLAN1226",  ire.get("PLAN1226"));
 				eo.add("PLAN1227",  ire.get("PLAN1227"));
-				String personInf[] = this.getJCRData(UUID.fromString(ire.get("recordid").toString()));			
+				String personInf[] = this.getJCRData(UUID.fromString(ire.get("recordid").toString()),"yx");			
 				eo.add("dq", ire.get("PLAN1204"));
 				eo.add("jgdm", ire.get("PLAN1202"));
 				eo.add("dwmc", ire.get("PLAN1203"));
@@ -163,7 +163,7 @@ public class SchemeResult {
 		if(ires.size()>0){
 			for(IRecord ire:ires){
 				ExtObject eo = new ExtObject();
-				String personInf[] = this.getJCRData(ire.getRecordId());
+				String personInf[] = this.getJCRData(ire.getRecordId(),"fq");
 
 				eo.add("id", ire.getRecordId());
 				eo.add("dq", ire.get("FQ0204",DmCodetables.class).getCaption());
@@ -189,17 +189,27 @@ public class SchemeResult {
 	 * @param plan12id
 	 * @return
 	 */
-	private String [] getJCRData(UUID plan12id){
+	private String [] getJCRData(UUID plan12id,String flag){
 		String ids = "";
 		String names = "";
 		String inform[] = new String[2];
 		
-		List<IRecord> ires = this.recordDao.getByParentId("FQ03", plan12id);
-		for(IRecord ire:ires){
-			names+= ire.get("FQ0302").toString()+",";
-			ids+=ire.getRecordId().toString()+",";
+		List<IRecord> ires = null;
+		
+		if("fq".equals(flag)){
+			ires = this.recordDao.getByParentId("FQ03", plan12id);
+			for(IRecord ire:ires){
+				names+= ire.get("FQ0302").toString()+",";
+				ids+=ire.getRecordId().toString()+",";
+			}
+		}else{
+			ires = this.recordDao.getByParentId("PLAN1201", plan12id);
+			for(IRecord ire:ires){
+				names+= ire.get("PLAN120102").toString()+",";
+				ids+=ire.getRecordId().toString()+",";
+			}
 		}
-
+		
 		if(ids.length()>0){
 			inform[0] = ids.substring(0, ids.length()-1);
 			inform[1] = names.substring(0, names.length()-1);

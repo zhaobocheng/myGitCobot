@@ -183,6 +183,8 @@
       		  e.cellHtml = e.value;
   		 }else if (e.field == "qys_upro") {//企业停产停业
       		  e.cellHtml = e.value;
+  		 }else if (e.field == "qys_gss") {//企业停产停业
+      		  e.cellHtml = e.value;
   		 }
 		 
 		 var grid = e.sender;

@@ -17,7 +17,7 @@
     url="" showTreeIcon="true" treeColumn="mc" idField="id" parentField="parentid" resultAsTree="false"  
     allowResize="false" expandOnLoad="true" showPager="false" >
 	    <div property="columns">
-	        <div type="indexcolumn" headerAlign="center" >序号</div>
+	       <!--  <div type="indexcolumn" headerAlign="center" >序号</div> -->
 	        <div field="id" visible="false">plan03id</div>
 	        <div field="yf" visible="false">yf</div>
 	        <div name="mc" field="mc" width="100" headerAlign="center" >任务名称</div>
@@ -74,7 +74,7 @@ importExc = function(){
 			if(inf.flag){
 				location.href = decodeURI("/ResourceFiles"+inf.path);
 			}else{
-				alert("导出失败咧！");
+				alert("导出失败！");
 			}
 			grid.reload();
 		}
