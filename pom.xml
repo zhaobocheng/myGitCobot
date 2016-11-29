@@ -9,7 +9,7 @@
 	<groupId>com.bop.bjzjj</groupId>
 	<artifactId>app</artifactId>
 	<packaging>pom</packaging>
-	<version>1.2.7-SNAPSHOT</version>
+	<version>1.2.7</version>
  
 	<properties>
 		<framework.version>4.2.2-20160517</framework.version>
@@ -19,7 +19,6 @@
 		<module>com.bop.bopmain.dao</module>
 		<module>com.bop.web.bopmain</module>
 		<module>com.bop.web.ssj</module>
-		
 	</modules>	
 	<build>
 		<plugins>
