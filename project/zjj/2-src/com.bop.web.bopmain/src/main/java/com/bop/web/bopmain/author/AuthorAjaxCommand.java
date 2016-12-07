@@ -154,7 +154,7 @@ public class AuthorAjaxCommand extends AutoNamedWebCommandImpl {
 		String excludeRols;
 		boolean isExcludeRols = false;
 		try {
-			excludeRols = new String(System.getProperty("bop.safety.excludeRoles").getBytes("ISO-8859-1"),"UTF-8");//配置中被拒绝设置的角色们
+			excludeRols = new String(System.getProperty("bop.safety.excludeRoles", "").getBytes("ISO-8859-1"),"UTF-8");//配置中被拒绝设置的角色们
 			if(StringUtility.isNullOrEmpty(excludeRols)) excludeRols="";
 			isExcludeRols= excludeRols.contains(this.roleService.getRole(rid).getRoleName());//是否为被拒绝操作的角色
 		} catch (UnsupportedEncodingException e) {
@@ -166,7 +166,7 @@ public class AuthorAjaxCommand extends AutoNamedWebCommandImpl {
 		
 		String[] excludeUsersList = excludeUsers.split(",");
 		boolean isExcludeUsers= false;
-		if(excludeUsersList.length>0) {
+		if(excludeUsersList.length>0&&!StringUtility.isNullOrEmpty(excludeUsers)) {
 			for(int i=0;i<excludeUsersList.length;i++) {
 				if(excludeUsersList[1].equals(this.userService.getByLoginName(uid).getLoginName())){//是否为被拒绝操作的用户   ,这样有一个缺陷只能判断配置的第一个用户是否是不可配置的
 					isExcludeUsers=true;
@@ -745,8 +745,9 @@ public class AuthorAjaxCommand extends AutoNamedWebCommandImpl {
 			if(user != null) users.add(user);
 		}
 		
-		int total = this.userService.getUsers().size();
-		
+		//int total = this.userService.getUsers().size();
+		int total = users.size();
+			
 		return this.getUsersGrid(users, total).toString();
 	}
 //	
@@ -771,7 +772,8 @@ public class AuthorAjaxCommand extends AutoNamedWebCommandImpl {
 		List<User01> result = new ArrayList<User01>();
 		
 		for(User01 u : users) {
-			if(!uids.contains(u.getUser00())) {
+			//if(!uids.contains(u.getUser00())) { 
+			if(!uids.contains(u.getLoginName())) {
 				result.add(u);
 			}
 		}
