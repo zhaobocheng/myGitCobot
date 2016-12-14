@@ -631,27 +631,35 @@ public class PowerList {
 				String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString();
 				//组织机构代码
 				String orgCode=cells.get(i,2).getValue()==null?"": cells.get(i,2).getValue().toString();
+				orgCode=orgCode.replace("-", "");
 				//注册区县
 				String city=cells.get(i,6).getValue()==null?"": cells.get(i,6).getValue().toString();
+				
+				//注册地区划代码
+				String orgAddressCode=cells.get(i,5).getValue()==null?"": cells.get(i,5).getValue().toString();
+				orgAddressCode=orgAddressCode.split("\\.")[0];
+				
 				List<Map<String, Object>> orgList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode+"'");
 				if(orgList.size()<0||orgList.isEmpty()){
 					HashMap<String,String> sub=new HashMap<String,String>();
 					sub.put("orgName", orgName);
 					sub.put("code", "<label style=\"color:red\";>"+orgCode+"</label>");
 					sub.put("city", city);
+					sub.put("orgAddressCode", orgAddressCode);
 					sub.put("index", "(C,"+String.valueOf(i+1)+")");
 					sub.put("errorInfo", orgCode+"组织机构代码找不到对应的企业。");
 					JSONObject jsonObject = JSONObject.fromObject(sub)  ;
 					errorLs.add(jsonObject);
 				} 
-				List<Map<String, Object>> cityList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME,ORG_CODE,REG_ADDR　from Org01  where  REG_ADDR='"+city+"'");
+				List<Map<String, Object>> cityList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME,ORG_CODE,reg_district_dic　from Org01 o where  o.reg_district_dic='"+orgAddressCode+"'");
 				if(cityList.size()<0||cityList.isEmpty()){
 					HashMap<String,String> sub=new HashMap<String,String>();
 					sub.put("orgName", orgName);
 					sub.put("city", "<label style=\"color:red\";>"+city+"</label>");
 					sub.put("code", orgCode);
 					sub.put("index", "(G,"+String.valueOf(i+1)+")");
-					sub.put("errorInfo", orgCode+"注册区县找不到对应的企业。");
+					sub.put("orgAddressCode", orgAddressCode);
+					sub.put("errorInfo", orgAddressCode+"注册区县编码与企业注册区县的编码不符。");
 					JSONObject jsonObject = JSONObject.fromObject(sub);
 					errorLs.add(jsonObject);
 				}
