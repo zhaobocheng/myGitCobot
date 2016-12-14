@@ -113,6 +113,15 @@
 			<property name="url" value="/ssj/powerlist/checkItem.jsp" />
 		</bean>
 	</osgi:service>
+	
+	<osgi:service id="MenuItem1204" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="1204" />
+			<property name="name" value="手工导入检查事项" />
+			<property name="description" value="手工导入检查事项" />
+			<property name="url" value="/ssj/powerlist/importOrgByItem.jsp" />
+		</bean>
+	</osgi:service>
 
 	<osgi:service id="MenuItem1301" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
