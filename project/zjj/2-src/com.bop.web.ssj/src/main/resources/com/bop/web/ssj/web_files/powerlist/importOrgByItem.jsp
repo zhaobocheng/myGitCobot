@@ -51,27 +51,25 @@
 			</div>
 		</div>
 </div>
-    
-    <div  id="errorData" class="mini-window" title="错误信息" style="width:980px;height:530px;">
-    	<div style="padding-top: 10px;padding-bottom: 10px;text-align: center">
-			 
-				<a class="mini-button" id="goon"	 onclick="goon()">继续导入</a> &nbsp;&nbsp;
-				<a class="mini-button" id="cancel"  onclick="cancel()">取消导入</a>
-			 
-		</div>		
-    
-	 	 <div class="mini-fit">
-			<div class="mini-datagrid" id="errorGrid"  showPager="false" idField="id">
-				<div property="columns">
-					<div field="code"  headerAlign="center"  align="center">组织机构代码</div>
-					<div field="orgName"    headerAlign="center"  align="center">企业名称</div>
-					<div field="city"   headerAlign="center"  align="center">注册区县</div>
-					<div field="index"    headerAlign="center"  align="center">错误数据坐标</div>
-					<div field="errorInfo"    headerAlign="center"  align="center">错误信息</div>
-				</div>
+   
+<div  id="errorData" class="mini-window" title="错误信息" style="width:980px;height:530px;padding-left:15px">
+	<div>
+		<div style="padding-top: 10px; padding-bottom:15px; text-align: center">
+			<a class="mini-button" id="goon"	 onclick="goon()">继续导入</a> &nbsp;&nbsp;
+			<a class="mini-button" id="cancel"  onclick="cancel()">取消导入</a>
+		</div>
+		<div class="mini-datagrid" id="errorGrid" style="padding-top:15px"  showPager="false" idField="id">
+			<div property="columns">
+				<div field="code"  headerAlign="center"  align="center">组织机构代码</div>
+				<div field="orgName"    headerAlign="center"  align="center">企业名称</div>
+				<div field="orgAddressCode"    headerAlign="center"  align="center">注册区县代码</div>
+				<div field="city"   headerAlign="center"  align="center">注册区县</div>
+				<div field="index"    headerAlign="center"  align="center">错误数据坐标</div>
+				<div field="errorInfo"    headerAlign="center"  align="center">错误信息</div>
 			</div>
-	   	 </div>
-   	 </div>
+		</div>
+	</div>
+ </div>
    	 
    	 
    	 <div   id="handsData" class="mini-window" title="详细信息" style="width:980px;height:530px;"  showToolbar="true" showFooter="true" >
@@ -89,11 +87,6 @@
    	 </div>
 
 <script >
-function loading() {
-    
-}
-
-
 mini.parse();
 var datagrid=mini.get("datagridItem");
 datagrid.load();
@@ -112,8 +105,11 @@ datagrid.on("drawcell", function (e) {
 datagrid.on("drawcell", function (e) {
 	var record = e.record,	column = e.column,	field = e.field,	value = e.value;
     if (column.name == "orgNum") {
-        e.cellStyle = "color:#fceee2;font-weight:bold;";
-        e.cellHtml = '<a href="javascript:hand(\'' + record.sxId + '\')"><button style="color:blue;width:80px">'+value+'</button> </a>&nbsp;';
+        if(value!='0'){
+        	e.cellHtml = '<a href="javascript:hand(\'' + record.sxId + '\')" style="color:blue;width:80px">'+value+'  </a>&nbsp;';
+        }else{
+        	e.cellHtml =0;
+        }
     }
 });
 
@@ -128,7 +124,6 @@ function hand(sxId) {
 	mini.get("handsData").show();
  	var datagrid=mini.get("handsDataGrid");
 	datagrid.load({sxId:sxId});
- 
 }
 
 //格式化错误信息grid 中的时间值
@@ -154,7 +149,6 @@ function goon(){
 	$('#uploadData')[0].disabled=true;
 	var formData = new FormData($( "#uploadData" )[0]);
 	var fileName=document.uploadDataName.Fdata.value;
-	
 	if(flag==1){
 		 mini.confirm("点击\"确定\"按钮，excel中错误的<br/>记录将被忽略不入库！","警告",function(action) {
 			   if (action == "ok") {
@@ -168,6 +162,7 @@ function goon(){
 				         contentType: false,
 				         processData: false,
 				         success: function (returndata) {
+				        	 $("#temp").val(0);
 				        	 var e=new Date();
 				        	 alert("导入完成。 用时： "+(e-s)/1000+"秒");
 				       		 
@@ -189,7 +184,6 @@ function goon(){
 	         processData: false,
 	         success: function (returndata) {
 	        	 var e=new Date();
-	        	 mini.confirm(" ");  
 	        	 alert("导入完成。 用时： "+(e-s)/1000+"秒");
 	        	 
 	       		// mini.get("errorData").hide();
@@ -200,10 +194,12 @@ function goon(){
 //中止
 function cancel(){
 	mini.get("errorData").hide();
+	 $("#temp").val(0);
 }
  
 //上传文件
 function uploadSave(){
+	  $("#temp").val(0);   
 	 var s=document.uploadDataName.Fdata.value;
      if(s==""){
          alert("请选择文件!");
