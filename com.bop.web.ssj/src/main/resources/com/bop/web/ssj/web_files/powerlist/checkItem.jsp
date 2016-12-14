@@ -44,10 +44,10 @@
 		<div property="columns">
 			<div type="checkcolumn"></div>
 			<div type="indexcolumn" width="20" headerAlign="center">序号</div>
+			<div field="sxfl" width="80" headerAlign="center"  align="center">事项分类</div>
 			<div field="jcsxmc" width="60" headerAlign="center" align="center">检查事项名称</div>
 			<div field="ccdx" 	width="60"  headerAlign="center" align="center">抽查对象</div>
 			<div field="ccyj"	width="100" headerAlign="center"  align="center">抽查依据</div>
-			<div field="sxfl" width="80" headerAlign="center"  align="center">事项分类</div>
 			<div field="qlqdStr"  width="100" headerAlign="center"  align="center">权力清单名称[编码+名称]</div>
 			<div field="status"  width="30" headerAlign="center"  align="center">状态</div>
 		</div>
@@ -77,10 +77,10 @@
 					</td>
 			</tr>
 			<tr height="72px"><th width="20%"><label>抽查对象<font color="red">*</font>：</label></th>
-					<td><input id="ccdx" name="ccdx" class="mini-combobox" height="100px"  style="width:90%"  required="true" textField="text" valueField="id" url="/ssj/powerlist/PowerList/getItemCCDX?theme=none"/></td>
+					<td><input id="ccdx" name="ccdx" class="mini-combobox" height="100px"  style="width:90%"  textField="text" valueField="id" url="/ssj/powerlist/PowerList/getItemCCDX?theme=none"/></td>
 			</tr>
 			<tr height="72px"><th width="20%"><label>抽查依据<font color="red">*</font>：</label></th>
-					<td><input id="ccyj" name="ccyj" class="mini-combobox" height="100px" style="width:90%"  required="true" textField="text" valueField="id"  multiSelect="true" url="/ssj/powerlist/PowerList/getItemCCYJ?theme=none"/></td>
+					<td><input id="ccyj" name="ccyj" class="mini-combobox" height="100px" style="width:90%"   textField="text" valueField="id"  multiSelect="true" url="/ssj/powerlist/PowerList/getItemCCYJ?theme=none"/></td>
 			</tr>
 		</table>
     </div>
@@ -221,6 +221,7 @@ function findItemRow(){
 <!--新增-->
 newItemWin=mini.get("newItemWin");
 addItem = function(){
+	new mini.Form("#addForm").clear();
 	$("#temp").val(1);//新增
 	newItemWin.show();
 }

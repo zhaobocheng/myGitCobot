@@ -1,15 +1,25 @@
 package com.bop.web.ssj.powerlist;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 
+import com.aspose.cells.Cells;
+import com.aspose.cells.Workbook;
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
 import com.bop.domain.dao.DmCodetables;
@@ -23,6 +33,9 @@ import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
 import com.bop.web.rest.Controller;
+import com.bop.web.rest.MultipartHttpServletRequest;
+
+import net.sf.json.JSONObject;
 
 @Controller
 public class PowerList {
@@ -192,6 +205,40 @@ public class PowerList {
 		}
 		return eoc.toString();
 	}
+	@Action
+	public String checkData(){
+		HttpServletRequest request =ActionContext.getActionContext().getHttpServletRequest();
+		ExtGrid eg = new ExtGrid();
+		int pageIndex =Integer.parseInt(request.getParameter("pageIndex").toString());
+		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
+		String whereString = "1=1";
+		int total= this.jdbcTemplate.queryForInt("select count(*) from Item01 where "+whereString);
+		eg.setTotal(total);
+		Records rds = this.recordDao.queryRecord("ITEM01", whereString,"item0102",pageIndex*pageSize,pageSize);
+		
+		for(IRecord ird :rds){
+			ExtObject eo = new ExtObject(); 
+			eo.add("id", ird.getObjectId());
+			eo.add("jcsxmc", ird.get("ITEM0101"));//检查事项名称
+			String sxId=ird.get("ITEM00").toString();
+			//获取有效企业数
+			String sql="select  o1.org_name  orgName,i1.item0101 itemName,o4.org0403 insertTime    from  org04 o4 ,org01 o1,item01 i1 where  o4.org0401='"+sxId+"'  and o1.org00 =o4.parentid and i1.item00=o4.org0401 and i1.item0190='1' and o1.org0199='0'";
+			List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList(sql);
+			eo.add("sxId", ird.get("ITEM00"));
+			eo.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getCaption());//事项分类
+			eo.add("ccdx", ird.get("ITEM0103",DmCodetables.class).getCaption());//抽查对象
+			eo.add("cjfs", ird.get("ITEM0190").toString().equals("0")?"自动":"手动");
+			eo.add("orgNum", String.valueOf(ndlist.size()));
+			eg.rows.add(eo);
+		}
+		return eg.toString();
+	}
+	
+	
+	
+	
+	
+	
 	/**
 	 * 获取下拉列表里面的值(事项分类)
 	 * @author liupx
@@ -216,7 +263,7 @@ public class PowerList {
 	 */
 	@Action
 	public String getItemCCDX(){
-		List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList("select distinct t.cid,t.caption  from dm_codetable_data t where t.codetablename='ZDY04'");
+		List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList("select distinct t.cid,t.caption  from dm_codetable_data t where t.codetablename='ZDY04' ORDER BY  PINDEX ASC ");
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		for(Map<String,Object> ire:ndlist){
 			ExtObject eo = new ExtObject();
@@ -268,7 +315,7 @@ public class PowerList {
 				UUID uid = UUID.randomUUID();
 				IRecord red =this.recordDao.createNew("ITEM01",uid, uid);
 				red.put("ITEM0101", sxmc);				//事项名称
-				red.put("ITEM0102", sxfl);				//事项分类		
+				red.put("ITEM0102", sxfl);				//事项分类	
 				red.put("ITEM0103", ccdx);				//抽查对象
 				red.put("ITEM0199", "0");				//状态
 				red.put("ITEM0193", username);			//建立人
@@ -282,11 +329,14 @@ public class PowerList {
 					this.recordDao.saveObject(cred);
 				}
 				for(String ccyjId:ccyjIds){					//抽查依据
-					UUID cuid = UUID.randomUUID();
-					IRecord cred =this.recordDao.createNew("ITEM03",cuid,cuid);
-					cred.put("PARENTID", uid);				 
-					cred.put("ITEM0301", ccyjId);				 
-					this.recordDao.saveObject(cred);
+					if(StringUtils.isNotEmpty(ccyjId)){
+						UUID cuid = UUID.randomUUID();
+						IRecord cred =this.recordDao.createNew("ITEM03",cuid,cuid);
+						cred.put("PARENTID", uid);				 
+						cred.put("ITEM0301", ccyjId);				 
+						this.recordDao.saveObject(cred);
+					}
+					
 				}
 				eor.add("inf", "true");
 			}else{//编辑的保存
@@ -441,7 +491,7 @@ public class PowerList {
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String qymc = request.getParameter("qymc")==null?null:request.getParameter("qymc").toString();
 		String jgdm = request.getParameter("jgdm")==null?null:request.getParameter("jgdm").toString();
-		String jgxydm = request.getParameter("jgxydm")==null?null:request.getParameter("jgxydm").toString();//机构信用代码未确定
+		//String jgxydm = request.getParameter("jgxydm")==null?null:request.getParameter("jgxydm").toString();//机构信用代码未确定
 		String jcsx = request.getParameter("jcsx")==null?null:request.getParameter("jcsx").toString();
 		String qlbm = request.getParameter("qlbm")==null?null:request.getParameter("qlbm").toString();
 		
@@ -555,5 +605,186 @@ public class PowerList {
 			
 		}
 		return eg.toString();
+	}
+	@Action
+	public String identifyInfo(){
+		ArrayList<JSONObject> errorLs =new ArrayList<JSONObject>();
+		//ArrayList<JSONObject> correctLs =new ArrayList<JSONObject>();
+		MultipartHttpServletRequest request = (MultipartHttpServletRequest)ActionContext.getActionContext().getHttpServletRequest();
+		String[] arr = request.getFileFields();
+		String title = arr[0];                        //上传附件input的name
+		try {
+			FileInputStream fs = (FileInputStream) request.getFileInputStream(title);
+			Workbook designer = new Workbook(fs);
+			Cells cells = designer.getWorksheets().get(0).getCells();
+			int rows=cells.getMaxDataRow()+1;	
+			//int num=0;
+			for(int i=1;i<rows;i++){
+				String itemName=cells.get(i,0).getValue()==null?"": cells.get(i,0).getValue().toString();
+				List<Map<String, Object>> Itemlist= this.jdbcTemplate.queryForList("select Item00　from Item01  where Item0101='"+itemName+"'");
+				if(Itemlist.size()<0||Itemlist.isEmpty()){
+					return "error";
+				}
+				//所属业务部门
+				//String deptName=cells.get(i,1).getValue()==null?"": cells.get(i,1).getValue().toString();
+				//企业名称
+				String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString();
+				//组织机构代码
+				String orgCode=cells.get(i,2).getValue()==null?"": cells.get(i,2).getValue().toString();
+				//注册区县
+				String city=cells.get(i,6).getValue()==null?"": cells.get(i,6).getValue().toString();
+				List<Map<String, Object>> orgList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode+"'");
+				if(orgList.size()<0||orgList.isEmpty()){
+					HashMap<String,String> sub=new HashMap<String,String>();
+					sub.put("orgName", orgName);
+					sub.put("code", "<label style=\"color:red\";>"+orgCode+"</label>");
+					sub.put("city", city);
+					sub.put("index", "(C,"+String.valueOf(i+1)+")");
+					sub.put("errorInfo", orgCode+"组织机构代码找不到对应的企业。");
+					JSONObject jsonObject = JSONObject.fromObject(sub)  ;
+					errorLs.add(jsonObject);
+				} 
+				List<Map<String, Object>> cityList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME,ORG_CODE,REG_ADDR　from Org01  where  REG_ADDR='"+city+"'");
+				if(cityList.size()<0||cityList.isEmpty()){
+					HashMap<String,String> sub=new HashMap<String,String>();
+					sub.put("orgName", orgName);
+					sub.put("city", "<label style=\"color:red\";>"+city+"</label>");
+					sub.put("code", orgCode);
+					sub.put("index", "(G,"+String.valueOf(i+1)+")");
+					sub.put("errorInfo", orgCode+"注册区县找不到对应的企业。");
+					JSONObject jsonObject = JSONObject.fromObject(sub);
+					errorLs.add(jsonObject);
+				}
+			}
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		HashMap mp=new HashMap();
+		mp.put("content",errorLs.toString());
+		JSONObject jsonObject = JSONObject.fromObject(mp);
+		return jsonObject.toString();
+	}
+	 
+	@Action
+	public String impOrgInfo(String fileName){
+		try {
+			fileName = URLDecoder.decode(fileName,"utf-8");
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		} 
+		ArrayList<HashMap<String,String>> ls =new ArrayList<HashMap<String,String>>();
+		try {
+			MultipartHttpServletRequest request = (MultipartHttpServletRequest)ActionContext.getActionContext().getHttpServletRequest();
+			String[] arr = request.getFileFields();
+			String title = arr[0];                        //上传附件input的name
+			FileInputStream fs = (FileInputStream) request.getFileInputStream(title);
+			Workbook designer = new Workbook(fs);
+			Cells cells = designer.getWorksheets().get(0).getCells();
+			int rows=cells.getMaxDataRow()+1;	
+			for(int i=1;i<rows;i++){
+				String itemName=cells.get(i,0).getValue()==null?"": cells.get(i,0).getValue().toString();
+				List<Map<String, Object>> Itemlist= this.jdbcTemplate.queryForList("select Item00　from Item01  where Item0101='"+itemName+"'");
+				if(Itemlist.size()<0||Itemlist.isEmpty()){
+					return "导入失败！导入文件中的检查事项存在问题";
+				}
+	   			//所属业务部门
+				String deptName=cells.get(i,1).getValue()==null?"": cells.get(i,1).getValue().toString();
+				//企业名称
+				String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString();
+	   			//组织机构代码
+				String orgCode=cells.get(i,2).getValue()==null?"": cells.get(i,2).getValue().toString();
+				List<Map<String, Object>> orgList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode+"'");
+	   			if(orgList.size()<0||orgList.isEmpty()){
+	   				continue;
+	   			}
+	   			//注册地址
+				String orgAddress=cells.get(i,4).getValue()==null?"": cells.get(i,4).getValue().toString();
+	   			//注册地区划代码
+				String orgAddressCode=cells.get(i,5).getValue()==null?"": cells.get(i,5).getValue().toString();
+				//注册区县
+				String city=cells.get(i,6).getValue()==null?"": cells.get(i,6).getValue().toString();
+				
+	   			//生产地址
+				String yieldlyAddress=cells.get(i,7).getValue()==null?"": cells.get(i,7).getValue().toString();
+	   			//生产地区划代码
+				String yieldlyCode=cells.get(i,8).getValue()==null?"": cells.get(i,8).getValue().toString();
+	   			//联系人
+				String linkman=cells.get(i,9).getValue()==null?"": cells.get(i,9).getValue().toString();
+	   			//联系电话
+				String telPhone=cells.get(i,10).getValue()==null?"": cells.get(i,10).getValue().toString();
+	   			//信用等级
+				String creditLevel=cells.get(i,11).getValue()==null?"": cells.get(i,11).getValue().toString();
+	   			//风险等级
+				String riskLevel=cells.get(i,12).getValue()==null?"": cells.get(i,12).getValue().toString();
+	   			//子码
+				String subCode=cells.get(i,13).getValue()==null?"": cells.get(i,13).getValue().toString();
+	   			 
+				if(orgList.size()<0||orgList.isEmpty()){
+	   				 continue;
+	   			}
+				List<Map<String, Object>> cityList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME,ORG_CODE,REG_ADDR　from Org01  where  REG_ADDR='"+city+"'");
+				if(cityList.size()<0||cityList.isEmpty()){
+					continue;
+				}
+   				String orgId=orgList.get(0).get("ORG00").toString();
+   				if(Itemlist.size()>0&&!Itemlist.isEmpty()){
+	   				String ItemId=(String) Itemlist.get(0).get("Item00");
+	   				String sql="select ORG00 from org04  where PARENTID='"+orgId+"' and ORG0401='"+ItemId+"'";
+					List<Map<String, Object>> list= this.jdbcTemplate.queryForList(sql);
+					if("高".equals(riskLevel)){
+						riskLevel="1";
+					}else if("中".equals(riskLevel)){
+						riskLevel="2";
+					}else if("低".equals(riskLevel)){
+						riskLevel="3";
+					}
+					UUID cuid = UUID.randomUUID();
+					IRecord cred =this.recordDao.createNew("ORG04",cuid,cuid);
+					cred.put("PARENTID", orgId);
+					cred.put("ORG0401", ItemId);
+					cred.put("ORG0402", riskLevel);  //风险等级
+					cred.put("ORG0403",new Date());
+					if(list.isEmpty()){
+						this.recordDao.saveObject(cred);
+					}
+	   			}
+   			}
+			UUID cuid = UUID.randomUUID();
+			IRecord log =this.recordDao.createNew("LOG01",cuid,cuid);
+			log.put("LOG0101", fileName);	//表格名称
+			log.put("LOG0102", this.userSession.getCurrentUserName());
+			log.put("LOG0103", this.userSession.getCurrentUserId());
+			log.put("LOG0104", new Date());
+			this.recordDao.saveObject(log);
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		return ls.toString();
+	}
+	
+	@Action
+	public String getHandOrg(){
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String sxId = request.getParameter("sxId")==null?null:request.getParameter("sxId").toString();//事项id
+		int pageIndex =Integer.parseInt(request.getParameter("pageIndex").toString());
+		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
+		String sql="select  o1.org_name  orgName,i1.item0101 itemName,o4.org0403 insertTime    from  org04 o4 ,org01 o1,item01 i1 where  o4.org0401='"+sxId+"'  and o1.org00 =o4.parentid and i1.item00=o4.org0401 and i1.item0190='1' and ROWNUM between "+pageIndex+" and "+pageIndex+pageSize;
+		List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList(sql);
+		ExtObjectCollection eoc = new ExtObjectCollection();
+		for(Map<String,Object> ire:ndlist){
+			ExtObject eo = new ExtObject();
+			eo.add("orgName", ire.get("ORGNAME"));
+			eo.add("itemName", ire.get("ITEMNAME"));
+			eo.add("insertTime", ire.get("insertTime").toString());
+			eoc.add(eo);
+		}
+		return eoc.toString();
 	}
 }
