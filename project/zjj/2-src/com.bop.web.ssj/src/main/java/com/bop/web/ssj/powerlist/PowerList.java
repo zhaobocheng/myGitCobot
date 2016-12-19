@@ -46,13 +46,9 @@ public class PowerList {
 		this.recordDao = recordDao;
 	}
 
-
-
 	public void setUserSession(UserSession userSession) {
 		this.userSession = userSession;
 	}
-
-
 
 	public void setJdbcTemplate(JdbcOperations jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -104,7 +100,7 @@ public class PowerList {
 		if(qlfl!=null&&!"".equals(qlfl)&&!"0000".equals(qlfl)){//权力分类
 			whereString +=" and Q0102 ='"+qlfl+"'";
 		}
-		
+
 		ExtGrid eg = new ExtGrid();
 		Records rds = this.recordDao.queryRecord("Q01", whereString,"Q0102",pageIndex*pageSize,pageSize);
 		int total= this.jdbcTemplate.queryForInt("select count(*) from Q01 where "+whereString);
@@ -173,7 +169,6 @@ public class PowerList {
 				str+=ire.get("LR0101")+"</br>" ;
 			}
 			eo.add("ccyj", str);	//抽查依据
-			
 			List<Map<String, Object>> powerList= this.jdbcTemplate.queryForList("select distinct  q.q0101,q.q0103  from  Item02 t,Q01 q   where t.item0201=q.q00  and  t.parentid='"+ird.getObjectId()+"'");
 			String qlqdStr="";
 			for(Map<String,Object> ire:powerList){
@@ -226,18 +221,13 @@ public class PowerList {
 			List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList(sql);
 			eo.add("sxId", ird.get("ITEM00"));
 			eo.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getCaption());//事项分类
-			eo.add("ccdx", ird.get("ITEM0103",DmCodetables.class).getCaption());//抽查对象
+			eo.add("ccdx", ird.get("ITEM0103")==null?"":ird.get("ITEM0103",DmCodetables.class).getCaption());//抽查对象
 			eo.add("cjfs", ird.get("ITEM0190").toString().equals("0")?"自动":"手动");
 			eo.add("orgNum", String.valueOf(ndlist.size()));
 			eg.rows.add(eo);
 		}
 		return eg.toString();
 	}
-	
-	
-	
-	
-	
 	
 	/**
 	 * 获取下拉列表里面的值(事项分类)

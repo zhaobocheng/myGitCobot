@@ -69,7 +69,6 @@
 				<td><input class="mini-combobox" id="sxfl" name="sxfl" style="width:90%" required="true" textField="text" valueField="id" url="/ssj/powerlist/PowerList/getItemFL?theme=none"/></td>
 			</tr>
 			<tr height="72px"><th width="20%"><label>对应权力清单<font color="red">*</font>：</label></th>
-					
 					<td  hidden="true"><input id="dyqlqdId"  class="mini-textbox"   name="dyqlqdid"   style="width:75%" /></td>
 					<td>
 						<input id="dyqlqd"   onclick="chooseItem()"  class="mini-textbox"  style="width:75%"  required="true"/>
@@ -263,7 +262,6 @@ function savePowerList(){
 		sdName.setValue(strName);
 	}
 	chooseItemWin.hide();
-	
 }
 
 

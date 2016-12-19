@@ -8,10 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.jdbc.core.JdbcOperations;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
+import com.bop.domain.dao.DmCodetables;
 import com.bop.domain.dao.IRecord;
+import com.bop.json.ExtGrid;
 import com.bop.json.ExtObject;
 import com.bop.json.ExtObjectCollection;
 import com.bop.json.ExtResultObject;
@@ -20,7 +21,6 @@ import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
 
 public class TaskOperation {
-
 	private JdbcOperations jdbcTemplate;
 	private IRecordDao recordDao;
 	private UserSession userSession;
@@ -48,10 +48,12 @@ public class TaskOperation {
 	@Action
 	public String addScheme(String json){
 		ExtResultObject eor = new ExtResultObject();
-		HttpServletRequest repquest = ActionContext.getActionContext().getHttpServletRequest();
-		String addMonthcom = repquest.getParameter("addMonthcom").toString();
-		String addYearcom = repquest.getParameter("addYearcom").toString();
-		String faname = repquest.getParameter("faname").toString();
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String addMonthcom = request.getParameter("addMonthcom").toString();
+		String addYearcom = request.getParameter("addYearcom").toString();
+		String faname = request.getParameter("faname").toString();
+		String itemsId = request.getParameter("itemsId");
+		
 		String sql = "PLAN0102= "+addMonthcom+" and PLAN0101 = "+addYearcom;
 		Records rds = this.recordDao.queryRecord("PLAN01", sql);
 
@@ -78,12 +80,36 @@ public class TaskOperation {
 		try {
 			date = sd.parse(str);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		red.put("PLAN0108", date);
+		//red.put("PLAN0112", itemsId);
 		this.recordDao.saveObject(red);
+		
+		//保存抽查任务关联的检查事项
+		String [] strArray = itemsId.split(";");
+		if(strArray.length>0){
+			for(String item:strArray){
+				UUID plan11Uid = UUID.randomUUID();
+				IRecord p11Ire =this.recordDao.createNew("PLAN11",plan11Uid, uid);
+				p11Ire.put("PLAN1101", item);
+				this.recordDao.saveObject(p11Ire);
+			}
+		}
 
+		//保存风险系数
+		String gjfx = request.getParameter("gjfx").toString();
+		String djfx = request.getParameter("djfx").toString();
+		String zjfx = request.getParameter("zjfx");
+
+		String gjsql = "update fx01 set fx0102 = '"+gjfx+"' where fx0101 = '高'";
+		String djsql = "update fx01 set fx0102 = '"+djfx+"' where fx0101 = '低'";
+		String zjsql = "update fx01 set fx0102 = '"+zjfx+"' where fx0101 = '中'";
+		
+		this.jdbcTemplate.execute(gjsql);
+		this.jdbcTemplate.execute(djsql);
+		this.jdbcTemplate.execute(zjsql);
+		
 		eor.add("inf", "true");
 		return eor.toString();
 	}
@@ -116,8 +142,11 @@ public class TaskOperation {
 	@Action
 	public String getGridData(){
 		//查询数据库
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String year = request.getParameter("year");
+
 		ExtObjectCollection eoc = new ExtObjectCollection();
-		Records rds = this.recordDao.queryRecord("PLAN01","1=1","plan0102");
+		Records rds = this.recordDao.queryRecord("PLAN01","PLAN0101 = "+year,"plan0102");
 
 		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
 		for(IRecord rd :rds){
@@ -139,6 +168,7 @@ public class TaskOperation {
 
 	/**
 	 * 启用方案
+	 * @author bdsoft lh
 	 * @return
 	 */
 	@Action
@@ -153,6 +183,12 @@ public class TaskOperation {
 			ird.put("PLAN0105", 1);
 			this.recordDao.saveObject(ird);
 			//方案启动生成一条记录状态的记录，复制人员信息到plan02,复制企业信息到plan04后两步用触发器实现
+			//v3版本需要复制items01的信息到plan0401中去,这个在触发其中不能同步的做
+			String insertSql = "insert into plan0401 select get_uuid,get_uuid,t.recordid,1,t4.org0401,t4.org0402,i.item0101,dm.caption"+
+					" from plan04 t left join org04 t4 on t4.parentid = t.plan0401 left join item01 i on i.item00=t4.org0401  left join dm_codetable_data dm on dm.codetablename = 'ZDY02' and dm.cid = i.item0102"+
+					" where t.parentid = '"+faid+"'";
+			
+			this.jdbcTemplate.execute(insertSql);
 			this.insertPlan3(faid);
 		}
 		return "success";
@@ -186,6 +222,64 @@ public class TaskOperation {
 			}
 		}
 	}
+	
+	@Action
+	public String getitemsData(){
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String qlmc = request.getParameter("itemmc")==null?null:request.getParameter("itemmc").toString().trim();
+		String qldx = request.getParameter("itemdx")==null?null:request.getParameter("itemdx").toString().trim();
+		String qlfl = request.getParameter("itemfl")==null?null:request.getParameter("itemfl").toString();
+		
+		int pageIndex =Integer.parseInt(request.getParameter("pageIndex").toString());
+		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
+		String whereString = "1=1";
+		
+		if(qlmc!=null&&!"".equals(qlmc)){
+			whereString +=" and ITEM0101 like '%"+qlmc+"%'";
+		}
+		if(qldx!=null&&!"".equals(qldx)){
+			whereString +=" and ITEM0103 = '"+qldx+"'";
+		}
+		if(qlfl!=null&&!"".equals(qlfl)&&!"0000".equals(qlfl)){
+			whereString +=" and ITEM0102 ='"+qlfl+"'";
+		}
 
+		ExtGrid eg = new ExtGrid();
+		Records rds = this.recordDao.queryRecord("ITEM01", whereString,"ITEM0102",pageIndex*pageSize,pageSize);
+		int total= this.jdbcTemplate.queryForInt("select count(*) from ITEM01 where "+whereString);
+		eg.setTotal(total);
+		
+		for(IRecord ird :rds){
+			ExtObject eo = new ExtObject();
+			eo.add("id", ird.getObjectId());
+			eo.add("itemmc", ird.get("ITEM0101"));
+			eo.add("itemdx", ird.get("ITEM0103",DmCodetables.class).getCaption());
+			eo.add("itemfl", ird.get("ITEM0102",DmCodetables.class).getCaption());
+			eg.rows.add(eo);
+		}
+		return eg.toString();
+	}
+	
+	@Action
+	public String addXydj(String json){
+		
+		ExtResultObject eor = new ExtResultObject();
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		String ajxy = request.getParameter("ajxy").toString();
+		String bjxy = request.getParameter("bjxy").toString();
+		String cjxy = request.getParameter("cjxy").toString();
+		String djxy = request.getParameter("djxy").toString();
+		
+		
+		this.jdbcTemplate.execute("update xy01 set xy0102 = "+ajxy +" where xy0101 = 'A'");
+		this.jdbcTemplate.execute("update xy01 set xy0102 = "+bjxy +" where xy0101 = 'B'");
+		this.jdbcTemplate.execute("update xy01 set xy0102 = "+cjxy +" where xy0101 = 'C'");
+		this.jdbcTemplate.execute("update xy01 set xy0102 = "+djxy +" where xy0101 = 'D'");
+
+		return eor.toString();
+		
+	}
+	
+	
 	
 }

@@ -15,6 +15,7 @@
 					<td>
 					<span>年度：</span><input class="mini-combobox" id="zfnd" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" url="/ssj/personmanage/personmanage/getCBData/nd?theme=none"/>
 					<span>状态：</span><input class="mini-combobox" id="fazt" style="width:150px;"  onvaluechanged="valueChange" textField="text" valueField="id" data="[{id:'0',text:'未上报'},{id:'1',text:'已上报'}]"  />
+					 <a class="mini-button" iconCls="icon-upload" onclick="watchWeight()">权重情况</a>  
 					<!-- 
 						<span>&nbsp;&nbsp;方案时间：</span><input class="mini-combobox" id="zftime"
 							name="zftime" onvaluechanged="valueChange"
@@ -28,11 +29,11 @@
 							class="mini-textbox" id="zsjl" style="width: 150px;" /> </td> <a class="mini-button" id="mommitBut" onclick="mommit()">提交</a> -->
 					
 				</tr>
-				<tr>
+				<!-- <tr>
 					<td>
 						<span>抽取结果默认规则：至少1个特种设备监督检查企业，1个检验机构监督检查企业</span>
 					</td>
-				</tr>
+				</tr> -->
 			</table>
 		</div>
 		<div class="mini-fit">
@@ -121,6 +122,25 @@
 			</table>
 		</div>
 	</div>
+
+	<div id="xydjWindow" class="mini-window" title="查看权重情况" style="width:570px;height:460px;" showToolbar="true" showFooter="true" >
+	   <div><span style="font-size:14px">权重算法</span></div>
+	   <div><span style="font-size:14px">企业的权重是由企业所在检查事项的风险等级，企业的信用等级以及企业抽取影响值，经过（检查对象风险系数/检查对象信用系数）*抽查影响值 计算得到。对于本次任务有关的风险等级及系数，信用等级及系数见下表。</span></div>
+	   <div><span style="font-size:14px">风险系数</span></div>
+	   <div class="mini-datagrid" id="fxgrid" url="" style="width: 100%; height:130" showPager="false">
+			<div property="columns">
+				<div field="fxmc" headerAlign="center" align="center" >风险级别</div>
+				<div field="fxxs" headerAlign="center" align="center" >风险系数</div>
+			</div>
+	   </div>
+	   <div><span style="font-size:14px">信用系数</span></div>
+	    <div class="mini-datagrid" id="xygrid" url="" style="width: 100%; height: 140" showPager="false">
+			<div property="columns">
+				<div field="xymc" headerAlign="center" align="center" >信用等级</div>
+				<div field="xyxs" headerAlign="center" align="center" >信用系数</div>
+			</div>
+	   </div>
+	</div>
 <script>
 mini.parse();
 var newwin = mini.get("newWin");
@@ -163,7 +183,7 @@ function isup(e){
 };
 
 /* isup(zfcom.value); */
-		
+
 
 setAuthenRow = function() {
 	//去判定这个方案有没有设置权重，如果有就将对应的值带过来，然后将确定按钮置灰
@@ -252,12 +272,22 @@ function unmommit(){
 }
 //提交按钮触发
 function mommit() {
-
 	grid.validate();
 	var selectData = grid.getSelected();
 	var selectDatas = grid.getSelecteds();
 	var zfid = selectData.id;
+	
+	/* if(!grid.isValid()){
+		alert("企业总数不能设置为空或0！");
+		return ;
+	} */
 
+	alert(selectData.sjqyzs);
+	if(selectData.sjqyzs==0){
+		alert("企业总数不能设置为空或0！");
+		return ;
+	}
+	
 	grid.loading("保存中，请稍后......");
 	$.ajax({
 		url : "/ssj/companymanage/companymanage/addSJOrgCount/" + zfid + "?theme=none",
@@ -276,8 +306,8 @@ function mommit() {
 //每次数值校验企业的数量不能为空
 grid.on("cellcommitedit", function(e) {
 	if (e.field == "sjqyzs") {
-		if (e.value == "") {
-			alert("企业总数不能设置为空！");
+		if (e.value == "" || e.value == 0) {
+			alert("企业总数不能设置为空或0！");
 			e.cancel = true;
 		}
 	}
@@ -285,14 +315,12 @@ grid.on("cellcommitedit", function(e) {
 
 function onCellValidation(e) {
 	if (e.field == "sjqyzs") {
-		if (e.value = "") {
+		if (e.value = ""  || e.value == 0) {
 			e.isValid = false;
-			e.errorText = "随机总人数不能为空！";
+			e.errorText = "抽查企业数不能为空或0！";
 		}
 	}
 }
-
-		
 		
 valueChange = function(){
 	var nd = mini.get("zfnd").value;
@@ -302,6 +330,28 @@ valueChange = function(){
 	grid.setUrl(url);
 	grid.reload();
 	//isup(e.value);
+}
+
+watchWeight = function(){
+	var selectData = grid.getSelecteds();
+	if(selectData.length==0){
+		alert("请选择一条任务查看任务");
+		return ;
+	}else if(selectData.length>1){
+		alert("请选择一条任务进行查看");
+		return;
+	}
+
+	var win = mini.get("xydjWindow");
+	var fxgrid = mini.get("fxgrid");
+	var xygrid = mini.get("xygrid");
+	var faid = selectData[0].id;
+	
+	fxgrid.setUrl("/ssj/companymanage/CompanyManage/getParams/fx/"+faid+"?theme=none");
+	fxgrid.load();
+	fxgrid.setUrl("/ssj/companymanage/CompanyManage/getParams/xy/"+faid+"?theme=none");
+	xygrid.load();
+	win.show();
 }
 
 /* 		function onRenderer(e){

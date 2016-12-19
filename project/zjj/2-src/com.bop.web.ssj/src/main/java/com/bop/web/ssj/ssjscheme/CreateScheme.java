@@ -1,9 +1,5 @@
 package com.bop.web.ssj.ssjscheme;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,39 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.JdbcOperations;
-
-import com.aspose.cells.BorderType;
-import com.aspose.cells.Cell;
-import com.aspose.cells.CellBorderType;
-import com.aspose.cells.Color;
-import com.aspose.cells.License;
-import com.aspose.cells.Row;
-import com.aspose.cells.RowCollection;
-import com.aspose.cells.Style;
-import com.aspose.cells.TextAlignmentType;
-import com.aspose.cells.Workbook;
-import com.aspose.cells.Worksheet;
-import com.aspose.cells.XlsSaveOptions;
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
 import com.bop.domain.dao.DmCodetables;
 import com.bop.domain.dao.IRecord;
-import com.bop.json.ExtGrid;
-import com.bop.json.ExtGridRow;
-import com.bop.json.ExtObject;
-import com.bop.json.ExtObjectCollection;
 import com.bop.json.ExtResultObject;
-import com.bop.module.user.UserService;
-import com.bop.module.user.dao.User01;
-import com.bop.web.CommonSession;
 import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
@@ -85,6 +54,9 @@ public class CreateScheme {
 		
 		this.jdbcTemplate.execute(plan1201UpSql);
 		this.jdbcTemplate.execute(plan12UpSql);
+		String org01Sql = "update org01 set influence_value = case when influence_value/10 > 0.01 then influence_value/10 else 0.01 end  where org00 in (select plan1201 from plan12 where parentid = '"+faid+"' and plan1204 = '"+zone+"')";
+		//对已经抽取过的进行降权
+		this.jdbcTemplate.execute(org01Sql);
 		String plan03Sql = "update plan03 set plan0302 = 5,plan0303=sysdate where parentid = '"+faid+"' and plan0301 = '"+zone+"'";
 		this.jdbcTemplate.execute(plan03Sql);
 		return "success";
@@ -118,7 +90,7 @@ public class CreateScheme {
 	}
 
 	//----------------------------------------------------------------------方案生成---------------------------------------------------------
-	
+
 	/**
 	 * 判断任务状态，是否符合生成条件，是否是重复生成
 	 * @param faid
@@ -167,15 +139,17 @@ public class CreateScheme {
 		IRecord rand01 = this.recordDao.queryTopOneRecord("RAND01", "RAND0101 = '"+fzid+"' and RAND0102='"+zone+"'","RAND0101");
 		IRecord plan06ire = this.recordDao.queryTopOneRecord("PLAN06", "parentid='"+fzid+"' and plan0601='"+zone+"'","pindex");
 		int allCqOrg = Integer.parseInt(plan06ire.get("PLAN0602").toString());
-		
+
 		//20161028加入专项的概念，得到专项的企业由getQxCqOrg统一抽取。
 		List<Map<String,Object>> list = this.jdbcTemplate.queryForList("select sp2.SP0201 from sp02 sp2 where sp2.sp0204 = '"+zone+"'  and sp2.parentid in (select p1.plan0111 from plan01 p1  where p1.plan00 = '"+fzid+"')");
 
 		this.getQxCqOrg(allCqOrg,rand01,list,orgmap);
-
 		//储存抽取的结果
 		for (Map.Entry<String, ArrayList> entry : orgmap.entrySet()) {
-		   IRecord orgIcd = this.recordDao.getRecord("ORG01", UUID.fromString(entry.getKey()));
+		  //IRecord orgIcd = this.recordDao.getRecord("ORG01", UUID.fromString(entry.getKey()));
+		   
+		 //v3改动
+		   IRecord orgIcd = this.recordDao.getRecord("PLAN04", UUID.fromString(entry.getKey()));
 		   this.saveTempPlan12(orgIcd, entry.getValue(),fzid);
 		  }
 
@@ -252,7 +226,7 @@ public class CreateScheme {
 		for(int i=zoneqystart;i<allCqOrg;i++){
 			boolean doubleflag = false;
 			int orgindex = rd.nextInt(rand02s.size());
-		
+
 			IRecord  cqRand02= this.recordDao.queryTopOneRecord("RAND02", "RAND0201 = "+orgindex+"+1 and parentid = '"+rand01.getRecordId()+"'", "RAND0201");
 			UUID orgCode = cqRand02.get("RAND0202",IRecord.class).getRecordId();
 			
@@ -361,7 +335,7 @@ public class CreateScheme {
 				if(p==p2){
 					p2 = this.getDifPerson(p, prd, personMap.size());
 				}
-				
+
 				Map<String,Object> ire = personMap.get(p);
 				Map<String,Object> ire2 = personMap.get(p2);
 
@@ -379,12 +353,12 @@ public class CreateScheme {
 				//这是当personMap集合只剩下一个元素的情况
 				//先将personmap抽完，再将ordypersonmap的抽取轮次变大，最后再将ordypersonmap中抽取过的人放到personmap中
 				int p2= prd.nextInt(OrdypersonMap2.size());
-				
+
 				Map<String,Object> ire = personMap.get(0);
 				Map<String,Object> ire2 = OrdypersonMap2.get(p2);
 				personIreList.add(ire.get("PLAN0201").toString());
 				personIreList.add(ire2.get("PLAN0201").toString());
-				
+
 				personMap.remove(ire);
 				OrdypersonMap2.add(ire);
 				OrdypersonMap2.remove(ire2);
@@ -439,7 +413,7 @@ public class CreateScheme {
 		UUID uid = UUID.randomUUID();
 		IRecord ire = this.recordDao.createNew("PLAN12", uid, UUID.fromString(faid));
 		//存储企业
-		ire.put("PLAN1201", informIRe.getRecordId());
+		/*ire.put("PLAN1201", informIRe.getRecordId());
 		ire.put("PLAN1202", informIRe.get("ORG_CODE"));
 		ire.put("PLAN1203", informIRe.get("ORG_NAME"));
 		ire.put("PLAN1205", informIRe.get("REG_ADDR"));
@@ -449,8 +423,20 @@ public class CreateScheme {
 		ire.put("PLAN1208", "");
 		ire.put("PLAN1209", 0);
 		ire.put("PLAN1210", "1"); //zxy 修改为代码 
+		this.recordDao.saveObject(ire);*/
+
+		//v3版以后plan12中的数据从plan04里面取
+		ire.put("PLAN1201", informIRe.getRecordId());
+		ire.put("PLAN1202", informIRe.get("PLAN0402"));
+		ire.put("PLAN1203", informIRe.get("PLAN0403"));
+		ire.put("PLAN1205", informIRe.get("PLAN0416")==null?informIRe.get("PLAN0415"):informIRe.get("PLAN0416"));
+		ire.put("PLAN1204", informIRe.get("PLAN0417")==null?informIRe.get("PLAN0404"):informIRe.get("PLAN0417"));
+		ire.put("PLAN1206", informIRe.get("PLAN0418"));
+		ire.put("PLAN1207", informIRe.get("PLAN0419"));
+		ire.put("PLAN1208", "");
+		ire.put("PLAN1209", 0);
+		ire.put("PLAN1210", "1"); //zxy 修改为代码 
 		this.recordDao.saveObject(ire);
-		
 		
 		for(int i=0;i<list.size();i++){
 			String id = list.get(i).toString();

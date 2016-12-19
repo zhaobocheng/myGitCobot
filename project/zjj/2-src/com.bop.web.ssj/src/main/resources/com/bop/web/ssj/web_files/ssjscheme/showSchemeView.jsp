@@ -19,7 +19,6 @@
 	<tr>
 		<td><span>参与抽查执法人员数：</span><input class="mini-textbox" id="rs" readOnly="true"  style="width:200px;"/></td>
 		<td><span>参与抽查企业数：</span><input class="mini-textbox" id="qys" readOnly="true"  style="width:228px;"/>		
-		
 		</td>
 	</tr>
 </table>
