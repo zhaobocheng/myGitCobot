@@ -15,7 +15,7 @@
 <div class="mini-fit">
 	<div id="treegrid1" class="mini-treegrid" style="width:100%;height:100%;"     
     url="" showTreeIcon="true" treeColumn="mc" idField="id" parentField="parentid" resultAsTree="false"  
-    allowResize="false" expandOnLoad="true" showPager="false" >
+    allowResize="false" expandOnLoad="false" showPager="false" >
 	    <div property="columns">
 	       <!--  <div type="indexcolumn" headerAlign="center" >序号</div> -->
 	        <div field="id" visible="false">plan03id</div>
@@ -72,7 +72,7 @@ importExc = function(){
 		success:function(e){
 			var inf = mini.decode(e);
 			if(inf.flag){
-				location.href = decodeURI("/ResourceFiles"+inf.path);
+				location.href = decodeURI("/ResourceFiles"+inf.path);t
 			}else{
 				alert("导出失败！");
 			}
@@ -102,7 +102,6 @@ showRy = function(e){
 	        var iframe = this.getIFrameEl();
 	    },
 	    ondestroy: function (action) {
-	    
 	    }	
 	});
 }
@@ -156,7 +155,6 @@ showFQScheme = function(e){
 	    }	
 	});
 }
-
 showSchemeView = function(e){
 	var p3id = grid.getSelected().id;
 	var faid=grid.getSelected().parentid;

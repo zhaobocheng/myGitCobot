@@ -1,16 +1,11 @@
 package com.bop.web.ssj.ssjscheme;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.jdbc.core.JdbcOperations;
-
-import com.bop.common.DateUtility;
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
 import com.bop.domain.dao.DmCodetables;
@@ -88,7 +83,6 @@ public class SchemeResult {
 		Records ires  = this.recordDao.queryRecord("PLAN12", whereSql);
 		List<Map<String,Object>> list = this.jdbcTemplate.queryForList("select * from plan12 where "+whereSql);
 		
-
 		if(ires.size()>0){
 			for(Map<String,Object> ire:list){
 				ExtObject eo = new ExtObject();
@@ -117,7 +111,7 @@ public class SchemeResult {
 				eo.add("sjly", this.getJSLY(fzid,zone,ire.get("PLAN1202").toString()));
 				eo.add("ParentDqId", ire.get("PLAN1204"));
 				eo.add("dqid",  null);
-				 
+
 				eoc.add(eo);
 				String planId=ire.get("PLAN1201").toString();
 				String ZXJC=this.getZXJC(fzid,planId);
@@ -176,7 +170,7 @@ public class SchemeResult {
 				eo.add("jcrid", personInf[0]);
 				eo.add("jcr",  personInf[1]);
 				
-				eo.add("sjly", this.getJSLY(ire.get("FQ0202").toString()));
+				eo.add("sjly", this.getJSLY(ire.get("FQ0201",IRecord.class).getRecordId().toString()));
 				eo.add("ParentDqId", ire.get("FQ0204",DmCodetables.class).getId());
 				eo.add("dqid",  null);
 				eoc.add(eo);
@@ -225,7 +219,24 @@ public class SchemeResult {
 	 * @return
 	 */	
 	private String getJSLY(String jgdm){
-		String sql = "select * from org02 where  parentid =(select org01.org00 from org01 where org01.org_code = '"+jgdm+"')";
+		
+		String sql = " select * from plan0401 t  where t.parentid = '"+jgdm+"'";
+		List<Map<String,Object>> plan0401List = this.jdbcTemplate.queryForList(sql);
+		
+		String retStr = "";
+		if(plan0401List.size()>0){
+			for(Map<String,Object> map:plan0401List){
+				retStr += map.get("PLAN040103")+",";
+			}
+			return  retStr.substring(0, retStr.length()-1);
+		}else{
+			return "";
+		}
+
+		
+		
+		/*
+		String sql = "select * from plan04 where  parentid =(select org01.org00 from org01 where org01.org_code = '"+jgdm+"')";
 		List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);
 		
 		String retStr = "";
@@ -257,11 +268,26 @@ public class SchemeResult {
 				retStr+=codeMap.get("caption")+"，";
 			}
 		}
-		return retStr.substring(0, retStr.length()-1);
+		return retStr.substring(0, retStr.length()-1);*/
 	}
 
 	
 	private String getJSLY(String fzid,String zone,String jgdm){
+		
+		String sql = " select * from plan0401 t  where t.parentid in (select recordid from plan04 where  parentid = '"+fzid+"' and plan0404 = '"+zone+"' and plan0402 = '"+jgdm+"')";
+		List<Map<String,Object>> plan0401List = this.jdbcTemplate.queryForList(sql);
+		
+		String retStr = "";
+		if(plan0401List.size()>0){
+			for(Map<String,Object> map:plan0401List){
+				retStr += map.get("PLAN040103")+",";
+			}
+			return  retStr.substring(0, retStr.length()-1);
+		}else{
+			return "";
+		}
+		
+		/*
 		String sql = "select * from plan04 where  parentid = '"+fzid+"' and plan0404 = '"+zone+"' and plan0402 = '"+jgdm+"'";
 		List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);
 		
@@ -296,7 +322,7 @@ public class SchemeResult {
 			return retStr.substring(0, retStr.length()-1);
 		}else{
 			return "";
-		}
+		}*/
 	}
 	
 	
@@ -339,7 +365,7 @@ public class SchemeResult {
 		}
 		
 		//List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" order by t.plan0102 desc");
-		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" UNION ALL "+sql1+" order by yf,qxid ");
+		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" UNION ALL "+sql1+" order by yf desc,qxid ");
 		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
 		
 		if(resultList.size()>0){
@@ -382,8 +408,7 @@ public class SchemeResult {
 				eo.add("wtjfas", map.get("wtjfas"));
 				eo.add("cz", map.get("cz"));
 				eo.add("tjsj", map.get("tjsj"));
-				
-				
+
 				eo.add("sfgs", map.get("sfgs"));
 				if (map.get("fqfas")==null){
 					eo.add("fqfas","");

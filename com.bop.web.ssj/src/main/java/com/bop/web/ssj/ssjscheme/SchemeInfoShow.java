@@ -1,16 +1,11 @@
 package com.bop.web.ssj.ssjscheme;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
-
 import org.springframework.jdbc.core.JdbcOperations;
-
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
 import com.bop.domain.dao.DmCodetables;
@@ -112,7 +107,6 @@ public class SchemeInfoShow {
 		}else{
 			whereSql = "parentid = '"+fzid+"' and PLAN1204 = '"+zone+"'";
 		}
-
 		Records ires  = this.recordDao.queryRecord("PLAN12", whereSql);
 
 		if(ires.size()>0){
@@ -182,10 +176,9 @@ public class SchemeInfoShow {
 	
 	//得到涉及领域
 		private String getJSLY(String fzid,String zone,String jgdm){
-			String sql = "select * from plan04 where  parentid = '"+fzid+"' and plan0404 = '"+zone+"' and plan0402 = '"+jgdm+"'";
-			List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);
-			
-			String retStr = "";
+			/*String sql = "select * from plan04 where  parentid = '"+fzid+"' and plan0404 = '"+zone+"' and plan0402 = '"+jgdm+"'";
+			List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);*/
+			/*String retStr = "";
 			if(org2List.size()>0){
 				Map<String,Object> map = org2List.get(0);
 				if(map.get("plan0405")!=null&&"1".equals(map.get("plan0405").toString())){
@@ -216,8 +209,21 @@ public class SchemeInfoShow {
 				return  retStr.substring(0, retStr.length()-1);
 			}else{
 				return "";
-			}
+			}*/
 			
+			//适用v3版
+			String sql = " select * from plan0401 t  where t.parentid in (select recordid from plan04 where  parentid = '"+fzid+"' and plan0404 = '"+zone+"' and plan0402 = '"+jgdm+"')";
+			List<Map<String,Object>> plan0401List = this.jdbcTemplate.queryForList(sql);
+			
+			String retStr = "";
+			if(plan0401List.size()>0){
+				for(Map<String,Object> map:plan0401List){
+					retStr += map.get("PLAN040103")+",";
+				}
+				return  retStr.substring(0, retStr.length()-1);
+			}else{
+				return "";
+			}
 		}
 		
 		
