@@ -37,7 +37,7 @@ window.onload = fun();
 			#if($sys.getName() != "" && $sys.getIconPath() != "")
 				<img src="$!sys.getIconPath()">$!sys.getName()
 			#elseif($sys.getName() != "" && $sys.getIconPath() == "")
-				<img src="/bopmain/images/function_empty.gif">$!sys.getName()
+				<img src="/theme/imag/function_empty.gif">$!sys.getName()
 			#end
 		</b>
 	</div>

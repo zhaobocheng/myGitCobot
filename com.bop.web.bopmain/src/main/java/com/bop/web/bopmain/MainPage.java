@@ -1,12 +1,18 @@
 package com.bop.web.bopmain;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,16 +22,25 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authz.HostUnauthorizedException;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bop.common.DateUnit;
 import com.bop.common.DateUtility;
+import com.bop.common.StringUtility;
 import com.bop.domain.IRecordDao;
 import com.bop.hibernate.dbinit.ExecutableUpgrader;
 import com.bop.json.ExtGrid;
 import com.bop.json.ExtGridColumn;
 import com.bop.json.ExtGridRow;
+import com.bop.module.author.RoleService;
+import com.bop.module.author.dao.Role;
+import com.bop.module.author.dao.RoleFunction;
+import com.bop.module.function.DefaultMenu;
 import com.bop.module.function.MenuItem;
 import com.bop.module.function.service.FunctionTree;
 import com.bop.module.user.UserService;
@@ -47,6 +62,15 @@ public class MainPage {
 	private UpgradeExecutor upgraderExecutor;
 	private IRecordDao recordDao;
 	private UserService userService;
+	private RoleService roleService;
+	
+	public RoleService getRoleService() {
+		return roleService;
+	}
+
+	public void setRoleService(RoleService roleService) {
+		this.roleService = roleService;
+	}
 
 	public void setUserService(UserService userService) {
 		this.userService = userService;
@@ -68,9 +92,7 @@ public class MainPage {
 //		if(this.upgraderExecutor.isNeedUpgrader()) {
 //			ActionContext.getActionContext().getHttpServletResponse().sendRedirect("/bopmain/autoUpdate2.jsp?theme=none");
 //		}
-
 		log.debug("logon system");
-
 		String errorClassName = (String)req.getAttribute("shiroLoginFailure");
         if(UnknownAccountException.class.getName().equals(errorClassName)) {    			//没有这个账号
             req.setAttribute("error", "用户名/密码错误");
@@ -220,9 +242,7 @@ public class MainPage {
 		Integer i = Integer.parseInt(System.getProperty("activeTime","60"));
 		if(i == null) i = 0;
 		d = DateUtility.dateAfter(d, i, DateUnit.day);
-		
 		int d2 = (int)DateUtility.dateDiff(new Date(), d, DateUnit.day);
-		
 		return d2;
 	}
 }

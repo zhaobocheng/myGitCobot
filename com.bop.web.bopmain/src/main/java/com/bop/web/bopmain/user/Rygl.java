@@ -125,7 +125,7 @@ public class Rygl implements UserProvider {
 	@Action
 	public String isDeptName(String deptId, String deptname) {
 		ExtResultObject obj = new ExtResultObject(true);
-		
+
 		List<Dept> depts = this.deptDao.findBySql("select * from bm01 where BM0104 = '" + deptId + "' and BM0101 = '" + deptname + "'");
 		if (depts.size() > 0) {
 			obj = new ExtResultObject(false);
@@ -269,7 +269,7 @@ public class Rygl implements UserProvider {
 		user.setUserforTime(Integer.parseInt(System.getProperty("activeTime","60")));
 		user.setMac(MAC);
 		user.setIp(IP);
-		user.setWpasswordTime("0");
+		user.setWpasswordTime(0);
 
 		this.UserDao.save(user);
 		return obj.toString();

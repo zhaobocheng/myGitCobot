@@ -15,7 +15,12 @@ public class FunctionTreeUtil {
 	}
 	
 	public static ExtObjectCollection toJson(FunctionTree tree) {
-		Set<MenuItem> children = tree.getByParentId("");
+		return toJson(tree, "");
+	}
+	
+	public static ExtObjectCollection toJson(FunctionTree tree, String parentId) {
+		if(parentId == null) parentId = "";
+		Set<MenuItem> children = tree.getByParentId(parentId);
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		
 		if(children == null) return eoc;
@@ -31,15 +36,14 @@ public class FunctionTreeUtil {
 			
 			eoc.add(eo);
 			if(c instanceof Menu) {
-				ExtObjectCollection eocc = toJson(tree, (Menu)c);
+				ExtObjectCollection eocc = toJson(tree, (Menu)c,parentId);
 				eoc.addAll(eocc);
 			}
 		}
-		
 		return eoc;
 	}
 	
-	public static ExtObjectCollection toJson(FunctionTree tree, Menu item) {
+	public static ExtObjectCollection toJson(FunctionTree tree, Menu item,String parentId) {
 		Set<MenuItem> children = tree.getByParentId(item.getId());
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		
@@ -47,7 +51,7 @@ public class FunctionTreeUtil {
 			ExtObject eo = new ExtObject();
 			eo.add("id", c.getId());
 			eo.add("name", c.getName());
-			eo.add("url", getNodeUrl(tree, c));
+			eo.add("url", getNodeUrl(tree, c,parentId));
 			eo.add("imgPath", c.getIconPath());
 			eo.add("pId", item.getId());
 			eo.add("open", true);
@@ -55,7 +59,7 @@ public class FunctionTreeUtil {
 			
 			eoc.add(eo);
 			if(c instanceof Menu) {
-				ExtObjectCollection eocc = toJson(tree, (Menu)c);
+				ExtObjectCollection eocc = toJson(tree, (Menu)c,parentId);
 				eoc.addAll(eocc);
 			}
 		}
@@ -80,7 +84,7 @@ public class FunctionTreeUtil {
 			for(int i = 0; i < level-1; i++) {
 				sb.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 			}
-			String IconPath="/bopmain/images/function_empty.gif";
+			String IconPath="/theme/img/function_empty.gif";
 			sb.append("<img src=\"" + IconPath + "\" width=\"16\" height=\"16\">");
 			
 			sb.append(child.getName() + "</td>");
@@ -88,7 +92,8 @@ public class FunctionTreeUtil {
 				sb.append("<td>" + (child.getDescription() == null ? "" : child.getDescription()) + "&nbsp</td>"); // 描述为空的时候，前台样式不一样了，所以加上一个&nbsp
 			} else {
 				String url = getNodeUrl(tree, child);
-				sb.append("<td><a href=\""+url+"\">" + (child.getDescription() == null ? "" : child.getDescription()) + "&nbsp</a></td>");
+				//sb.append("<td><a href=\""+url+"\">" + (child.getDescription() == null ? "" : child.getDescription()) + "&nbsp</a></td>");
+				sb.append("<td></td>");
 			}
 			
 			sb.append("</tr>");
@@ -117,7 +122,7 @@ public class FunctionTreeUtil {
 		Set<MenuItem> menus = tree.getByParentId("");
 		boolean projectView = !(StringUtility.isNullOrEmpty(pid));
 		if(menus == null) return "";
-		
+
 		String html = "";
 		for(MenuItem m : menus) {
 			if(m.isNeedProject() == projectView) {
@@ -133,17 +138,16 @@ public class FunctionTreeUtil {
 				html += String.format("<span><a id=\"%s\" href=\"%s\">%s</a></span>", m.getId(), url, m.getName());
 			}
 		}
-		
 		return html;
 	}
-	
+
 	private static String getMenuHtml(FunctionTree tree, MenuItem m, String sid,String pid) {
 		StringBuilder sb = new StringBuilder();
 		int level = getMenuLevel(tree, m);
 		if(level == 2) {
 			if(m instanceof Menu) {
 				sb.append("<div><span>" + m.getName() + "</span>");
-				
+
 				Menu mm = (Menu)m;
 				for(MenuItem item : tree.getByParentId(mm.getId())){
 					sb.append(getMenuHtml(tree, item, sid, pid));
@@ -198,7 +202,18 @@ public class FunctionTreeUtil {
 		
 		return url;
 	}
-	
+	private static String getNodeUrl(FunctionTree tree, MenuItem m,String sid) {
+		String url = m.getUrl();
+		if(url == null) return "#";
+		String fix = "fid=" + m.getId()+"&sid="+sid;
+		
+		if (url.contains("?"))
+			url = url + "&" + fix;
+		else
+			url = url + "?" + fix;
+		
+		return url;
+	}
 	private static int getMenuLevel(FunctionTree tree, MenuItem m) {
 		MenuItem pm = tree.getById(m.getId());
 		int i = 0;
