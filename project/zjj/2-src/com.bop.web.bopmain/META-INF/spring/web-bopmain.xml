@@ -19,6 +19,7 @@
 		<property name="upgradeExecutor" ref="UpgradeExecutor" />
 		<property name="recordDao" ref="recordDao" />
 		<property name="userService" ref="UserService" />
+		<property name="roleService" ref="RoleService" />
 	</bean>
 	
 	<bean name="NavigationService" class="com.bop.web.bopmain.internal.NavigationService">

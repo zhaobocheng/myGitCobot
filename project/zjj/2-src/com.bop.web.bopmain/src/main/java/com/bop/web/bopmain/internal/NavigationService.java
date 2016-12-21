@@ -44,14 +44,13 @@ public class NavigationService {
 		
 		return usertree;
 	}
-	
+
 	public FunctionTree getSystemFunctionTree() {
 		try {
 			return this.getFunctionTree();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 		return null;
 	}
 	
