@@ -30,7 +30,7 @@ public class CompanyManage {
 	private JdbcOperations jdbcTemplate;
 	private IRecordDao recordDao;
 	private UserSession userSession;
-	
+
 	public void setUserSession(UserSession userSession) {
 		this.userSession = userSession;
 	}
