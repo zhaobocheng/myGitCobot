@@ -232,43 +232,6 @@ public class SchemeResult {
 		}else{
 			return "";
 		}
-
-		
-		
-		/*
-		String sql = "select * from plan04 where  parentid =(select org01.org00 from org01 where org01.org_code = '"+jgdm+"')";
-		List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);
-		
-		String retStr = "";
-		if(org2List.size()>0){
-			Map<String,Object> map = org2List.get(0);
-			if(map.get("ORG0201")!=null&&"1".equals(map.get("ORG0201").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '1'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0202")!=null&&"1".equals(map.get("ORG0202").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '2'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0203")!=null&&"1".equals(map.get("ORG0203").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '3'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0204")!=null&&"1".equals(map.get("ORG0204").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '4'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0205")!=null&&"1".equals(map.get("ORG0205").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '5'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-		}
-		return retStr.substring(0, retStr.length()-1);*/
 	}
 
 	
@@ -287,42 +250,6 @@ public class SchemeResult {
 			return "";
 		}
 		
-		/*
-		String sql = "select * from plan04 where  parentid = '"+fzid+"' and plan0404 = '"+zone+"' and plan0402 = '"+jgdm+"'";
-		List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);
-		
-		String retStr = "";
-		if(org2List.size()>0){
-			Map<String,Object> map = org2List.get(0);
-			if(map.get("plan0405")!=null&&"1".equals(map.get("plan0405").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '1'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("plan0406")!=null&&"1".equals(map.get("plan0406").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '2'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("plan0407")!=null&&"1".equals(map.get("plan0407").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '3'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("plan0408")!=null&&"1".equals(map.get("plan0408").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '4'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("plan0409")!=null&&"1".equals(map.get("plan0409").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '5'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			return retStr.substring(0, retStr.length()-1);
-		}else{
-			return "";
-		}*/
 	}
 	
 	
