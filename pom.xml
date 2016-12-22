@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.bop</groupId>
 		<artifactId>com.bop.framework</artifactId>
-		<version>4.2.2-20160517</version>
+		<version>4.3.2</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.bop.bjzjj</groupId>
@@ -12,7 +12,7 @@
 	<version>1.2.7</version>
  
 	<properties>
-		<framework.version>4.2.2-20160517</framework.version>
+		<framework.version>4.3.2</framework.version>
 	</properties>
  
 	<modules>
