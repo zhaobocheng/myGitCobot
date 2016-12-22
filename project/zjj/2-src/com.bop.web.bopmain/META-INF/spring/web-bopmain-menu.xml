@@ -20,6 +20,15 @@
 			<property name="url" value="/bopmain/user/rygl/index" />
 		</bean>
 	</osgi:service>
+	
+	<!-- <osgi:service id="MenuItem9302" interface="com.bop.module.function.MenuItem">
+		<bean class="com.bop.module.function.DefaultMenuItem">
+			<property name="id" value="9302" />
+			<property name="name" value="首页" />
+			<property name="description" value="首页。" />
+			<property name="url" value="/bopmain/zzy.jsp" />
+		</bean>
+	</osgi:service> -->
 	<!-- <osgi:service id="MenuItem9001V" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="9001V" />
