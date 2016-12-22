@@ -689,15 +689,8 @@ public class PowerList {
 			//生产地区划代码
 			String yieldlyCode=cells.get(i,8).getValue()==null?"": cells.get(i,8).getValue().toString().trim();
 			
-			
-			
-			
 			List<Map<String, Object>> scList=new ArrayList<Map<String, Object>>(); 
-			if(StringUtils.isNotBlank(yieldlyCode)){
-				yieldlyCode=yieldlyCode.split("\\.")[0];
-				//校验生产区划代码
-				scList= this.jdbcTemplate.queryForList("select cid,codetablename from DM_CODETABLE_DATA   where  codetablename='DB064' and cid='"+yieldlyCode+"'");
-			}
+			
 			//校验组织机构代码
 			if(StringUtils.isNotBlank(orgCode)&&(orgCode.length()==9||orgCode.length()==18)){
 				if(orgCode.length()==18){
@@ -718,9 +711,13 @@ public class PowerList {
 			}else{
 				m=1;
 			}
-			
+			if(StringUtils.isNotBlank(yieldlyCode)){
+				yieldlyCode=yieldlyCode.split("\\.")[0];
+				//校验生产区划代码
+				scList= this.jdbcTemplate.queryForList("select cid,codetablename from DM_CODETABLE_DATA   where  codetablename='DB064' and cid='"+yieldlyCode+"'");
+			}
 			//校验注册区划代码
-			List<Map<String, Object>> zcList= this.jdbcTemplate.queryForList("select cid,codetablename from DM_CODETABLE_DATA,org01   where  codetablename='DB064' and cid='"+orgAddressCode+"' and cid=reg_district_dic");
+			List<Map<String, Object>> zcList= this.jdbcTemplate.queryForList("select cid,codetablename from DM_CODETABLE_DATA where  codetablename='DB064' and cid='"+orgAddressCode+"'");
 			if(zcList.size()<0||zcList.isEmpty()){
 				n=1;
 			}
