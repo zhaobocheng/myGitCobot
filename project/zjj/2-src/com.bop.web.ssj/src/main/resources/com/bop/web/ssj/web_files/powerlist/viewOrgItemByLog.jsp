@@ -8,7 +8,7 @@
 <body>
 <div style="padding-top: 10px;padding-bottom: 10px;padding-left:15px">
 	<!-- 	<span>企业名称：</span><input class="mini-textbox"  id="sxmc_sousuo" name="sxmc" style="width:230px;" onvaluechanged="findItemRow()"/>
-	 <span>事项分类：</span><input class="mini-combobox" id="sxflei" name="sxfl" style="width:230px;" onvaluechanged="findItemRow()" textField="text" valueField="id" url="/ssj/powerlist/PowerList/getItemFL?theme=none"/>
+	 <span>事项业务分类：</span><input class="mini-combobox" id="sxflei" name="sxfl" style="width:230px;" onvaluechanged="findItemRow()" textField="text" valueField="id" url="/ssj/powerlist/PowerList/getItemFL?theme=none"/>
 	<span>是否显示废弃：</span>
 	<label><input style="width:20px;" name="feiqi" type="radio" checked="checked" onclick="findItemRow()" value="1" />是</label> 
 	<label><input style="width:20px;" name="feiqi" type="radio" value="2" onclick="findItemRow()" />否 </label>
