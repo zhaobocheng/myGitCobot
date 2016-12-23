@@ -38,7 +38,7 @@
 	pageSize="15" sizeList="[15,30,50,100]">
 	<div property="columns">
 		<div type="indexcolumn">序号</div>
-		<div field="sxfl">事项分类</div>
+		<div field="sxfl">事项业务分类</div>
 		<div field="jcsxmc" width="280px">检查事项名称</div>
 		<div field="cjfs" width="80px" >采集方式</div>
 		<div field="orgNum"  name="orgNum">有效企业数</div>
@@ -66,7 +66,7 @@
  </div>
  
  
-<div  id="errorData" class="mini-window" title="错误信息" style="width:980px;height:530px;padding-left:15px">
+<div  id="errorData" class="mini-window" title="错误信息" style="width:1080px;height:530px;padding-left:15px">
 			<p id="first" style="font-size:15px;color: red"></p>
 			<div style="width:100%;padding-bottom:10px;text-align: center">
 				<span>
@@ -78,11 +78,11 @@
 				<div class="mini-datagrid" id="errorGrid"  showPager="false" idField="id">
 					<div property="columns">
 						<div field="errorIndex" width="70px"  headerAlign="center"  align="center">序号</div>
-						<div field="code" width="70px"  headerAlign="center"  align="center">组织机构代码</div>
+						<div field="code" width="90px"  headerAlign="center"  align="center">组织机构代码</div>
 						<div field="orgName"    headerAlign="center"  align="center">企业名称</div>
-						<div field="orgAddressCode"  width="70px"  headerAlign="center"  align="center">注册地区划代码</div>
+						<div field="orgAddressCode"  width="90px"  headerAlign="center"  align="center">注册地区划代码</div>
 						<div field="city"   headerAlign="center"  align="center">注册区县</div>
-						<div field="yieldlyCode" width="75px"  headerAlign="center"  align="center">生产地区划代码</div>
+						<div field="yieldlyCode" width="85px"  headerAlign="center"  align="center">生产地区划代码</div>
 						<div field="errorInfo"  width="250px"  headerAlign="center"  align="center">错误信息</div>
 					</div>
 				</div>
@@ -173,7 +173,7 @@ function uploadSave(){
 			    	  if(returndata=="error1"){
 			    		  mini.unmask(document.body);
 			    		  alert("excel中的事项名称这一列应为空！请核查后再导入！");
-			    		  return;;
+			    		  return;
 			    	  }else if(returndata=="error2"){
 			    		  mini.unmask(document.body);
 			    		alert("excel的中的检查事项存在问题，请核查后再导入");
@@ -192,7 +192,7 @@ function uploadSave(){
 				    	  var errorNum=eval("("+returndata+")").errorNum;
 				    	  if(errorNum!="0"){
 				    		  var hehe = document.getElementById("first");
-					    	  hehe.innerText = "含有错误！ 错误数为："+errorNum+";    错误率为："+percent+";  建议修正后在导入!";
+					    	  hehe.innerText = "含有错误！ 错误数为："+errorNum+";    错误率为："+percent+";  建议修正后再导入!";
 				    	  }
 				    	  var ItemJson=eval("("+returndata+")").itemId;
 				    	  mini.get("itemIdTemp").setValue(ItemJson);

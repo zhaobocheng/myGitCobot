@@ -92,7 +92,7 @@
 				<td><input class="mini-combobox" id="itemdx" name="itemdx" style="width:220px;" onvaluechanged="findRow()" textField="text" valueField="id" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY04&isSync=1"/></td>
 			</tr>
 			<tr>
-				<td>检查事项分类：</td>
+				<td>检查事项业务分类：</td>
 				<td colspan="3"><input class="mini-combobox" id="itemfl" name="itemfl" style="width:220px;" onvaluechanged="findRow()" textField="text" valueField="id" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY02&isSync=1"/>&nbsp;&nbsp;
 					<a class="mini-button" id="find" iconCls = "icon-find"  onclick="findRow()">查找</a>
 					<a class="mini-button" id="find" iconCls = "icon-save"  onclick="savePowerList()">保存</a>
@@ -108,7 +108,7 @@
 				<div type="indexcolumn" width="20" headerAlign="center">序号</div>
 				<div field=itemmc width="80" headerAlign="center">检查事项名称</div>
 				<div field="itemdx" width="120" headerAlign="center">检查事项对象</div>
-				<div field="itemfl" width="80" headerAlign="center">检查事项分类</div>
+				<div field="itemfl" width="80" headerAlign="center">检查事项业务分类</div>
 			</div>
 		</div>
 	</div>
