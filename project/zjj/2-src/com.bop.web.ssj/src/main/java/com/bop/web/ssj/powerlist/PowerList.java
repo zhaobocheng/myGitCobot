@@ -162,7 +162,7 @@ public class PowerList {
 			whereString +=" and ITEM0101 like '%"+sxmc+"%'";	//事项名称
 		}
 		if(sxfl!=null&&!"".equals(sxfl)){
-			whereString +=" and ITEM0102 = '"+sxfl+"'";			//事项分类
+			whereString +=" and ITEM0102 = '"+sxfl+"'";			//事项业务分类
 		}
 		if(feiqi!=null&&!"".equals(feiqi)&&"2".equals(feiqi)){
 			whereString +=" and ITEM0199 != '2'";			  //废弃
@@ -173,7 +173,7 @@ public class PowerList {
 			ExtObject eo = new ExtObject();
 			eo.add("id", ird.getObjectId());
 			eo.add("jcsxmc", ird.get("ITEM0101"));//检查事项名称
-			eo.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getCaption());//事项分类
+			eo.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getCaption());//事项业务分类
 			eo.add("ccdx", ird.get("ITEM0103",DmCodetables.class).getCaption());//抽查对象
 			String status=ird.get("ITEM0199").toString();
 			String statusStr="";
@@ -195,7 +195,7 @@ public class PowerList {
 			List<Map<String, Object>> powerList= this.jdbcTemplate.queryForList("select distinct  q.q0101,q.q0103  from  Item02 t,Q01 q   where t.item0201=q.q00  and  t.parentid='"+ird.getObjectId()+"'");
 			String qlqdStr="";
 			for(Map<String,Object> ire:powerList){
-				qlqdStr+=ire.get("Q0101")+"&nbsp;&nbsp;"+ire.get("Q0103")+"</br>" ;
+				qlqdStr+=ire.get("Q0103")+"</br>" ;
 			}
 			//两者都为空
 			if(((qlmc==null||"".equals(qlmc))&&(qlbm==null||"".equals(qlbm)))){
@@ -242,7 +242,7 @@ public class PowerList {
 			String sql="select  o1.org_name  orgName,i1.item0101 itemName,o4.org0403 from  org04 o4,org01 o1,item01 i1 where  o4.org0401='"+sxId+"'  and o1.org00 =o4.parentid and i1.item00=o4.org0401 and i1.item0190='1' and o1.org0199='0'";
 			List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList(sql);
 			eo.add("sxId", ird.get("ITEM00"));
-			eo.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getCaption());//事项分类
+			eo.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getCaption());//事项业务分类
 			eo.add("ccdx", ird.get("ITEM0103")==null?"":ird.get("ITEM0103",DmCodetables.class).getCaption());//抽查对象
 			eo.add("cjfs", ird.get("ITEM0190").toString().equals("0")?"自动":"手动");
 			eo.add("orgNum", String.valueOf(ndlist.size()));
@@ -252,7 +252,7 @@ public class PowerList {
 	}
  
 	/**
-	 * 获取下拉列表里面的值(事项分类)
+	 * 获取下拉列表里面的值(事项业务分类)
 	 * @author liupx
 	 * @return
 	 */
@@ -327,13 +327,13 @@ public class PowerList {
 				UUID uid = UUID.randomUUID();
 				IRecord red =this.recordDao.createNew("ITEM01",uid, uid);
 				red.put("ITEM0101", sxmc);				//事项名称
-				red.put("ITEM0102", sxfl);				//事项分类	
+				red.put("ITEM0102", sxfl);				//事项业务分类	
 				red.put("ITEM0103", ccdx);				//抽查对象
 				red.put("ITEM0199", "0");				//状态
 				red.put("ITEM0193", username);			//建立人
 				red.put("ITEM0191", new Date());					//创建时间
 				this.recordDao.saveObject(red);
-				for(String powerId:powerIds){			//对应权力清单
+				for(String powerId:powerIds){			//对应检查权利清单
 					UUID cuid = UUID.randomUUID();
 					IRecord cred =this.recordDao.createNew("ITEM02",cuid,cuid);
 					cred.put("PARENTID", uid);				 
@@ -358,11 +358,11 @@ public class PowerList {
 				this.recordDao.saveObject(rds.get(0));
 				UUID uid=rds.get(0).getObjectId();
 				
-				//先删除原有的关联的对应权力清单记录。
+				//先删除原有的关联的对应检查权利清单记录。
 				String qlqdSql="delete  item02 t where t.parentid='"+uid+"'";
 				this.jdbcTemplate.execute(qlqdSql);
 				if(powerIds.length>0){
-					for(String powerId:powerIds){				//对应权力清单
+					for(String powerId:powerIds){				//对应检查权利清单
 						UUID cuid = UUID.randomUUID();
 						IRecord cred =this.recordDao.createNew("ITEM02",cuid,cuid);
 						cred.put("PARENTID", uid);				 
@@ -424,7 +424,7 @@ public class PowerList {
 			IRecord ird=rds.get(0);
 			form.add("id", ird.get("ITEM00"));
 			form.add("sxmc", ird.get("ITEM0101"));										//事项名称
-			form.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getId());			//事项分类
+			form.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getId());			//事项业务分类
 			form.add("ccdx", ird.get("ITEM0103",DmCodetables.class).getId());			//抽查对象Id
 			 
 			List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList("select q.q00,q.q0103　from Q01 q, Item01 I1, Item02 I2 where  I1.Item00=I2.PARENTID and  I2.ITEM0201=q.q00 and I1.Item00='"+ird.get("ITEM00")+"'");
@@ -638,14 +638,13 @@ public class PowerList {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		 
 		Cells cells = designer.getWorksheets().get(0).getCells();
 		int rows=cells.getMaxDataRow()+1;
 		selected = "'"+selected.replaceAll(",", "','")+"'";	
 		if(selected.contains(",")){//包含的话说明勾选了多个；
 			//校验之前先判断excel中的事项名字这列是不是为空，不为空不正确。
 			for(int x=1;x<rows;x++){
-				String itemNameByExcel=cells.get(x,0).getValue()==null?"": cells.get(x,0).getValue().toString();
+				String itemNameByExcel=cells.get(x,0).getValue()==null?"": cells.get(x,0).getStringValue().toString();
 				if(!"".equals(itemNameByExcel)){
 					return "error1";
 				}
@@ -666,66 +665,52 @@ public class PowerList {
 					return "error2";
 				}
 			}
-			
 		}
 		//全部正确之后再进行其他值的校验。	
-		int m=0;
-		int n=0;
-		int z=0;
 		int errorNum=0;
 		for(int i=1;i<rows;i++){
+			int m=0;
+			int n=0;
+			int z=0;
 			//所属业务部门
-			String deptName=cells.get(i,1).getValue()==null?"": cells.get(i,1).getValue().toString().trim();
+			String deptName=cells.get(i,1).getValue()==null?"": cells.get(i,1).getStringValue().trim();
 			//企业名称
-			String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString().trim();
+			String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getStringValue().trim();
 			//组织机构代码
-			String orgCode=cells.get(i,2).getValue()==null?"": cells.get(i,2).getValue().toString().trim();
+			String orgCode=cells.get(i,2).getStringValue()==null?"": cells.get(i,2).getStringValue().trim();
 			orgCode=orgCode.replace("-", "");
 			//注册区县
-			String city=cells.get(i,6).getValue()==null?"": cells.get(i,6).getValue().toString().trim();
+			String city=cells.get(i,6).getValue()==null?"": cells.get(i,6).getStringValue().trim();
 			//注册地区划代码
-			String orgAddressCode=cells.get(i,5).getValue()==null?"": cells.get(i,5).getValue().toString().trim();
+			String orgAddressCode=cells.get(i,5).getValue()==null?"": cells.get(i,5).getStringValue().trim();
 			orgAddressCode=orgAddressCode.split("\\.")[0];
 			//生产地区划代码
-			String yieldlyCode=cells.get(i,8).getValue()==null?"": cells.get(i,8).getValue().toString().trim();
-			
+			String yieldlyCode=cells.get(i,8).getValue()==null?"": cells.get(i,8).getStringValue().trim();
 			List<Map<String, Object>> scList=new ArrayList<Map<String, Object>>(); 
-			
 			//校验组织机构代码
 			if(StringUtils.isNotBlank(orgCode)&&(orgCode.length()==9||orgCode.length()==18)){
 				if(orgCode.length()==18){
-					 List<Map<String, Object>> orgList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode.substring(8,17)+"'");
-					 if(orgList.size()<0||orgList.isEmpty()){
-							m=1;
-					 }else{
-						 //更新到org01里里面去
-						 String sql="update org01 set credit_code='"+orgCode+"' where org_code='"+orgCode.substring(8,17)+"'";
-						 this.jdbcTemplate.execute(sql);
-					 }
-				}else if(orgCode.length()==9){
-					List<Map<String, Object>> orgList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode+"'");
-					if(orgList.size()<0||orgList.isEmpty()){
-						m=1;
-					}
-				}
+					orgCode=orgCode.substring(8,17);
+				} 
+				int orgSize= this.jdbcTemplate.queryForInt("select count(*)　from Org01  where  ORG_CODE='"+orgCode+"'");
+				if(orgSize<1){
+					m=1;
+				} 
 			}else{
 				m=1;
 			}
-			if(StringUtils.isNotBlank(yieldlyCode)){
-				yieldlyCode=yieldlyCode.split("\\.")[0];
-				//校验生产区划代码
-				scList= this.jdbcTemplate.queryForList("select cid,codetablename from DM_CODETABLE_DATA   where  codetablename='DB064' and cid='"+yieldlyCode+"'");
-			}
 			//校验注册区划代码
-			List<Map<String, Object>> zcList= this.jdbcTemplate.queryForList("select cid,codetablename from DM_CODETABLE_DATA where  codetablename='DB064' and cid='"+orgAddressCode+"'");
-			if(zcList.size()<0||zcList.isEmpty()){
+			int zcSize= this.jdbcTemplate.queryForInt("select count(*) from DM_CODETABLE_DATA where  codetablename='DB064' and cid='"+orgAddressCode+"'");
+			if(zcSize<1){
 				n=1;
 			}
-			if(scList.size()<0||scList.isEmpty()){
+			//校验生产区划代码
+			int	scSize= this.jdbcTemplate.queryForInt("select count(*) from DM_CODETABLE_DATA   where  codetablename='DB064' and cid='"+yieldlyCode+"'");
+			if(scSize<1){
 				z=1;
 			}
 			if(this.jude(m,n,z)){
-				errorNum++;
+				errorNum++;							//错误数量++
 				HashMap<String,String> sub=new HashMap<String,String>();
 				sub.put("errorIndex", String.valueOf(errorNum));
 				sub.put("orgName", orgName);
@@ -750,9 +735,6 @@ public class PowerList {
 				JSONObject jsonObject = JSONObject.fromObject(sub);
 				errorLs.add(jsonObject);
 			}
-			m=0;
-			n=0;
-			z=0;
 		}
 		Double s=Double.valueOf(errorNum)/Double.valueOf(rows-1);
 		DecimalFormat df=new DecimalFormat("0.00");
@@ -779,7 +761,6 @@ public class PowerList {
 			String time=sdf.format(new Date());
 			//把上传的文件保存到服务器。
 			this.saveUpload(fs,fileName,time);
-			
 			fs = (FileInputStream) request.getFileInputStream(title);
             if("0".equals(flag)){
             	info=this.intoLibrary(fs,fileName,selectId,time);//入库
@@ -844,13 +825,12 @@ public class PowerList {
 	         styleError.getFont().setColor(Color.getRed());
 	         styleError.setHorizontalAlignment(TextAlignmentType.CENTER);
 	         String titles[]={"事项名称","所属业务部门","组织机构代码","企业名称","注册地址","注册地区划代码","注册区县","生产地址","生产地区划代码","联系人","联系电话","信用等级","风险等级","子码"};
-	         
 	         // 写入表头
 	         for (int ti = 0; ti < titles.length; ti++) {
-	     		Row R = row.get(0);
-	             Cell cell = R.get(ti);
-	             cell.setValue(titles[ti]);
-	             cell.setStyle(style);
+					Row R = row.get(0);
+					Cell cell = R.get(ti);
+					cell.setValue(titles[ti]);
+					cell.setStyle(style);
 	         }
 	         int rows=cells.getMaxDataRow()+1;
 	         int stratRow = 0;
@@ -871,7 +851,7 @@ public class PowerList {
 						//企业名称
 						String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString().trim();
 						//组织机构代码
-						String orgCode=cells.get(i,2).getValue()==null?"": cells.get(i,2).getValue().toString().trim();
+						String orgCode=cells.get(i,2).getStringValue()==null?"": cells.get(i,2).getStringValue().trim();
 						orgCode=orgCode.replace("-", "");
 						//注册地区划代码
 						String orgAddressCode=cells.get(i,5).getValue()==null?"": cells.get(i,5).getValue().toString().trim();
@@ -893,26 +873,35 @@ public class PowerList {
 						String riskLevel=cells.get(i,12).getValue()==null?"": cells.get(i,12).getValue().toString().trim();
 						//子码
 						String subCode=cells.get(i,13).getValue()==null?"": cells.get(i,13).getValue().toString().trim();
-						List<Map<String, Object>> orgList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode+"'");
-						if(orgList.size()<0||orgList.isEmpty()){
+						if(orgCode.length()==18){
+							 int orgSize= this.jdbcTemplate.queryForInt("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode.substring(8,17)+"'");
+							 if(orgSize<1){
+									m=1;
+							 }else{
+								 //更新到org01里里面去
+								 String sql="update org01 set credit_code='"+orgCode+"' where org_code='"+orgCode.substring(8,17)+"'";
+								 this.jdbcTemplate.execute(sql);
+							 }
+						}
+						int orgSize= this.jdbcTemplate.queryForInt("select count(*)　from Org01  where  ORG_CODE='"+orgCode+"'");
+						if(orgSize<1){
 							m=1;
 						}
 						orgAddressCode=orgAddressCode.split("\\.")[0];
-						List<Map<String, Object>> cityList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME,ORG_CODE,reg_district_dic　from Org01 o where  o.reg_district_dic='"+orgAddressCode+"'");
-						if(cityList.size()<0||cityList.isEmpty()){
+						int citySize= this.jdbcTemplate.queryForInt("select count(*)　from DM_CODETABLE_DATA o where  o.cid='"+orgAddressCode+"'");
+						if(citySize<1){
 							n=1;
 						}
 						if(StringUtils.isNotBlank(yieldlyCode)){
 							//校验生产区划代码
 							yieldlyCode=yieldlyCode.split("\\.")[0];
-							List<Map<String, Object>> scList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME,ORG_CODE,reg_district_dic　from Org01 o where  o.reg_district_dic='"+yieldlyCode+"'");
-							if(scList.size()<0||scList.isEmpty()){
+							int scSize= this.jdbcTemplate.queryForInt("select count(*)　from DM_CODETABLE_DATA o where  o.cid='"+yieldlyCode+"'");
+							if(scSize<1){
 								z=1;
 							}
 						}else{
 							z=1;
 						}
-						
 						if(this.jude(m,n,z)){//都为1 说明组织区域代码和注册区县代码,生产区划代码都含有错误。 
 							errorNum++;
 							//把失败的写入到服务的excel中；
@@ -978,7 +967,9 @@ public class PowerList {
 						    }
 						}
 						if(m==0&&n==0&&z==0){
+							List<Map<String,Object>> orgList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode+"'");
 							String orgId=orgList.get(0).get("ORG00").toString();
+							
 							String ss[]=selectId.split(",");
 						    for(String sub:ss){
 						    	String sql="select ORG00 from org04  where PARENTID='"+orgId+"' and ORG0401='"+sub+"' and  ORG0408='"+subCode+"'";
@@ -1006,7 +997,6 @@ public class PowerList {
 								cred.put("ORG0408", subCode);			//子码
 								cred.put("ORG0409", orgCode+subCode);			//总码
 								List<Map<String, Object>> list= this.jdbcTemplate.queryForList(sql);
-								
 								if(!list.isEmpty()){//存在更新org04表；
 									SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 									String updateTime=sdf.format(new Date());
@@ -1048,16 +1038,16 @@ public class PowerList {
 	        int updateNum=0;
 	        for(int i=1;i<rows;i++){
 	        	//事项名称
-	        	String itemName=cells.get(i,0).getValue()==null?"": cells.get(i,0).getValue().toString();
+	        	String itemName=cells.get(i,0).getValue()==null?"": cells.get(i,0).getValue().toString().trim();
 		        //所属业务部门
-				String deptName=cells.get(i,1).getValue()==null?"": cells.get(i,1).getValue().toString();
+				String deptName=cells.get(i,1).getValue()==null?"": cells.get(i,1).getValue().toString().trim();
 				//企业名称
-				String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString();
+				String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString().trim();
 				//组织机构代码
-				String orgCode=cells.get(i,2).getValue()==null?"": cells.get(i,2).getValue().toString();
+				String orgCode=cells.get(i,2).getStringValue()==null?"": cells.get(i,2).getStringValue().trim();
 				orgCode=orgCode.replace("-", "");
 				//注册地区划代码
-				String orgAddressCode=cells.get(i,5).getValue()==null?"": cells.get(i,5).getValue().toString();
+				String orgAddressCode=cells.get(i,5).getStringValue()==null?"": cells.get(i,5).getStringValue().trim();
 				orgAddressCode=orgAddressCode.split("\\.")[0];
 				//注册地址
 				String orgAddress=cells.get(i,4).getValue()==null?"": cells.get(i,4).getValue().toString();
@@ -1066,7 +1056,7 @@ public class PowerList {
 				//生产地址
 				String yieldlyAddress=cells.get(i,7).getValue()==null?"": cells.get(i,7).getValue().toString();
 				//生产地区划代码
-				String yieldlyCode=cells.get(i,8).getValue()==null?"": cells.get(i,8).getValue().toString();
+				String yieldlyCode=cells.get(i,8).getStringValue()==null?"": cells.get(i,8).getStringValue().trim();
 				yieldlyCode=yieldlyCode.split("\\.")[0];
 				//联系人
 				String linkman=cells.get(i,9).getValue()==null?"": cells.get(i,9).getValue().toString();
@@ -1078,10 +1068,14 @@ public class PowerList {
 				String riskLevel=cells.get(i,12).getValue()==null?"": cells.get(i,12).getValue().toString();
 				//子码
 				String subCode=cells.get(i,13).getValue()==null?"": cells.get(i,13).getValue().toString();
-				List<Map<String, Object>> orgList= this.jdbcTemplate.queryForList("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode+"'");
-				//校验生产区划代码
+				
+				if(orgCode.length()==18){
+					 //更新到org01里里面去
+					 String sql="update org01 set credit_code='"+orgCode+"' where org_code='"+orgCode.substring(8,17)+"'";
+					 this.jdbcTemplate.execute(sql);
+				}
+				List<Map<String, Object>> orgList= this.jdbcTemplate.queryForList("select ORG00　from Org01  where  ORG_CODE='"+orgCode+"'");
 				String orgId=orgList.get(0).get("ORG00").toString();
-				 
 				if("高".equals(riskLevel)){
 					riskLevel="1";
 				}else if("中".equals(riskLevel)){
@@ -1171,16 +1165,13 @@ public class PowerList {
     	HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
     	int pageIndex =Integer.parseInt(request.getParameter("pageIndex").toString());
 		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
-		String whereString = "1=1 ";   
-    	ExtGrid eg = new ExtGrid();
-		Records rds = this.recordDao.queryRecord("LOG01", whereString,"LOG0104",pageIndex*pageSize,pageSize);
-		int total= this.jdbcTemplate.queryForInt("select count(*) from LOG01 where "+whereString);
-		eg.setTotal(total);
-		
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-		for(IRecord ird :rds){
+		String sql="select LOG00,LOG0101,LOG0102,LOG0104,LOG0106,LOG0107,LOG0108,LOG0109,LOG0110 from  LOG01   where ROWNUM between "+pageIndex+" and "+pageIndex+pageSize+" ORDER BY LOG0104 desc";
+		List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList(sql);
+		ExtObjectCollection eg = new ExtObjectCollection();
+		for(Map<String,Object> ird:ndlist){
 			ExtObject eo = new ExtObject();
-			eo.add("id", ird.getObjectId());
+			eo.add("id", ird.get("LOG00"));
 			eo.add("fileName", ird.get("LOG0101"));						//文件名
 			eo.add("operUser", ird.get("LOG0102"));						//操作人
 			eo.add("loadDate", sdf.format(ird.get("LOG0104")));			//导入时间 
@@ -1190,7 +1181,7 @@ public class PowerList {
 			eo.add("successNum", Integer.toString(x+y));			//成功数
 			eo.add("errorNum", ird.get("LOG0109"));			//失败数
 			eo.add("totalNum", ird.get("LOG0110"));			//失败数
-			eg.rows.add(eo);
+			eg.add(eo);
 		}
 		return eg.toString();
     }
