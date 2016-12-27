@@ -152,15 +152,11 @@ function uploadSave(){
 	     	}
 	 		$('#uploadData')[0].disabled=true;
 	 	    var formData = new FormData($( "#uploadData" )[0]);
-	 	    
-	 	    
 	 	   mini.mask({
 	            el: document.body,
 	            cls: 'mini-mask-loading',
 	            html: '后台校验中，请稍后...'
 	        });
-	 	    
-	 	    
 			$.ajax({
 			      url: '/ssj/powerlist/PowerList/identifyInfo/'+selectedId+'?theme=none',
 			      type: 'POST',
@@ -260,6 +256,7 @@ function goon(){
 	$('#uploadData')[0].disabled=true;
 	var formData = new FormData($( "#uploadData" )[0]);
 	var fileName=document.uploadDataName.Fdata.value;
+	fileName=fileName.substring(fileName.lastIndexOf("\\")+1,fileName.length);
 	var selectedId=mini.get("itemIdInput").value;
 	var size=selectedId.split(",").length;
 	if(flag==1){
