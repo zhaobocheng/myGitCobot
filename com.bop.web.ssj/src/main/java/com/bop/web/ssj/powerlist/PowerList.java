@@ -23,7 +23,6 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.osgi.framework.adaptor.FilePath;
 import org.springframework.dao.DataAccessException;
@@ -59,12 +58,17 @@ import com.bop.web.rest.Controller;
 import com.bop.web.rest.MultipartHttpServletRequest;
 
 import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 public class PowerList {
 	private IRecordDao recordDao;
 	private UserSession userSession;
 	private JdbcOperations jdbcTemplate;
+	
+	private static final Logger log = LoggerFactory.getLogger(PowerList.class);
+	
 	public void setRecordDao(IRecordDao recordDao) {
 		this.recordDao = recordDao;
 	}
@@ -202,7 +206,8 @@ public class PowerList {
 			//两者都为空
 			if(((qlmc==null||"".equals(qlmc))&&(qlbm==null||"".equals(qlbm)))){
 				 eo.add("qlqdStr", qlqdStr);	//权力清单编码和名称
-				 eg.rows.add(eo);
+				 eg.rows.add(eo);				 
+				 
 			//两者都不为空
 			}else if(qlmc!=null&&!"".equals(qlmc)&&qlbm!=null&&!"".equals(qlbm)){
 				if(qlqdStr.contains(qlmc)&&qlqdStr.contains(qlmc)){
@@ -637,13 +642,27 @@ public class PowerList {
 			fs = (FileInputStream) request.getFileInputStream(title);
 			designer = new Workbook(fs);
 		} catch (IOException e) {
+			
+			log.error("读取导入文件IO错误");
+			log.error(e.getMessage().toString());
 			e.printStackTrace();
 		}catch (Exception e) {
+			log.error("读取导入文件错误");
 			e.printStackTrace();
+			log.error(e.getMessage().toString());
 		}
 		Cells cells = designer.getWorksheets().get(0).getCells();
+		
 		int rows=cells.getMaxDataRow()+1;
+		
+		int cols = cells.getMaxDataColumn()+1;
+		
+		if (log.isDebugEnabled()){
+			log.debug("文件行数：" + rows +";文件列数：" + cols);
+		}
+		
 		selected = "'"+selected.replaceAll(",", "','")+"'";	
+		
 		if(selected.contains(",")){//包含的话说明勾选了多个；
 			//校验之前先判断excel中的事项名字这列是不是为空，不为空不正确。
 			for(int x=1;x<rows;x++){

@@ -139,7 +139,7 @@ function uploadSave(){
 	var selectedName=mini.get("itemInput").value;
 	var selectedId=mini.get("itemIdInput").value;
 	if((selectedId.trim()==null||selectedId.trim()=="")||(selectedName.trim()==null||selectedName.trim()=="")){
-		alert("请选择事项名字");
+		alert("请选择事项");
 		return;
 	}else{
 		 $("#temp").val(0);
@@ -175,7 +175,7 @@ function uploadSave(){
 			    		  return;
 			    	  }else if(returndata=="error2"){
 			    		  mini.unmask(document.body);
-			    		alert("excel的中的检查事项存在问题，请核查后再导入");
+			    		alert("excel的中的检查事项和选中的事项不一致，请核查后再导入");
 			    		return;
 			    		  
 			    	  }else{
