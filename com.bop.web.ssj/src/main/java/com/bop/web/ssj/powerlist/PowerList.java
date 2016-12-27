@@ -147,7 +147,7 @@ public class PowerList {
 	 */
 	@Action
 	public String getCheckData(){
-		ExtObjectCollection eoc = new ExtObjectCollection();
+		ExtGrid eg = new ExtGrid();
 		HttpServletRequest request =ActionContext.getActionContext().getHttpServletRequest();
 		String sxmc=request.getParameter("sxmc")==null?null:request.getParameter("sxmc").toString();
 		String sxfl=request.getParameter("sxfl")==null?null:request.getParameter("sxfl").toString();
@@ -157,6 +157,7 @@ public class PowerList {
 		
 		int pageIndex =Integer.parseInt(request.getParameter("pageIndex").toString());
 		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
+		
 		String whereString = "1=1 ";   //状态为3的为废弃的。
 		if(sxmc!=null&&!"".equals(sxmc)){
 			whereString +=" and ITEM0101 like '%"+sxmc+"%'";	//事项名称
@@ -167,7 +168,8 @@ public class PowerList {
 		if(feiqi!=null&&!"".equals(feiqi)&&"2".equals(feiqi)){
 			whereString +=" and ITEM0199 != '2'";			  //废弃
 		}
-		 
+		int total= this.jdbcTemplate.queryForInt("select count(*) from ITEM01 where "+whereString);
+		eg.setTotal(total); 
 		Records rds = this.recordDao.queryRecord("ITEM01", whereString,"item0101",pageIndex*pageSize,pageSize);
 		for(IRecord ird :rds){
 			ExtObject eo = new ExtObject();
@@ -200,28 +202,29 @@ public class PowerList {
 			//两者都为空
 			if(((qlmc==null||"".equals(qlmc))&&(qlbm==null||"".equals(qlbm)))){
 				 eo.add("qlqdStr", qlqdStr);	//权力清单编码和名称
-				 eoc.add(eo);
+				 eg.rows.add(eo);
 			//两者都不为空
 			}else if(qlmc!=null&&!"".equals(qlmc)&&qlbm!=null&&!"".equals(qlbm)){
 				if(qlqdStr.contains(qlmc)&&qlqdStr.contains(qlmc)){
 					eo.add("qlqdStr", qlqdStr);	//权力清单编码和名称
-					eoc.add(eo);
+					 eg.rows.add(eo);
 				}
 			// 名称为空 编码不为空 
 			}else if((qlmc==null||"".equals(qlmc)) &&qlbm!=null&&!"".equals(qlbm)){
 				if(qlqdStr.contains(qlbm)){
 					eo.add("qlqdStr", qlqdStr);	//权力清单编码和名称
-					eoc.add(eo);
+					 eg.rows.add(eo);
 				}
 			//名称不为空 编码为空	
 			}else if((qlmc!=null&&!"".equals(qlmc)) &&(qlbm==null||"".equals(qlbm))){
 				if(qlqdStr.contains(qlmc)){
 					eo.add("qlqdStr", qlqdStr);	//权力清单编码和名称
-					eoc.add(eo);
+					 eg.rows.add(eo);
 				}
 			}
 		}
-		return eoc.toString();
+		
+		return eg.toString();
 	}
 	@Action
 	public String checkData(){
@@ -672,21 +675,18 @@ public class PowerList {
 			int m=0;
 			int n=0;
 			int z=0;
-			//所属业务部门
-			String deptName=cells.get(i,1).getValue()==null?"": cells.get(i,1).getStringValue().trim();
-			//企业名称
-			String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getStringValue().trim();
 			//组织机构代码
-			String orgCode=cells.get(i,2).getStringValue()==null?"": cells.get(i,2).getStringValue().trim();
+			String orgCode=cells.get(i,1).getStringValue()==null?"": cells.get(i,1).getStringValue().trim();
 			orgCode=orgCode.replace("-", "");
-			//注册区县
-			String city=cells.get(i,6).getValue()==null?"": cells.get(i,6).getStringValue().trim();
+			//企业名称
+			String orgName=cells.get(i,2).getStringValue()==null?"": cells.get(i,2).getStringValue().trim();
 			//注册地区划代码
-			String orgAddressCode=cells.get(i,5).getValue()==null?"": cells.get(i,5).getStringValue().trim();
-			orgAddressCode=orgAddressCode.split("\\.")[0];
+			String orgAddressCode=cells.get(i,4).getStringValue()==null?"": cells.get(i,4).getStringValue().trim();
+			//注册区县
+			String city=cells.get(i,5).getStringValue()==null?"": cells.get(i,5).getStringValue().trim();
 			//生产地区划代码
-			String yieldlyCode=cells.get(i,8).getValue()==null?"": cells.get(i,8).getStringValue().trim();
-			List<Map<String, Object>> scList=new ArrayList<Map<String, Object>>(); 
+			String yieldlyCode=cells.get(i,7).getStringValue()==null?"": cells.get(i,7).getStringValue().trim();
+			
 			//校验组织机构代码
 			if(StringUtils.isNotBlank(orgCode)&&(orgCode.length()==9||orgCode.length()==18)){
 				if(orgCode.length()==18){
@@ -824,7 +824,7 @@ public class PowerList {
 	         styleError.setTextWrapped(false);
 	         styleError.getFont().setColor(Color.getRed());
 	         styleError.setHorizontalAlignment(TextAlignmentType.CENTER);
-	         String titles[]={"事项名称","所属业务部门","组织机构代码","企业名称","注册地址","注册地区划代码","注册区县","生产地址","生产地区划代码","联系人","联系电话","信用等级","风险等级","子码"};
+	         String titles[]={"事项名称","组织机构代码","企业名称","注册地址","注册地区划代码","注册区县","生产地址","生产地区划代码","联系人","联系电话","风险等级","子码"};
 	         // 写入表头
 	         for (int ti = 0; ti < titles.length; ti++) {
 					Row R = row.get(0);
@@ -844,57 +844,56 @@ public class PowerList {
 						int z=0;
 						String itemName="";
 						if(!selectId.contains(",")){
-							itemName=cells.get(i,0).getValue()==null?"": cells.get(i,0).getValue().toString().trim();
+							itemName=cells.get(i,0).getStringValue()==null?"": cells.get(i,0).getStringValue().trim();
 						}
-						//所属业务部门
-						String deptName=cells.get(i,1).getValue()==null?"": cells.get(i,1).getValue().toString().trim();
-						//企业名称
-						String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString().trim();
 						//组织机构代码
-						String orgCode=cells.get(i,2).getStringValue()==null?"": cells.get(i,2).getStringValue().trim();
+						String orgCode=cells.get(i,1).getStringValue()==null?"": cells.get(i,1).getStringValue().trim();
+						//企业名称
+						String orgName=cells.get(i,2).getValue()==null?"": cells.get(i,2).getStringValue().trim();
 						orgCode=orgCode.replace("-", "");
+						//企业地址
+						String orgAddress=cells.get(i,3).getStringValue()==null?"": cells.get(i,3).getStringValue().trim();
 						//注册地区划代码
-						String orgAddressCode=cells.get(i,5).getValue()==null?"": cells.get(i,5).getValue().toString().trim();
-						//注册地址
-						String orgAddress=cells.get(i,4).getValue()==null?"": cells.get(i,4).getValue().toString().trim();
+						String orgAddressCode=cells.get(i,4).getStringValue()==null?"": cells.get(i,4).getStringValue().trim();
 						//注册区县
-						String city=cells.get(i,6).getValue()==null?"": cells.get(i,6).getValue().toString().trim();
+						String city=cells.get(i,5).getStringValue()==null?"": cells.get(i,5).getStringValue().trim();
 						//生产地址
-						String yieldlyAddress=cells.get(i,7).getValue()==null?"": cells.get(i,7).getValue().toString().trim();
+						String yieldlyAddress=cells.get(i,6).getStringValue()==null?"": cells.get(i,6).getStringValue().trim();
 						//生产地区划代码
-						String yieldlyCode=cells.get(i,8).getValue()==null?"": cells.get(i,8).getValue().toString().trim();
+						String yieldlyCode=cells.get(i,7).getStringValue()==null?"": cells.get(i,7).getStringValue().trim();
 						//联系人
-						String linkman=cells.get(i,9).getValue()==null?"": cells.get(i,9).getValue().toString().trim();
+						String linkman=cells.get(i,8).getStringValue()==null?"": cells.get(i,8).getStringValue().trim();
 						//联系电话
-						String telPhone=cells.get(i,10).getValue()==null?"": cells.get(i,10).getValue().toString().trim();
-						//信用等级
-						String creditLevel=cells.get(i,11).getValue()==null?"": cells.get(i,11).getValue().toString().trim();
+						String telPhone=cells.get(i,9).getStringValue()==null?"": cells.get(i,9).getStringValue().trim();
 						//风险等级
-						String riskLevel=cells.get(i,12).getValue()==null?"": cells.get(i,12).getValue().toString().trim();
+						String riskLevel=cells.get(i,10).getStringValue()==null?"": cells.get(i,10).getStringValue().trim();
 						//子码
-						String subCode=cells.get(i,13).getValue()==null?"": cells.get(i,13).getValue().toString().trim();
-						if(orgCode.length()==18){
-							 int orgSize= this.jdbcTemplate.queryForInt("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode.substring(8,17)+"'");
-							 if(orgSize<1){
-									m=1;
-							 }else{
+						String subCode=cells.get(i,11).getStringValue()==null?"": cells.get(i,11).getStringValue().trim();
+						if(StringUtils.isNotBlank(orgCode)&&(orgCode.length()==9||orgCode.length()==18)){
+							if(orgCode.length()==18){
+								orgCode=orgCode.substring(8,17);
+							} 
+							int orgSize= this.jdbcTemplate.queryForInt("select count(*)　from Org01  where  ORG_CODE='"+orgCode+"'");
+							if(orgSize<1){
+								m=1;
+							}else{
 								 //更新到org01里里面去
-								 String sql="update org01 set credit_code='"+orgCode+"' where org_code='"+orgCode.substring(8,17)+"'";
+								 String sql="update org01 set credit_code='"+orgCode+"' where org_code='"+orgCode+"'";
 								 this.jdbcTemplate.execute(sql);
-							 }
+							} 
+						}else{
+							m=1;
 						}
 						int orgSize= this.jdbcTemplate.queryForInt("select count(*)　from Org01  where  ORG_CODE='"+orgCode+"'");
 						if(orgSize<1){
 							m=1;
 						}
-						orgAddressCode=orgAddressCode.split("\\.")[0];
 						int citySize= this.jdbcTemplate.queryForInt("select count(*)　from DM_CODETABLE_DATA o where  o.cid='"+orgAddressCode+"'");
 						if(citySize<1){
 							n=1;
 						}
 						if(StringUtils.isNotBlank(yieldlyCode)){
 							//校验生产区划代码
-							yieldlyCode=yieldlyCode.split("\\.")[0];
 							int scSize= this.jdbcTemplate.queryForInt("select count(*)　from DM_CODETABLE_DATA o where  o.cid='"+yieldlyCode+"'");
 							if(scSize<1){
 								z=1;
@@ -902,7 +901,7 @@ public class PowerList {
 						}else{
 							z=1;
 						}
-						if(this.jude(m,n,z)){//都为1 说明组织区域代码和注册区县代码,生产区划代码都含有错误。 
+						if(this.jude(m,n,z)){//都为1 说明组织区域代码,注册区县代码,生产区划代码都含有错误。 
 							errorNum++;
 							//把失败的写入到服务的excel中；
 						    ++stratRow;
@@ -913,54 +912,48 @@ public class PowerList {
 						    		cell.setValue(itemName);
 						            cell.setStyle(style);
 						    	}else if(w==1){
-						    		cell.setValue(deptName);
-						            cell.setStyle(style);
-						    	}else if(w==2){
 						    		cell.setValue(orgCode);
 						    		if(m==1){
 						    			cell.setStyle(styleError);
 						    		}else{
 						    			cell.setStyle(style);
 						    		}
-						    	}else if(w==3){
+						    	}else if(w==2){
 						    		cell.setValue(orgName);
 						            cell.setStyle(style);
-						    	}else if(w==4){
+						    	}else if(w==3){
 						    		cell.setValue(orgAddress);
 						            cell.setStyle(style);
-						    	}else if(w==5){
+						    	}else if(w==4){
 						    		cell.setValue(orgAddressCode);
 						    		if(n==1){
 						    			cell.setStyle(styleError);
 						    		}else{
 						    			cell.setStyle(style);
 						    		}
-						    	}else if(w==6){
+						    	}else if(w==5){
 						    		cell.setValue(city);
 						            cell.setStyle(style);
-						    	}else if(w==7){
+						    	}else if(w==6){
 						    		cell.setValue(yieldlyAddress);
 						            cell.setStyle(style);
-						    	}else if(w==8){
+						    	}else if(w==7){
 						    		cell.setValue(yieldlyCode);
 						    		if(z==1){
 						    			cell.setStyle(styleError);
 						    		}else{
 						    			cell.setStyle(style);
 						    		}
-						    	}else if(w==9){
+						    	}else if(w==8){
 						    		cell.setValue(linkman);
 						            cell.setStyle(style);
-						    	}else if(w==10){
+						    	}else if(w==9){
 						    		cell.setValue(telPhone);
 						            cell.setStyle(style);
-						    	}else if(w==11){
-						    		cell.setValue(creditLevel);
-						            cell.setStyle(style);
-						    	}else if(w==12){
+						    	}else if(w==10){
 						    		cell.setValue(riskLevel);
 						            cell.setStyle(style);
-						    	}else if(w==13){
+						    	}else if(w==11){
 						    		cell.setValue(subCode);
 						            cell.setStyle(style);
 						    	} 
@@ -1015,8 +1008,9 @@ public class PowerList {
 						    }
 						}
 					} catch (Exception e) {
-						errorNum++;
-						continue;
+						e.printStackTrace();
+						//errorNum++;
+						//continue;
 					}
 			}
 			String path="/upload/error/"+fileName.substring(0, fileName.indexOf("."))+"_error_"+time+fileName.substring(fileName.indexOf("."),fileName.length());
@@ -1039,35 +1033,32 @@ public class PowerList {
 	        for(int i=1;i<rows;i++){
 	        	//事项名称
 	        	String itemName=cells.get(i,0).getValue()==null?"": cells.get(i,0).getValue().toString().trim();
-		        //所属业务部门
-				String deptName=cells.get(i,1).getValue()==null?"": cells.get(i,1).getValue().toString().trim();
+	        	//组织机构代码
+				String orgCode=cells.get(i,1).getStringValue()==null?"": cells.get(i,1).getStringValue().trim();
+				orgCode=orgCode.replace("-", ""); 
 				//企业名称
-				String orgName=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString().trim();
-				//组织机构代码
-				String orgCode=cells.get(i,2).getStringValue()==null?"": cells.get(i,2).getStringValue().trim();
-				orgCode=orgCode.replace("-", "");
+				String orgName=cells.get(i,2).getValue()==null?"": cells.get(i,2).getValue().toString().trim();
+				
 				//注册地区划代码
-				String orgAddressCode=cells.get(i,5).getStringValue()==null?"": cells.get(i,5).getStringValue().trim();
+				String orgAddressCode=cells.get(i,4).getStringValue()==null?"": cells.get(i,4).getStringValue().trim();
 				orgAddressCode=orgAddressCode.split("\\.")[0];
-				//注册地址
-				String orgAddress=cells.get(i,4).getValue()==null?"": cells.get(i,4).getValue().toString();
+				//企业地址
+				String orgAddress=cells.get(i,3).getValue()==null?"": cells.get(i,3).getValue().toString();
 				//注册区县
-				String city=cells.get(i,6).getValue()==null?"": cells.get(i,6).getValue().toString();
+				String city=cells.get(i,5).getValue()==null?"": cells.get(i,5).getValue().toString();
 				//生产地址
-				String yieldlyAddress=cells.get(i,7).getValue()==null?"": cells.get(i,7).getValue().toString();
+				String yieldlyAddress=cells.get(i,6).getValue()==null?"": cells.get(i,6).getValue().toString();
 				//生产地区划代码
-				String yieldlyCode=cells.get(i,8).getStringValue()==null?"": cells.get(i,8).getStringValue().trim();
+				String yieldlyCode=cells.get(i,7).getStringValue()==null?"": cells.get(i,7).getStringValue().trim();
 				yieldlyCode=yieldlyCode.split("\\.")[0];
 				//联系人
-				String linkman=cells.get(i,9).getValue()==null?"": cells.get(i,9).getValue().toString();
+				String linkman=cells.get(i,8).getValue()==null?"": cells.get(i,8).getValue().toString();
 				//联系电话
-				String telPhone=cells.get(i,10).getValue()==null?"": cells.get(i,10).getValue().toString();
-				//信用等级
-				String creditLevel=cells.get(i,11).getValue()==null?"": cells.get(i,11).getValue().toString();
+				String telPhone=cells.get(i,9).getValue()==null?"": cells.get(i,9).getValue().toString();
 				//风险等级
-				String riskLevel=cells.get(i,12).getValue()==null?"": cells.get(i,12).getValue().toString();
+				String riskLevel=cells.get(i,10).getValue()==null?"": cells.get(i,10).getValue().toString();
 				//子码
-				String subCode=cells.get(i,13).getValue()==null?"": cells.get(i,13).getValue().toString();
+				String subCode=cells.get(i,11).getValue()==null?"": cells.get(i,11).getValue().toString();
 				
 				if(orgCode.length()==18){
 					 //更新到org01里里面去
