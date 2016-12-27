@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta name="decorator" content="miniui">
-<title>手工导入的企业信息</title>
+<title>检查对象导入</title>
  <style type="text/css">
 	.mini-messagebox-content td{
   	  font-size:20px;
@@ -21,13 +21,16 @@
  		<div>
 	 	 	 <input id="itemIdInput" class='mini-hidden'   value=""  style="width:60%;" />
 	 		<div>
+	 		<span>&nbsp;&nbsp;&nbsp;选择检查事项：</span>
 	 	 	 <input id="itemInput" class='mini-textbox'   value=""  style="width:60%;" />
-	 			 <a class="mini-button"   iconCls = "icon-find"  onclick="selectName()">选择检查事项名称</a>
+	 			 <a class="mini-button"   iconCls = "icon-find"  onclick="selectName()">选择</a>
 			</div>
-			<div  style="margin-top:2px;margin-bottom:1px ;padding-top: 4px;padding-bottom: 1px;">
+			<div  style="margin-top:2px;margin-bottom:1px ;padding-top: 4px;padding-bottom: 1px;">			
 			 <form name="uploadDataName" id="uploadData"  method="post" enctype="multipart/form-data">
+			 	<span>&nbsp;&nbsp;&nbsp;选择导入文件:&nbsp;&nbsp;&nbsp;</span>
 	    		<input class='mini-htmlfile' style="width:60%;"  id='textfield'   name='Fdata' /> 
-				<a class="mini-button"   iconCls = "icon-find"  onclick="uploadSave()">导入相关事项企业</a>	 					
+	    		
+				<a class="mini-button"   iconCls = "icon-find"  onclick="uploadSave()">导入</a>	 					
 			</form>
 			</div>
  		</div>
@@ -35,13 +38,13 @@
  <input type="hidden" id="temp" value="0" style="width:220px;"/> 
  <div class="mini-fit">	 
 		<div class="mini-datagrid" id="datagridItem"  url="/ssj/powerlist/PowerList/checkData?theme=none" showFooter="true" idField="id" style="width:100%;height:100%;"
-	pageSize="15" sizeList="[15,30,50,100]">
+	pageSize="30" sizeList="[15,30,50,100]">
 	<div property="columns">
-		<div type="indexcolumn">序号</div>
-		<div field="sxfl">事项业务分类</div>
-		<div field="jcsxmc" width="280px">检查事项名称</div>
-		<div field="cjfs" width="80px" >采集方式</div>
-		<div field="orgNum"  name="orgNum">有效企业数</div>
+		<div type="indexcolumn" headerAlign="center">序号</div>
+		<div field="sxfl"  headerAlign="center" align="center" width="80px">事项业务分类</div>
+		<div field="jcsxmc" width="280px" headerAlign="center">检查事项名称</div>
+		<div field="cjfs" width="80px" headerAlign="center" align="center">采集方式</div>
+		<div field="orgNum"  name="orgNum" headerAlign="center" align="center">有效企业数</div>
 		<!-- <div field="id" name="action" >操作列</div> -->
 				</div>
 			</div>
@@ -49,7 +52,7 @@
   
  
  
-<div  id="selectItemName" class="mini-window" title="选择要导入的事项名称" style="padding-left:1px;width:980px;height:480px;">
+<div  id="selectItemName" class="mini-window" title="选择导入文件对应的事项" style="padding-left:1px;width:980px;height:480px;">
  		<div class="mini-fit">
  			<div>
 					<ul id="itemTree" class="mini-tree" url="/ssj/powerlist/PowerList/getItemList" showTreeIcon="true" textField="text" idField="id" showCheckBox="true"
