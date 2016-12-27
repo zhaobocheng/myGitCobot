@@ -240,6 +240,7 @@ public class PowerList {
 		String whereString = "1=1";
 		int total= this.jdbcTemplate.queryForInt("select count(*) from Item01 where "+whereString);
 		eg.setTotal(total);
+		
 		Records rds = this.recordDao.queryRecord("ITEM01", whereString,"item0102",pageIndex*pageSize,pageSize);
 		for(IRecord ird :rds){
 			ExtObject eo = new ExtObject(); 
@@ -247,13 +248,14 @@ public class PowerList {
 			eo.add("jcsxmc", ird.get("ITEM0101"));//检查事项名称
 			String sxId=ird.get("ITEM00").toString();
 			//获取有效企业数
-			String sql="select  o1.org_name  orgName,i1.item0101 itemName,o4.org0403 from  org04 o4,org01 o1,item01 i1 where  o4.org0401='"+sxId+"'  and o1.org00 =o4.parentid and i1.item00=o4.org0401 and i1.item0190='1' and o1.org0199='0'";
-			List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList(sql);
+			//String sql="select  o1.org_name  orgName,i1.item0101 itemName,o4.org0403 from  org04 o4,org01 o1,item01 i1 where  o4.org0401='"+sxId+"'  and o1.org00 =o4.parentid and i1.item00=o4.org0401 and i1.item0190='1' and o1.org0199='0'";
+			String sql = "select count(*) from org01 a inner join org04 b  on a.org00 = b.parentid and b.org0401 = '"+ sxId +"';";
+			int intCode= this.jdbcTemplate.queryForInt(sql);
 			eo.add("sxId", ird.get("ITEM00"));
 			eo.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getCaption());//事项业务分类
 			eo.add("ccdx", ird.get("ITEM0103")==null?"":ird.get("ITEM0103",DmCodetables.class).getCaption());//抽查对象
 			eo.add("cjfs", ird.get("ITEM0190").toString().equals("0")?"自动":"手动");
-			eo.add("orgNum", String.valueOf(ndlist.size()));
+			eo.add("orgNum", intCode);
 			eg.rows.add(eo);
 		}
 		return eg.toString();
@@ -997,7 +999,7 @@ public class PowerList {
 								}
 								
 								UUID cuid = UUID.randomUUID();
-								IRecord cred =this.recordDao.createNew("ORG04",cuid,cuid);
+								IRecord cred =this.recordDao.createNew("ORG04",cuid,UUID.fromString(orgId));
 								cred.put("PARENTID", orgId);
 								cred.put("ORG0401", sub);
 								cred.put("ORG0402", riskLevel);  //风险等级
