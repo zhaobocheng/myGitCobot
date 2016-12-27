@@ -104,7 +104,7 @@ public class ExportExcle {
 				 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs , decode(p21.fqs,null,0,p21.fqs) as wtjfas,tt.plan0302 from plan01 t  left join plan03 tt on tt.parentid = t.plan00 "+
 				" left join (select count(*) qys,org.parentid, org.plan0404  from plan04 org group by org.parentid,org.plan0404) counorg on counorg.plan0404 =  tt.plan0301 and tt.parentid = counorg.parentid"+
 				" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
-				" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301    left join (select count(*) as fqs ,pp.parentid from plan21 pp group by pp.parentid) p21 on p21.parentid = t.plan00 where ";
+				" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301    left join (select count(*) as fqs ,pp.fq0105 from fq01 pp group by pp.fq0105) p21 on p21.fq0105 = t.plan00 where ";
 		String wheresql = " t.PLAN0105 = 1 and tt.plan0301='"+this.userSession.getCurrentUserZone()+"' order by plan0102 ";
 		return sql + wheresql;
 	}
@@ -173,7 +173,7 @@ public class ExportExcle {
 				" left join dm_codetable_data aa on aa.cid=tt.plan0301 and aa.codetablename='DB064' " +
 				 " left join (select count(*) qys,org.reg_district_dic from org01 org group by org.reg_district_dic) counorg on counorg.reg_district_dic = tt.plan0301"+
 				" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
-				" left join (select count(*) fqs , p4.plan2103,p4.parentid from plan21 p4 group by p4.plan2103 ,p4.parentid) countorg on countorg.parentid=t.plan00 and countorg.plan2103=tt.plan0301 " + 
+				" left join (select count(*) fqs , p4.fq0103,p4.fq0105 from fq01 p4 group by p4.fq0103 ,p4.fq0105) countorg on countorg.fq0105=t.plan00 and countorg.fq0103=tt.plan0301 " + 
 				" left join (select sum(decode(p12.plan1210,5,1,0)) as gss,p12.parentid,p12.plan1204 from plan12 p12 group by p12.parentid ,p12.plan1204) ppp on ppp.parentid = t.plan00 and ppp.plan1204 = tt.plan0301"+
 				" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where ";
 	
@@ -629,7 +629,7 @@ public class ExportExcle {
 			eRow.add("jcrid", personInf[0]);
 			eRow.add("jcr",  personInf[1]);
 			eRow.add("sjly", this.getJSLY(ire.get("PLAN1202").toString()));
-			eRow.add("zxjc",  this.getZXJC(fzid,ire.get("PLAN1201",IRecord.class).getObjectId().toString()));
+			eRow.add("zxjc",  this.getZXJC(fzid,ire.get("PLAN1201",IRecord.class).getRecordId().toString()));
             rowlist2.add(eRow);
         }
         rtnExtGrid.rows.addAll(rowlist2);

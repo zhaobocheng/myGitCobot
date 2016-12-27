@@ -137,6 +137,7 @@ public class SchemeInfoShow {
 		return eoc.toString();
 	}
 
+	
 	private String getZXJC(String fzid,String  planId) {
 		List<Map<String,Object>> SPList = this.jdbcTemplate.queryForList("select  vp.SP0101 from v_ssj_sp vp where  vp.PLAN00='"+fzid+"' and vp.sp0201 ='"+planId+"'");
 		String zxjc=null;
