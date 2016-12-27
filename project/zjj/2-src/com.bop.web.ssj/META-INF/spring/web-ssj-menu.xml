@@ -117,8 +117,8 @@
 	<osgi:service id="MenuItem1204" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1204" />
-			<property name="name" value="手工采集检查事项" />
-			<property name="description" value="手工采集检查事项" />
+			<property name="name" value="检查对象导入" />
+			<property name="description" value="检查对象导入" />
 			<property name="url" value="/ssj/powerlist/importOrgByItem.jsp" />
 		</bean>
 	</osgi:service>
@@ -126,8 +126,8 @@
 	<osgi:service id="MenuItem1205" interface="com.bop.module.function.MenuItem">
 		<bean class="com.bop.module.function.DefaultMenuItem">
 			<property name="id" value="1205" />
-			<property name="name" value="查看手工采集记录" />
-			<property name="description" value="查看手工采集记录" />
+			<property name="name" value="查看导入记录" />
+			<property name="description" value="查看导入记录" />
 			<property name="url" value="/ssj/powerlist/viewOrgItemByLog.jsp" />
 		</bean>
 	</osgi:service>

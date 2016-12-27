@@ -1252,7 +1252,6 @@ public class PowerList {
   		}finally{
   			fos.close();
   		}
-  		
   	}
   	
   	private boolean jude(int m, int n, int z) {
