@@ -249,7 +249,7 @@ public class PowerList {
 			String sxId=ird.get("ITEM00").toString();
 			//获取有效企业数
 			//String sql="select  o1.org_name  orgName,i1.item0101 itemName,o4.org0403 from  org04 o4,org01 o1,item01 i1 where  o4.org0401='"+sxId+"'  and o1.org00 =o4.parentid and i1.item00=o4.org0401 and i1.item0190='1' and o1.org0199='0'";
-			String sql = "select count(*) from org01 a inner join org04 b  on a.org00 = b.parentid and b.org0401 = '"+ sxId +"';";
+			String sql = "select count(*) from org01 a inner join org04 b  on a.org00 = b.parentid and b.org0401 = '"+ sxId +"'";
 			int intCode= this.jdbcTemplate.queryForInt(sql);
 			eo.add("sxId", ird.get("ITEM00"));
 			eo.add("sxfl", ird.get("ITEM0102",DmCodetables.class).getCaption());//事项业务分类
