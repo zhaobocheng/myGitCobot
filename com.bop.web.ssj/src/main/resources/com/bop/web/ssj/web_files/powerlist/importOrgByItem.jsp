@@ -169,7 +169,11 @@ function uploadSave(){
 			      contentType: false,
 			      processData: false,
 			      success: function (returndata) {
-			    	  if(returndata=="error1"){
+			    	  if(returndata=="error"){
+			    		  mini.unmask(document.body);
+			    		  alert("导入文件应该为12列！请核查后再导入！");
+			    		  return;
+			    	  }else if(returndata=="error1"){
 			    		  mini.unmask(document.body);
 			    		  alert("excel中的事项名称这一列应为空！请核查后再导入！");
 			    		  return;
