@@ -229,7 +229,7 @@ public class CreateScheme {
 
 			IRecord  cqRand02= this.recordDao.queryTopOneRecord("RAND02", "RAND0201 = "+orgindex+"+1 and parentid = '"+rand01.getRecordId()+"'", "RAND0201");
 			UUID orgCode = cqRand02.get("RAND0202",IRecord.class).getRecordId();
-			
+
 			for(int k=0;k<dqOrglist.size();k++){
 				String dqorg = dqOrglist.get(k);
 				if(orgCode.toString().equals(dqorg) || orgCode.toString() == dqorg){

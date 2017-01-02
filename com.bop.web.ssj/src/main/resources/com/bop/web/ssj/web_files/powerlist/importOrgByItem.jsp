@@ -29,7 +29,6 @@
 			 <form name="uploadDataName" id="uploadData"  method="post" enctype="multipart/form-data">
 			 	<span>&nbsp;&nbsp;&nbsp;选择导入文件:&nbsp;&nbsp;&nbsp;</span>
 	    		<input class='mini-htmlfile' style="width:60%;"  id='textfield'   name='Fdata' /> 
-	    		
 				<a class="mini-button"   iconCls = "icon-find"  onclick="uploadSave()">导入</a>	 					
 			</form>
 			</div>
@@ -68,17 +67,11 @@
 	 	</div> 
  </div>
  
- 
-<div  id="errorData" class="mini-window" title="错误信息" style="width:1080px;height:530px;padding-left:15px">
-			<p id="first" style="font-size:15px;color: red"></p>
-			<div style="width:100%;padding-bottom:10px;text-align: center">
-				<span>
-					<a class="mini-button" id="goon"	 onclick="goon()">继续导入</a> &nbsp;&nbsp;
-					<a class="mini-button" id="cancel"  onclick="cancel()">取消导入</a>
-				</span>
-			</div>
-			<div style="height: 80%">	
-				<div class="mini-datagrid" id="errorGrid"  showPager="false" idField="id">
+
+<div  id="errorData" class="mini-window" title="错误信息" style="width:1080px;height:550px;padding-left:15px" showFooter="true" showToolbar="true">
+			<div property="toolbar" style="padding:5px;"><p id="first" style="font-size:15px;color: red"></p></div>
+			<div style="height:80%">
+				<div class="mini-datagrid" id="errorGrid"  showPager="true" idField="id">
 					<div property="columns">
 						<div field="errorIndex" width="70px"  headerAlign="center"  align="center">序号</div>
 						<div field="code" width="90px"  headerAlign="center"  align="center">组织机构代码</div>
@@ -90,7 +83,12 @@
 					</div>
 				</div>
 			</div>
-			
+			<div property="footer" style="width:100%;padding:25px;text-align: center">
+				<span>
+					<a class="mini-button" id="goon" onclick="goon()">继续导入</a> &nbsp;&nbsp;
+					<a class="mini-button" id="cancel"  onclick="cancel()">取消导入</a>
+				</span>
+			</div>
 </div>
 					   	 
 					   	 
@@ -112,7 +110,7 @@
 mini.parse();
 var datagrid=mini.get("datagridItem");
 datagrid.load();
-
+var sxid11 = null;
 //打开选择事项名称窗口
 function selectName(){
 	mini.get("selectItemName").show();
@@ -161,7 +159,7 @@ function uploadSave(){
 	            html: '后台校验中，请稍后...'
 	        });
 			$.ajax({
-			      url: '/ssj/powerlist/PowerList/identifyInfo/'+selectedId+'?theme=none',
+			      url: '/ssj/powerlist/ImportData/identifyInfo/'+selectedId+'?theme=none',
 			      type: 'POST',
 			      data: formData,
 			      async: true,
@@ -184,6 +182,7 @@ function uploadSave(){
 			    		  
 			    	  }else{
 			    		  mini.unmask(document.body);
+			    		  sxid11 = eval("("+returndata+")").tempsxid;
 			    		  mini.get("errorData").show();
 				    	  var json=eval("("+returndata+")").content;
 				    	  var sub = eval("("+json+")");
@@ -224,13 +223,12 @@ datagrid.on("drawcell", function (e) {
     if (column.name == "action") {
         e.cellStyle = "color:#fceee2;font-weight:bold;";
         e.cellHtml = '<a href="javascript:auto(\'' + record.sxId + '\')"><button style="color:blue">自动</button> </a>&nbsp;'+
-        '<a href="javascript:hand(\'' + record.sxId + '\')"><button style="color:blue">手动</button> </a>&nbsp;'
-           
+        '<a href="javascript:hand(\'' + record.sxId + '\')"><button style="color:blue">手动</button> </a>&nbsp;';    
     }
 });
  
 //有效企业数
-datagrid.on("drawcell", function (e) {
+/* datagrid.on("drawcell", function (e) {
 	var record = e.record,	column = e.column,	field = e.field,	value = e.value;
     if (column.name == "orgNum") {
         if(value!='0'){
@@ -239,7 +237,7 @@ datagrid.on("drawcell", function (e) {
         	e.cellHtml =0;
         }
     }
-});
+}); */
 //格式化错误信息grid 中的时间值
 var handsDataGrid=mini.get("handsDataGrid");
 handsDataGrid.load();
@@ -277,9 +275,9 @@ function goon(){
 			            html: '正在入库，请稍后...'
 			        });
 				   
-				   
+
 			       $.ajax({
-						 url : "/ssj/powerlist/PowerList/impOrgInfo/"+encodeURI(fileName)+"/"+flag+"/"+selectedId+"?theme=none",
+						 url : "/ssj/powerlist/ImportData/impOrgInfo/"+sxid11+"/"+flag+"/"+selectedId+"?theme=none",
 			             type : "POST",
 			             data : formData,
 			             async: true,

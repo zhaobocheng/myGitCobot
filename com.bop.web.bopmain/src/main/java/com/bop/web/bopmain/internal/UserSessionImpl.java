@@ -52,15 +52,15 @@ public class UserSessionImpl extends CommonSessionImpl implements UserSession {
 	}
 	
 	
-	
 	public String getCurrentUserZone(){
 		
-		String zone = this.getValue(CURRENT_USER_ZONE, String.class);
+	/*	String zone = this.getValue(CURRENT_USER_ZONE, String.class);
 		if(zone == null || "".equals(zone)) {
 			setCurrentUserZone();
 			return this.getValue(CURRENT_USER_ZONE, String.class);
-		} 
-		return zone;
+		} */
+		setCurrentUserZone();
+		return this.getValue(CURRENT_USER_ZONE, String.class);
 	}
 
 	/**
@@ -94,7 +94,6 @@ public class UserSessionImpl extends CommonSessionImpl implements UserSession {
 		log.debug("Common.setCurrentUserInProjectInfo");
 		
 		HttpSession session = this.getSession();
-		
 		String uname = getCurrentUserName();
 		
 		String strWhere = "RY0102=:ry0102";

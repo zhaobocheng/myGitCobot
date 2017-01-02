@@ -282,7 +282,7 @@ function mommit() {
 		return ;
 	} */
 
-	alert(selectData.sjqyzs);
+//	alert(selectData.sjqyzs);
 	if(selectData.sjqyzs==0){
 		alert("企业总数不能设置为空或0！");
 		return ;

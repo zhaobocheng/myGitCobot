@@ -3,8 +3,13 @@ package com.bop.web.ssj.taskmanage;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -19,6 +24,7 @@ import com.bop.json.ExtResultObject;
 import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
+import com.bop.web.ssj.powerlist.ImportData;
 
 public class TaskOperation {
 	private JdbcOperations jdbcTemplate;
@@ -37,7 +43,7 @@ public class TaskOperation {
 		this.recordDao = recordDao;
 	}
 	
-	
+	private static final Logger log = LoggerFactory.getLogger(ImportData.class);
 	
 	/**
 	 * 创建任务方法
@@ -144,7 +150,6 @@ public class TaskOperation {
 		//查询数据库
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 		String year = request.getParameter("year");
-
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		Records rds = this.recordDao.queryRecord("PLAN01","PLAN0101 = "+year,"plan0102");
 
@@ -193,6 +198,67 @@ public class TaskOperation {
 		}
 		return "success";
 	}
+
+
+	/**
+	 * 升级旧数据
+	 * @return
+	 */
+	@Action
+	public String chengeAll(String yf){
+		
+		//Records plan1Rec = this.recordDao.queryRecord("plan01","plan0101 = 2016 and plan0101 = 8"," plan0102");
+		String sql = null;
+		if("".equals(yf)||yf==null){
+			sql = "select plan00 from plan01 where plan0101 = 2016  order by plan0102 desc";
+		}else{
+			sql = "select plan00 from plan01 where plan0101 = 2016 and plan0102 = "+yf+" order by plan0102 desc";
+		}
+
+		List<Map<String,Object>> list = this.jdbcTemplate.queryForList(sql);
+		for(Map<String,Object> pir:list){
+			List<IRecord> ird = this.recordDao.getByParentId("PLAN04",UUID.fromString(pir.get("plan00").toString()));
+			log.error("开始导入数据，导入的pl00是"+pir.get("plan00").toString());
+			for(IRecord ir:ird){
+				if("1".equals(ir.get("plan0405"))){
+					String insertSql = "insert into plan0401 select get_uuid,get_uuid,t.recordid,1,'bd0c1da9-251a-4c93-8f32-ee02e3988cb8',2,'特种设备生产单位、气瓶和移动式压力容器充装单位监督检查',1"+
+							" from plan04 t where t.recordid = '"+ir.getRecordId()+"'";
+					this.jdbcTemplate.execute(insertSql);
+				}
+				
+				if("1".equals(ir.get("plan0406"))){
+					String insertSql = "insert into plan0401 select get_uuid,get_uuid,t.recordid,1,'ed700f4d-a28e-42bf-a91f-e1716a3691bb',2,'对取得资质认定证书的检验检测机构日常监督抽查',2"+
+							" from plan04 t where t.recordid = '"+ir.getRecordId()+"'";
+					this.jdbcTemplate.execute(insertSql);
+				}
+				
+				if("1".equals(ir.get("plan0407"))){
+					String insertSql = "insert into plan0401 select get_uuid,get_uuid,t.recordid,1,'d341ba8b-0063-4979-bbac-013035e3b1b4',2,'生产企业强制性产品认证活动的日常监督检查',3"+
+							" from plan04 t where t.recordid = '"+ir.getRecordId()+"'";
+					this.jdbcTemplate.execute(insertSql);
+				}
+				
+				
+				if("1".equals(ir.get("plan0408"))){
+					String insertSql = "insert into plan0401 select get_uuid,get_uuid,t.recordid,1,'adca2274-5579-4718-ae90-5589e662bb7c',2,'对标准的实施进行监督检查',4"+
+							" from plan04 t where t.recordid = '"+ir.getRecordId()+"'";
+					this.jdbcTemplate.execute(insertSql);
+				}
+
+				if("1".equals(ir.get("plan0409"))){
+					String insertSql = "insert into plan0401 select get_uuid,get_uuid,t.recordid,1,'15bf5655-53cb-4b0a-83ad-0babf8c2eb35',2,'生产企业产品质量日常监督检查',1"+
+							" from plan04 t where t.recordid = '"+ir.getRecordId()+"'";
+					this.jdbcTemplate.execute(insertSql);
+				}
+			}
+			log.error("导入数据结束，导入的pl00是"+pir.get("plan00").toString());
+		}
+		return "success";
+	}
+	
+	
+	
+	
 	/**
 	 * 启动任务生出各区县状态表
 	 * @author bdsoft lh
@@ -279,7 +345,4 @@ public class TaskOperation {
 		return eor.toString();
 		
 	}
-	
-	
-	
 }

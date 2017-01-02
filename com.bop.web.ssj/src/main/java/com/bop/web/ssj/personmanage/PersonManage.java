@@ -266,7 +266,6 @@ public class PersonManage {
 		return eoc.toString();
 	}
 	
-
 	/**
 	 * 人员页面左移右移的改动
 	 * @param zfid
