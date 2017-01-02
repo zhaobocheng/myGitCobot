@@ -25,13 +25,14 @@
 		pageSize="20" sizeList="[20,30,50,100]">
 		<div property="columns">
 			<div type="indexcolumn" width="20" headerAlign="center">序号</div>
+			<div field="itemName" width="60" headerAlign="center" align="center">检查事项</div>
 			<div field="fileName" width="60" headerAlign="center" align="center">文件名</div>
-			<div field="loadDate" name="transDate"	width="60" headerAlign="center"  align="center">采集日期</div>
-			<div field="operUser"  width="60" headerAlign="center"  align="center">采集人</div>
+			<div field="loadDate" name="transDate"	width="60" headerAlign="center"  align="center">导入日期</div>
+			<div field="operUser"  width="60" headerAlign="center"  align="center">导入人</div>
 			<div field="totalNum"  width="60" headerAlign="center"  align="center">总数量</div>
 			<div field="successNum"  width="60" headerAlign="center"  align="center">成功数量</div>
 			<div field="errorNum"  width="60" headerAlign="center"  align="center">失败数量</div>
-			<div field="path" name="viewFile"    headerAlign="center"  align="center">附件</div>
+		<!-- 	<div field="path" name="viewFile"    headerAlign="center"  align="center">附件</div> -->
 		</div>
 	</div>
 </div>
@@ -39,6 +40,7 @@
 mini.parse();
 var datagrid=mini.get("datagridItem");
 datagrid.load();
+/* 
 //文件下载
 datagrid.on("drawcell", function (e) {
 	var record = e.record,	column = e.column,	field = e.field,	value = e.value;
@@ -48,14 +50,14 @@ datagrid.on("drawcell", function (e) {
     	var flag="0";
         if(s[1]=="null"){  //??????如果字符串中含有/  ;等字符 值无法传到后台   退而求次 改成传id 后台在获取其他列的值
         	flag2="1";
-        	e.cellHtml = '<a href=\"/ssj/powerlist/PowerList/download/'+id+'/'+flag+'?theme=none\"  style="color:blue;width:80px">查看采集的文件</a>&nbsp;&nbsp;&nbsp;';
+        	e.cellHtml = '<a href=\"/ssj/powerlist/PowerList/download/'+id+'/'+flag+'?theme=none\"  style="color:blue;width:80px">查看导入的文件</a>&nbsp;&nbsp;&nbsp;';
         }else{
-        	var s= '<a href=\"/ssj/powerlist/PowerList/download/'+id+'/'+flag+'?theme=none\"  style="color:blue;width:80px">查看采集的文件</a>&nbsp;&nbsp;&nbsp;';
+        	var s= '<a href=\"/ssj/powerlist/PowerList/download/'+id+'/'+flag+'?theme=none\"  style="color:blue;width:80px">查看导入的文件</a>&nbsp;&nbsp;&nbsp;';
         	flag="1";
         	e.cellHtml=s+'<a href=\"/ssj/powerlist/PowerList/download/'+id+'/'+flag+'?theme=none\"  style="color:blue;width:80px">查看错误信息</a>&nbsp;';
         }
     }
-});
+}); */
 function viewUpload(path){
 	windows.load("");  
 }

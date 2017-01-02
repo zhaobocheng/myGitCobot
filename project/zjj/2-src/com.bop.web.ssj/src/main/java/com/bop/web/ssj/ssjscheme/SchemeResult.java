@@ -1,6 +1,7 @@
 package com.bop.web.ssj.ssjscheme;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -513,7 +514,6 @@ public class SchemeResult {
 			String faid = jsonObject.get("id").toString();
 			String whereSql=" RECORDID='"+faid+"'";
 			Records ires  = this.recordDao.queryRecord("PLAN12", whereSql);
- 
 			//IRecord ire = this.recordDao.getRecord("PLAN12", UUID.fromString(faid));
 			if (ires.size()>0){
 				IRecord ire =ires.get(0);
@@ -525,6 +525,7 @@ public class SchemeResult {
 				ire.put("PLAN1226", jsonObject.get("PLAN1226"));
 				ire.put("PLAN1227", jsonObject.get("PLAN1227"));
 				ire.put("PLAN1210", 3);
+				ire.put("PLAN1229", new Date());
 				//ire.put("PLAN1210", "保存");
 				
 				this.recordDao.saveObject(ire);

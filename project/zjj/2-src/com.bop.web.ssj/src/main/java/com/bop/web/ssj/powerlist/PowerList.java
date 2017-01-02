@@ -64,8 +64,7 @@ public class PowerList {
 	private UserSession userSession;
 	private JdbcOperations jdbcTemplate;
 	
-	private ArrayList okOrgList;
-	
+	private ArrayList<OrgCheckInfo> okOrgList;
 	private ArrayList errOrgList;
 	
 	private static final Logger log = LoggerFactory.getLogger(PowerList.class);
@@ -144,7 +143,7 @@ public class PowerList {
 		}
 		return eg.toString();
 	}
-	
+
 	/**
 	 * 检查事项数据获取
 	 * @author liupx
@@ -175,7 +174,7 @@ public class PowerList {
 		}
 		int total= this.jdbcTemplate.queryForInt("select count(*) from ITEM01 where "+whereString);
 		eg.setTotal(total); 
-		Records rds = this.recordDao.queryRecord("ITEM01", whereString,"item0101",pageIndex*pageSize,pageSize);
+		Records rds = this.recordDao.queryRecord("ITEM01", whereString,"ITEM0102",pageIndex*pageSize,pageSize);
 		for(IRecord ird :rds){
 			ExtObject eo = new ExtObject();
 			eo.add("id", ird.getObjectId());
@@ -232,6 +231,7 @@ public class PowerList {
 		
 		return eg.toString();
 	}
+	
 	@Action
 	public String checkData(){
 		HttpServletRequest request =ActionContext.getActionContext().getHttpServletRequest();
@@ -667,23 +667,28 @@ public class PowerList {
 		if (log.isDebugEnabled()){
 			log.debug("文件行数：" + rows +";文件列数：" + cols);
 		}
+
 		
+		
+		
+		//校验得到的列数是否是文件格式对应的列数12
 		if(cols != 12){
 			return "error";
 		}
 		
-		selected = "'"+selected.replaceAll(",", "','")+"'";			
-		
-		if(selected.contains(",")){//包含的话说明勾选了多个；
-			//校验之前先判断excel中的事项名字这列是不是为空，不为空不正确。
+		//校验选择的事项数量是否和对应的文件的要求复合，这里的原则是，如果选择传入的id只有一个就就需要文档的事项名称列有值，
+		//如果是多个id对应的事项名称列就应该是空的，
+		selected = "'"+selected.replaceAll(",", "','")+"'";
+		//处理多个id的情况
+		if(selected.contains(",")){
 			for(int x=1;x<rows;x++){
 				String itemNameByExcel=cells.get(x,0).getValue()==null?"": cells.get(x,0).getStringValue().toString();
 				if(!"".equals(itemNameByExcel)){
 					return "error1";
 				}
 			}	
-		}else{//勾选了一个；
-			//根据事项名称的id来获取事项名称；
+		}else{
+			//处理针一条ID的情况
 			List<Map<String, Object>> ndlist=this.getItemName(selected);
 			String itemName="";
 			if(ndlist.size()>0){
@@ -699,17 +704,15 @@ public class PowerList {
 				}
 			}
 		}
-		
+
 		okOrgList = new ArrayList();
-		
 		errOrgList = new ArrayList();
-		//全部正确之后再进行其他值的校验。	
+		//全部正确之后再进行其他值的校验。
 		int errorNum=0;
 		for(int i=1;i<rows;i++){
 			int m=0;
 			int n=0;
-			int z=0;			
-			
+			int z=0;
 			//组织机构代码
 			String orgCode=cells.get(i,1).getStringValue()==null?"": cells.get(i,1).getStringValue().trim();
 			orgCode=orgCode.replace("-", "");
@@ -731,10 +734,9 @@ public class PowerList {
 			}else{
 				m=1;
 			}
-			
+
 			// 创建导入的企业信息对象
 			OrgCheckInfo  orgcheckObj = new OrgCheckInfo(selected,orgCode);
-			
 			orgcheckObj.setCreditCode(creditCode);
 			
 			//企业名称
@@ -753,13 +755,13 @@ public class PowerList {
 			String qhsql = "select count(ORG00) from Org01  where  ORG_CODE= :orgCode and REG_DISTRICT_DIC=:regDistrict";				
 			HashMap<String, String> qhparams = new HashMap<String, String>();
 			qhparams.put("orgCode", orgCode);	
-			qhparams.put("orgCode", orgAddressCode);			
+			qhparams.put("orgCode", orgAddressCode);
 			int zcSize=this.jdbcTemplate.queryForInt(qhsql, qhparams);			
 			
 			if(zcSize<1){
 				n=1;
 			}
-			
+
 			//注册区县
 			String city=cells.get(i,5).getStringValue()==null?"": cells.get(i,5).getStringValue().trim();
 			orgcheckObj.setRegAddrName(city);
@@ -780,7 +782,7 @@ public class PowerList {
 			if(scSize<1){
 				z=1;
 			}
-			
+
 			// 联系人
 			String personName=cells.get(i,8).getStringValue()==null?"": cells.get(i,8).getStringValue().trim();
 			orgcheckObj.setPersonName(personName);
@@ -793,7 +795,7 @@ public class PowerList {
 			//子码
 			String subCode=cells.get(i,11).getStringValue()==null?"": cells.get(i,11).getStringValue().trim();
 			orgcheckObj.setSubCode(subCode);
-			
+
 			if(this.jude(m,n,z)){
 				errorNum++;							//错误数量++
 				HashMap<String,String> sub=new HashMap<String,String>();
@@ -820,12 +822,11 @@ public class PowerList {
 				JSONObject jsonObject = JSONObject.fromObject(sub);
 				errorLs.add(jsonObject);
 				errOrgList.add(orgcheckObj);
-				
 			}else{
 				okOrgList.add(orgcheckObj);
 			}
-			
 		}
+		
 		Double s=Double.valueOf(errorNum)/Double.valueOf(rows-1);
 		DecimalFormat df=new DecimalFormat("0.00");
 		HashMap<String, String> mp=new HashMap<String, String>();
@@ -849,7 +850,6 @@ public class PowerList {
 			fs = (FileInputStream) request.getFileInputStream(title);
 			designer = new Workbook(fs);
 		} catch (IOException e) {
-			
 			log.error("读取导入文件IO错误");
 			log.error(e.getMessage().toString());
 			e.printStackTrace();
@@ -872,8 +872,10 @@ public class PowerList {
 			return "error";
 		}
 		
-		selected = "'"+selected.replaceAll(",", "','")+"'";			
 		
+		
+		//校验选择导入的检查事项和导入文件的的检查事项的一致性
+		selected = "'"+selected.replaceAll(",", "','")+"'";			
 		if(selected.contains(",")){//包含的话说明勾选了多个；
 			//校验之前先判断excel中的事项名字这列是不是为空，不为空不正确。
 			for(int x=1;x<rows;x++){
@@ -899,7 +901,9 @@ public class PowerList {
 				}
 			}
 		}
-		//全部正确之后再进行其他值的校验。	
+		
+		
+		//全部正确之后再进行其他值的校验.
 		int errorNum=0;
 		for(int i=1;i<rows;i++){
 			int m=0;
@@ -1029,49 +1033,71 @@ public class PowerList {
 	}
 	
 	public String impOrgInfo2(String fileName,String flag,String selectId){
-		//flag为0 说明没有错误。
 		String info="";
-		try {
-			fileName = URLDecoder.decode(fileName,"utf-8");
-			MultipartHttpServletRequest request = (MultipartHttpServletRequest)ActionContext.getActionContext().getHttpServletRequest();
-			String[] arr = request.getFileFields();
-			String title = arr[0];                        //上传附件input的name
-			FileInputStream fs = (FileInputStream) request.getFileInputStream(title);
-			SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd_HH_mm_ss");
-			String time=sdf.format(new Date());
-			//把上传的文件保存到服务器。
-			this.saveUpload(fs,fileName,time);
-			fs = (FileInputStream) request.getFileInputStream(title);
-            if("0".equals(flag)){
-            	info=this.intoLibrary(fs,fileName,selectId,time);//入库
-    		}else{ 
-    			//存在错误信息的话 把校验的错误信息写到excel并存入服务器，正确的入库。
-    			info=this.writeErrorAndIntoLibrary(fs,fileName,selectId,time);
-    		}	
-            String errorPath="/upload/error/"+fileName.substring(0, fileName.indexOf("."))+"_error_"+time+fileName.substring(fileName.indexOf("."),fileName.length());
-            String filePath="/upload/uploadFile/"+fileName.substring(0, fileName.indexOf("."))+"_"+time+fileName.substring(fileName.indexOf("."),fileName.length());;
-            if("0".equals(flag)){
-            	errorPath="";
-            }
-			//写入日志
-			UUID cuid = UUID.randomUUID();
-			IRecord log =this.recordDao.createNew("LOG01",cuid,cuid);
-			log.put("LOG0101", fileName);	//表格名称
-			log.put("LOG0102", this.userSession.getCurrentUserName());
-			log.put("LOG0103", this.userSession.getCurrentUserId());
-			log.put("LOG0104", new Date());
-			log.put("LOG0105", filePath);
-			log.put("LOG0106", errorPath);
-			String s[]=info.split(";");
-			log.put("LOG0107", s[1]);		//插入数量
-			log.put("LOG0108", s[2]);		//更新数量
-			log.put("LOG0109", s[3]);		//错误数量
-			log.put("LOG0110", s[0]);		//插入数量
-			this.recordDao.saveObject(log);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch(Exception e){
-			e.printStackTrace();
+		
+		String orgId = null;
+		String orgCode = null;
+		String subCode = null;
+		String ss[]=selectId.split(",");
+		String riskLevel =null;
+		
+		for(OrgCheckInfo orgcheck:okOrgList){
+			orgCode= orgcheck.getOrgCode();
+			subCode= orgcheck.getSubCode();
+			Map<String,Object> map = this.jdbcTemplate.queryForMap("select ORG00,ORG_NAME　from Org01  where  ORG_CODE='"+orgCode+"'");
+			if(map!=null){
+				orgId = map.get("ORG00").toString();
+			}
+			
+			  for(String sub:ss){
+			    	String sql = null;
+			    	if(StringUtils.isEmpty(orgcheck.getOrgCode())){
+			    		sql="select ORG00 from org04  where PARENTID='"+orgId+"' and ORG0401='"+sub+"' and  ORG0408 is null";
+			    	}else{
+			    		sql ="select ORG00 from org04  where PARENTID='"+orgId+"' and ORG0401='"+sub+"' and  ORG0408='"+subCode+"'";
+			    	}
+
+			    	if("高".equals(riskLevel)){
+						riskLevel="1";
+					}else if("中".equals(riskLevel)){
+						riskLevel="2";
+					}else if("低".equals(riskLevel)){
+						riskLevel="3";
+					}
+			    	
+			    	List<Map<String, Object>> list= this.jdbcTemplate.queryForList(sql);
+					if(!list.isEmpty()){
+						//插入(新增)
+						UUID cuid = UUID.randomUUID();
+						IRecord cred =this.recordDao.createNew("ORG04",cuid,UUID.fromString(orgId));
+						cred.put("PARENTID", orgId);
+						cred.put("ORG0401", sub);
+						cred.put("ORG0402", riskLevel);  //风险等级
+						cred.put("ORG0403",new Date());
+					/*	cred.put("ORG0404", yieldlyAddress);			//生产地址
+						cred.put("ORG0405", yieldlyCode);			//生产地区划代码
+						cred.put("ORG0406", linkman);			//联系人
+						cred.put("ORG0407", telPhone);			//联系电话
+						cred.put("ORG0408", subCode);			//子码
+						cred.put("ORG0409", orgCode+subCode);			//总码
+						this.jdbcTemplate.batchUpdate(sql, errOrgList);*/
+						this.recordDao.saveObject(cred);
+					//	insertNum++;
+						
+					}else{
+						//存在更新org04表；
+						/*SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						String updateTime=sdf.format(new Date());
+						String upSql="update org04 set org0402='"+riskLevel+"',org0403=timestamp'"+updateTime+"',org0404='"+yieldlyAddress+"', org0405='"+yieldlyCode+"',org0406='"+linkman+"',org0407='"+telPhone+"' where PARENTID='"+orgId+"' and ORG0401='"+sub+"'";
+						if(!StringUtils.isNotBlank(subCode)){//subcode 为空
+							upSql+=" and ORG0408 is null ";
+						}else{//非空
+							upSql+=" and ORG0408='"+sub+"'";
+						}
+						this.jdbcTemplate.execute(upSql);*/
+				//		updateNum++;
+					}
+			    }
 		}
 		return info;
 	}
@@ -1426,7 +1452,7 @@ public class PowerList {
 			}	
 			eo.add("children", subCol);
 			sub.add("parentid", ire.get("cid"));
-			col.add(eo);	
+			col.add(eo);
 		}
 		return col.toString();
 	}
@@ -1437,7 +1463,7 @@ public class PowerList {
     	int pageIndex =Integer.parseInt(request.getParameter("pageIndex").toString());
 		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-		String sql="select LOG00,LOG0101,LOG0102,LOG0104,LOG0106,LOG0107,LOG0108,LOG0109,LOG0110 from  LOG01   where ROWNUM between "+pageIndex+" and "+pageIndex+pageSize+" ORDER BY LOG0104 desc";
+		String sql="select t.LOG00,t.LOG0101,t.LOG0102,t.LOG0104,t.LOG0106,t.LOG0107,t.LOG0108,t.LOG0109,t.LOG0110,tt.LOG0202 from  LOG01 t left join log02 tt on tt.parentid = t.log00  where ROWNUM between "+pageIndex+" and "+pageIndex+pageSize+" ORDER BY LOG0104 desc";
 		List<Map<String, Object>> ndlist= this.jdbcTemplate.queryForList(sql);
 		ExtObjectCollection eg = new ExtObjectCollection();
 		for(Map<String,Object> ird:ndlist){
@@ -1448,10 +1474,11 @@ public class PowerList {
 			eo.add("loadDate", sdf.format(ird.get("LOG0104")));			//导入时间 
 			eo.add("path", ird.get("LOG0105")+";"+ird.get("LOG0106"));	//文件路径(上传的和生成的错误的)
 			int x=Integer.valueOf(ird.get("LOG0107").toString());
-			int y=Integer.valueOf(ird.get("LOG0108").toString());
-			eo.add("successNum", Integer.toString(x+y));			//成功数
-			eo.add("errorNum", ird.get("LOG0109"));			//失败数
-			eo.add("totalNum", ird.get("LOG0110"));			//失败数
+			int y=Integer.valueOf(ird.get("LOG0109").toString());
+			eo.add("successNum", Integer.toString(x+y));
+			eo.add("errorNum", ird.get("LOG0108"));
+			eo.add("totalNum", ird.get("LOG0110"));
+			eo.add("itemName", ird.get("LOG0202"));
 			eg.add(eo);
 		}
 		return eg.toString();
