@@ -55,7 +55,7 @@
 					<div field="cyqys" name="cyqys" width="80" headerAlign="center" align="center" allowSort="true">参与抽查企业数</div>
 					<div field="cyzfrys" name="cyzfrys" width="60" headerAlign="center" align="center" allowSort="true">参与执法人员数</div>
 					<div field="sjqyzs" name="sjqyzs" vtype="required;int" width="60" headerAlign="center" align="center" allowSort="true">
-						抽查总数 <input property="editor" class="mini-spinner" minValue="0" maxValue="200" value="4" style="width: 100%;" />
+						抽查总数 <input property="editor" class="mini-spinner" minValue="0" maxValue="8000" value="4" style="width: 100%;" />
 					</div>
 					<div field="cz" name="cz" vtype="required" width="120" headerAlign="center" allowSort="true">
 						操作 <!-- <input property="editor" class="mini-button"  style="width: 100%;" value="上报"/> -->
@@ -349,7 +349,7 @@ watchWeight = function(){
 	
 	fxgrid.setUrl("/ssj/companymanage/CompanyManage/getParams/fx/"+faid+"?theme=none");
 	fxgrid.load();
-	fxgrid.setUrl("/ssj/companymanage/CompanyManage/getParams/xy/"+faid+"?theme=none");
+	xygrid.setUrl("/ssj/companymanage/CompanyManage/getParams/xy/"+faid+"?theme=none");
 	xygrid.load();
 	win.show();
 }

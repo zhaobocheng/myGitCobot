@@ -145,12 +145,13 @@ public class CreateScheme {
 
 		this.getQxCqOrg(allCqOrg,rand01,list,orgmap);
 		//储存抽取的结果
+		int jj = 0;
 		for (Map.Entry<String, ArrayList> entry : orgmap.entrySet()) {
 		  //IRecord orgIcd = this.recordDao.getRecord("ORG01", UUID.fromString(entry.getKey()));
-		   
 		 //v3改动
+			jj++;
 		   IRecord orgIcd = this.recordDao.getRecord("PLAN04", UUID.fromString(entry.getKey()));
-		   this.saveTempPlan12(orgIcd, entry.getValue(),fzid);
+		   this.saveTempPlan12(orgIcd, entry.getValue(),fzid,jj);
 		  }
 
 		//更新该区县的方案状态
@@ -219,8 +220,9 @@ public class CreateScheme {
 		if(spObjecOrg.size()>0){
 			zoneqystart = getSpecileObjectOrg(zoneqystart,spObjecOrg,orgmap,zhMap,dqOrglist);
 		}
+		
 		//抽取特殊企业
-		zoneqystart = this.getSpecileOrg(zoneqystart,rand01.getRecordId().toString(),orgmap,zhMap,dqOrglist);
+		//zoneqystart = this.getSpecileOrg(zoneqystart,rand01.getRecordId().toString(),orgmap,zhMap,dqOrglist);
 
 		//抽取特殊企业外的
 		for(int i=zoneqystart;i<allCqOrg;i++){
@@ -240,6 +242,7 @@ public class CreateScheme {
 			if(doubleflag){
 				i--;
 			}else{
+				
 				dqOrglist.add(orgCode.toString());
 				orgmap.put(orgCode.toString(), zhMap.get(i));
 			}
@@ -408,23 +411,11 @@ public class CreateScheme {
 	 * @param list	抽取的人员信息
 	 * @param faid 方案ID
 	 */
-	public void saveTempPlan12(IRecord informIRe,ArrayList list,String faid){
-
+	public void saveTempPlan12(IRecord informIRe,ArrayList list,String faid,int jj){
+		
 		UUID uid = UUID.randomUUID();
 		IRecord ire = this.recordDao.createNew("PLAN12", uid, UUID.fromString(faid));
-		//存储企业
-		/*ire.put("PLAN1201", informIRe.getRecordId());
-		ire.put("PLAN1202", informIRe.get("ORG_CODE"));
-		ire.put("PLAN1203", informIRe.get("ORG_NAME"));
-		ire.put("PLAN1205", informIRe.get("REG_ADDR"));
-		ire.put("PLAN1204", informIRe.get("REG_DISTRICT_DIC"));
-		ire.put("PLAN1206", informIRe.get("LEGAL_REPRE"));
-		ire.put("PLAN1207", informIRe.get("LEGAL_REPRE_TEL"));
-		ire.put("PLAN1208", "");
-		ire.put("PLAN1209", 0);
-		ire.put("PLAN1210", "1"); //zxy 修改为代码 
-		this.recordDao.saveObject(ire);*/
-
+		
 		//v3版以后plan12中的数据从plan04里面取
 		ire.put("PLAN1201", informIRe.getRecordId());
 		ire.put("PLAN1202", informIRe.get("PLAN0402"));
@@ -435,7 +426,9 @@ public class CreateScheme {
 		ire.put("PLAN1207", informIRe.get("PLAN0419"));
 		ire.put("PLAN1208", "");
 		ire.put("PLAN1209", 0);
+		ire.put("PLAN1230", new Date());
 		ire.put("PLAN1210", "1"); //zxy 修改为代码 
+		
 		this.recordDao.saveObject(ire);
 		
 		for(int i=0;i<list.size();i++){

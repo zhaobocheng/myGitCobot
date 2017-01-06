@@ -9,6 +9,9 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
@@ -31,6 +34,8 @@ public class CompanyManage {
 	private IRecordDao recordDao;
 	private UserSession userSession;
 
+	private static final Logger log = LoggerFactory.getLogger(CompanyManage.class);
+	
 	public void setUserSession(UserSession userSession) {
 		this.userSession = userSession;
 	}
@@ -53,7 +58,7 @@ public class CompanyManage {
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		String sql = "select  t.plan00,t.plan0107 as mc,tt.plan0302,t.plan0101||t.plan0102 as zfyf,counorg.qys as qys , counp2.rs as rs, "+
 					 " case when p6.plan0602 is null then 0 else p6.plan0602  end as sbqys from plan01 t  left join plan03 tt on tt.parentid = t.plan00"+
-					" left join (select count(*) qys,org.parentid, org.plan0404  from plan04 org group by org.parentid,org.plan0404) counorg on counorg.plan0404 =  tt.plan0301 and tt.parentid = counorg.parentid"+
+					" left join (select count(*) qys,org.parentid, org.PLAN0417  from plan04 org group by org.parentid,org.PLAN0417) counorg on counorg.PLAN0417 =  tt.plan0301 and tt.parentid = counorg.parentid"+
 					" left join (select count(*) rs ,p2.plan0205,p2.parentid from plan02 p2 where p2.plan0204 = 2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
 					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301 where";
 		String wheresql = " t.PLAN0105 = 1 and tt.plan0301='"+this.userSession.getCurrentUserZone()+"' ";
@@ -68,7 +73,7 @@ public class CompanyManage {
 				wheresql += " and tt.plan0302 >= 3";
 			}
 		}
-		
+
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" order by t.plan0102 desc");
 		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
 		
@@ -158,7 +163,7 @@ public class CompanyManage {
 				form.add("bz", rd.get("plan0802"));	
 			}
 		}
-		
+
 		return form.toString();
 	}
 	
@@ -172,25 +177,11 @@ public class CompanyManage {
 		ExtResultObject ero = new ExtResultObject();
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
 
-		/*int ts = Integer.parseInt(request.getParameter("ts").toString());
-		int jl = Integer.parseInt(request.getParameter("jl").toString());
-		int qzrz = Integer.parseInt(request.getParameter("qzrz").toString());
-		int bz = Integer.parseInt(request.getParameter("bz").toString());
-
-		String tssy = request.getParameter("tssy").toString();
-		String jlsy = request.getParameter("jlsy").toString();
-		String qzrzsy = request.getParameter("qzrzsy").toString();
-		String bzsy = request.getParameter("bzsy").toString();
-		
-		this.saveWeightConfig("ts",ts,tssy,fzid);
-		this.saveWeightConfig("jl",jl,jlsy,fzid);
-		this.saveWeightConfig("qzrz",qzrz,qzrzsy,fzid);
-		this.saveWeightConfig("bz",bz,bzsy,fzid);*/
 		//this.jdbcTemplate.execute("update plan01 set plan0106=1 where plan00 = '"+fzid+"'");
 		String zone = this.userSession.getCurrentUserZone();
 		
 		//v3设置权重的方法,先得到最小的权值，在给最小的权值加倍到成整数，最后根据倍数更新plan04的权值库.//v3版本权重值由风险系数,信用等级,抽取影响值计算得到
-		String minWeightValueSql = "select round(fx.fxz,2) as fxz  from ( select (t.plan0410/t.plan0411)*t.plan0412 as fxz from plan04 t where t.parentid = '"+fzid+"' and t.plan0404 = '"+zone+"'order by (t.plan0410*t.plan0412)/t.plan0411 desc ) fx where rownum = 1 ";
+		String minWeightValueSql = " select round(min((t.plan0410/t.plan0411)*t.plan0412 ),2) as fxz  from plan04 t where t.parentid = '"+fzid+"' and t.plan0417 = '"+zone+"' ";
 		Map<String,Object> map  = this.jdbcTemplate.queryForMap(minWeightValueSql);
 		double weightValue = 1;
 		if(map!=null){
@@ -204,7 +195,10 @@ public class CompanyManage {
 		}
 		//如果加倍了
 		if(mun>1){
-			String upSql = "update plan04 set plan0413 = (plan0410*plan0412)/plan0411*"+mun+" where parentid = '"+fzid+"'";
+			String upSql = "update plan04 set plan0413 = (plan0410/plan0411)*plan0412*"+mun+" where parentid = '"+fzid+"' and plan0417 = '"+zone+"' ";
+			this.jdbcTemplate.execute(upSql);
+		}else{
+			String upSql = "update plan04 set plan0413 = (plan0410/plan0411)*plan0412 where parentid = '"+fzid+"' and plan0417 = '"+zone+"' ";
 			this.jdbcTemplate.execute(upSql);
 		}
 
@@ -256,6 +250,8 @@ public class CompanyManage {
 	 */
 	private String setRandm(String fzid,String zone){
 			//生成对应的rand01记录    这里做判定如果已经产生了就不在插入了
+		
+			log.error("计数建立开始时间："+new Date());
 			UUID rand1ID = UUID.randomUUID();
 			IRecord ran1 = this.recordDao.createNew("RAND01", rand1ID, rand1ID);
 			ran1.put("RAND0102", zone);
@@ -280,41 +276,20 @@ public class CompanyManage {
 			return "true";
 			*/
 		
-				//以下是适合多权重的，sql和程序还需要优化一下
 				//生成对应的rand02记录，随机基础数据
-				Records orgRec = this.recordDao.queryRecord("PLAN04", " parentid = '"+fzid+"' and PLAN0404='"+zone+"'");//得到该地区所有的企业记录
+				Records orgRec = this.recordDao.queryRecord("PLAN04", " parentid = '"+fzid+"' and PLAN0417='"+zone+"'");//得到该地区所有的企业记录
 				   for(IRecord org:orgRec){
 					   int weightValue = org.get("PLAN0413",Integer.class);
 
 					   //IRecord org2 = this.recordDao.queryTopOneRecord("ORG02", "parentid='"+org.getRecordId()+"'", "parentid");//得到企业对应的权重特性
 					   boolean flag = true;
 					   this.createRandBase(weightValue,org,rand1ID);
-
-				/*	//企业是特设
-					if("1".equals(org2.get("ORG0201"))){
-						this.createRandBase(ts,org2,rand1ID);
-						flag = false;
-					}
-					//企业是计量
-					if("1".equals(org2.get("ORG0202"))){
-						this.createRandBase(jl,org2,rand1ID);
-						flag = false;
-					}
-					if("1".equals(org2.get("ORG0203"))){
-						this.createRandBase(qzrz,org2,rand1ID);
-						flag = false;
-					}
-					if("1".equals(org2.get("ORG0204"))){
-						this.createRandBase(bz,org2,rand1ID);
-						flag = false;
-					}
-					if(flag){
-						this.createRandBase(1,org2,rand1ID);
-					}*/
 				}
 
 				String upSql = "update plan03 set plan0302 = 2 where parentid = '"+fzid+"' and plan0301 = '"+zone+"'";
 				this.jdbcTemplate.execute(upSql);
+				
+				log.error("计数建立结束时间："+new Date());
 				return "true";
 	}
 
@@ -326,21 +301,8 @@ public class CompanyManage {
 	 */
 	public void createRandBase(int times,IRecord org,UUID rand1ID){
 		for(int i=0;i<times;i++){
-			UUID rand2ID = UUID.randomUUID();
-			IRecord rand2 = this.recordDao.createNew("RAND02", rand2ID, rand1ID);
-			int sequence = this.jdbcTemplate.queryForInt("select emp_sequence.nextval from dual");
-			rand2.put("RAND0201", sequence);//存入序列号，根据以上记录往下排
-			rand2.put("RAND0202", org.getRecordId());//plan04胡ID，机构ID
-		/*	rand2.put("RAND0203", org2.get("ORG0201"));
-			rand2.put("RAND0204", org2.get("ORG0202"));
-			rand2.put("RAND0205", org2.get("ORG0203"));
-			rand2.put("RAND0206", org2.get("ORG0204"));*/
-			rand2.put("RAND0203", "0");
-			rand2.put("RAND0204", "0");
-			rand2.put("RAND0205", "0");
-			rand2.put("RAND0206", "0");
-			
-			this.recordDao.saveObject(rand2);
+			String insertSql = "insert into rand02 value select get_uuid,get_uuid,'"+rand1ID+"',1,emp_sequence.nextval,'"+org.getRecordId()+"',0,0,0,0 from dual";
+			this.jdbcTemplate.execute(insertSql);
 		}
 	}
 
@@ -531,7 +493,7 @@ public class CompanyManage {
 	public String getParams(String flag,String faid){
 		ExtGrid eg = new ExtGrid();
 		if("fx".equals(flag)){
-			String aqdjSql = "select distinct plan0410,fx0101 from plan04 left join fx01 on fx0102 = plan0410 where parentid = '"+faid+"'";
+			String aqdjSql = "select distinct plan0410,fx0101 from plan04 left join fx01 on fx0102 = plan0410 where parentid = '"+faid+"' order by fx0101";
 			List<Map<String,Object>> fxlist = this.jdbcTemplate.queryForList(aqdjSql);
 			if(fxlist.size()>0){
 				for(Map<String,Object> map:fxlist){
@@ -542,7 +504,7 @@ public class CompanyManage {
 				}
 			}
 		}else{
-			String xydjSql = "select distinct plan0411,xy0101 from plan04 left join xy01 on xy0102 = plan0411 where parentid = '"+faid+"'";
+			String xydjSql = "select distinct plan0411,xy0101 from plan04 left join xy01 on xy0102 = plan0411 where parentid = '"+faid+"' order by plan0411 desc";
 			List<Map<String,Object>> xylist = this.jdbcTemplate.queryForList(xydjSql);
 			if(xylist.size()>0){
 				for(Map<String,Object> map:xylist){

@@ -63,7 +63,6 @@ public class SchemeInfoShow {
 		}
 
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" order by t.plan0102 desc");
-		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
 
 		if(resultList.size()>0){
 			for(Map<String,Object> map:resultList){

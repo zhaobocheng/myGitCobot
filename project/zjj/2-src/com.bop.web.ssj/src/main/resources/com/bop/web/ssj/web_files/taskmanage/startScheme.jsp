@@ -7,7 +7,7 @@
 </head>
 <body>
 <div style="padding:5px;10px;5px;0">
-	<span>年份：</span><input class="mini-combobox" id="year" style="width:150px;" valueField="id" onvaluechanged="valueChange"/>
+	<span>年份：</span><input class="mini-combobox" id="year" style="width:150px;" url="/ssj/taskmanage/taskoperation/getyearData?theme=none" valueField="id" onvaluechanged="valueChange"/>
 </div>
     <div style="width:100%;">
         <div class="mini-toolbar" style="border-bottom:0;padding:2px;">
@@ -144,6 +144,8 @@ mini.parse();
 var datagrid=mini.get("griddata");
 var newwin = mini.get("newWin");
 var year = mini.get("year");
+
+year.select(1);
 //选择检查事项的加载列表
 var powerDatagrid=mini.get("powerDatagrid");
 //得到年月下拉框数据
@@ -160,7 +162,7 @@ getMonthCombox = function(){
 var monthData = getMonthCombox();
 
 //拼接年份下拉框数据
-getYearCombox = function(){
+ getYearCombox = function(){
 	var d = new Date();
 	var nowYear = d.getFullYear();
 	var nextYear = nowYear+1;
@@ -170,7 +172,6 @@ getYearCombox = function(){
 	return comboxdata;
 }
 var yearData = getYearCombox();
-year.setData(yearData);
 
 datagrid.setUrl("/ssj/taskmanage/taskoperation/getGridData?theme=none&year="+year.value);
 datagrid.load();
@@ -289,7 +290,7 @@ valueChange = function(){
 
 <!--选择选择检查事项-->
 chooseItem=function(){
-	chooseItemWin=mini.get("chooseItemWin");
+	var chooseItemWin=mini.get("chooseItemWin");
 	powerDatagrid.load();
 	chooseItemWin.show();
 }
@@ -297,6 +298,7 @@ chooseItem=function(){
 <!--保存选中的检查事项-->
 function savePowerList(){
 	var st = powerDatagrid.getSelecteds();
+	var chooseItemWin=mini.get("chooseItemWin");
 	var strId="";
 	var strName="";
 	for(i=0;i<st.length;i++){
@@ -363,11 +365,12 @@ function xycommit(){
 		data:json,
 		success:function(e){
 			var obj = mini.decode(e);
-			if(obj.inf=="true"){
+			
+			if(obj.inf){
 				alert("保存成功！");
 				datagrid.reload();
 			}else{
-				alert(obj.text);
+				alert("保存失败，请联系管理员！");
 			}
 			newwin.hide();
 		}
