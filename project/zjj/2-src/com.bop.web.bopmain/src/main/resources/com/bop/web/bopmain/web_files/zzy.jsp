@@ -26,7 +26,7 @@ if(set.size()==1){
 	for(MenuItem mi:set){
 %>
 window.onload =  function(){
-	window.location.href = "/bopmain/mainpage/desktop?fid=1105&sid="+"<%=mi.getId()%>";
+	window.location.href = "/ssj/ssjscheme/schemeView.jsp?fid=1105&sid=ssjmanager";
 }
 <%}
 } %>
