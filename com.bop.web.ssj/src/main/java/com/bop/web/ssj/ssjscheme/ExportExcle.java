@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
 
 import com.aspose.cells.BorderType;
@@ -38,6 +40,7 @@ import com.bop.json.ExtResultObject;
 import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
+import com.bop.web.ssj.companymanage.CompanyManage;
 
 public class ExportExcle {
 	/**
@@ -48,6 +51,8 @@ public class ExportExcle {
 	private IRecordDao recordDao;
 	private UserSession userSession;
 
+	private static final Logger log = LoggerFactory.getLogger(ExportExcle.class);
+	
 	public void setUserSession(UserSession userSession) {
 		this.userSession = userSession;
 	}
@@ -628,7 +633,7 @@ public class ExportExcle {
 			eRow.add("jcnr",  ire.get("PLAN1208"));
 			eRow.add("jcrid", personInf[0]);
 			eRow.add("jcr",  personInf[1]);
-			eRow.add("sjly", this.getJSLY(ire.get("PLAN1202").toString()));
+			eRow.add("sjly", this.getJSLY(fzid,zone,ire.get("PLAN1202").toString()));
 			eRow.add("zxjc",  this.getZXJC(fzid,ire.get("PLAN1201",IRecord.class).getRecordId().toString()));
             rowlist2.add(eRow);
         }
@@ -656,41 +661,16 @@ public class ExportExcle {
 	 * @param jgdm
 	 * @return
 	 */
-	private String getJSLY(String jgdm){
-		String sql = "select * from org02 where  parentid =(select org01.org00 from org01 where org01.org_code = '"+jgdm+"')";
-		List<Map<String,Object>> org2List = this.jdbcTemplate.queryForList(sql);
+	private String getJSLY(String faid,String zone,String jgdm){
+		String sql = " select * from plan0401 t  where t.parentid in (select recordid from plan04 where  parentid = '"+faid+"' and plan0404 = '"+zone+"' and plan0402 = '"+jgdm+"')";
+		List<Map<String,Object>> plan0401List = this.jdbcTemplate.queryForList(sql);
 		
 		String retStr = "";
-		if(org2List.size()>0){
-			Map<String,Object> map = org2List.get(0);
-			if(map.get("ORG0201")!=null&&"1".equals(map.get("ORG0201").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '1'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
+		if(plan0401List.size()>0){
+			for(Map<String,Object> map:plan0401List){
+				retStr += map.get("PLAN040103")+",";
 			}
-			if(map.get("ORG0202")!=null&&"1".equals(map.get("ORG0202").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '2'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0203")!=null&&"1".equals(map.get("ORG0203").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '3'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0204")!=null&&"1".equals(map.get("ORG0204").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '4'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-			if(map.get("ORG0205")!=null&&"1".equals(map.get("ORG0205").toString())){
-				String Codesql = "select * from dm_codetable_data t where t.codetablename = 'ZDY01' and t.cid = '5'";
-				Map<String,Object> codeMap = this.jdbcTemplate.queryForMap(Codesql);
-				retStr+=codeMap.get("caption")+"，";
-			}
-		}
-		if(retStr.length()>0){
-			return retStr.substring(0, retStr.length()-1);
+			return  retStr.substring(0, retStr.length()-1);
 		}else{
 			return "";
 		}

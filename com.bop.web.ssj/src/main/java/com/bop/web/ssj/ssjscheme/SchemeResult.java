@@ -452,6 +452,7 @@ public class SchemeResult {
 				eo.add("PLAN1226",  map.get("PLAN1226"));
 				eo.add("PLAN1227",  map.get("PLAN1227"));
 				eo.add("PLAN1210", map.get("PLAN1210"));
+				eo.add("PLAN1229", map.get("PLAN1229"));
 				
 				 if("3".equals(map.get("PLAN1210").toString())){
 					 eo.add("zf","已保存");
@@ -525,7 +526,7 @@ public class SchemeResult {
 				ire.put("PLAN1226", jsonObject.get("PLAN1226"));
 				ire.put("PLAN1227", jsonObject.get("PLAN1227"));
 				ire.put("PLAN1210", 3);
-				ire.put("PLAN1229", new Date());
+				ire.put("PLAN1229", jsonObject.get("PLAN1229").toString());
 				//ire.put("PLAN1210", "保存");
 				
 				this.recordDao.saveObject(ire);

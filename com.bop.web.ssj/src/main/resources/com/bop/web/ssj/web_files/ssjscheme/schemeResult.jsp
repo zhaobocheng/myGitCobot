@@ -30,6 +30,10 @@
         <div field="PLAN1203" width="100" align="right" headerAlign="center">单位名称</div>
         <div field="PLAN1210" visible="false">PLAN1210</div>
         <div field="parentid" visible="false">parentid</div>
+        <div field="PLAN1229" name="PLAN1229" vtype="required" width="100"   headerAlign="center"  dateFormat="yyyy-MM-dd"  >检查时间
+            <input property="editor" class="mini-datepicker" format="yyyy-MM-dd"  style="width:100%;" />  
+        </div>
+        
         <div field="PLAN1221" name="PLAN1221" vtype="required" width="100"   headerAlign="center"    type="comboboxcolumn">是否发现问题
             <input property="editor" class="mini-combobox"  style="width:100%;" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY06&isSync=1"/>  
         </div>
@@ -236,6 +240,12 @@ function saveData() {
     for(var i=0;i<datas.length;i++){
     	var data = datas[i];
     	var ss = data.PLAN1222;
+    	
+    	if(data.PLAN1229==undefined){
+    		alert("请填写检查时间！");
+    		grid.validateRow(data);
+    		return;
+    	}
     	if(data.PLAN1221==1&&data.PLAN1222==""){
     		alert("请选择问题涉及事项及问题描述");
     		grid.validateRow(data);
@@ -253,7 +263,11 @@ function saveData() {
     		grid.validateRow(data);
     		return;
     	}
-    }    
+    }
+    
+    debugger;
+    
+    
     grid.loading("保存中，请稍后......");
 
     $.ajax({

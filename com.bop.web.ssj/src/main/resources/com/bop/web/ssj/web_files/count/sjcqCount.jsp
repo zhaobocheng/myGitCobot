@@ -25,6 +25,7 @@
 				<div field="cyrys" width="50" headerAlign="center" align="center" summaryType="sum">参与人员数</div>
 				<div field="zqys" width="60" headerAlign="center" align="center" summaryType="sum">总企业数</div>
 				<div field="qys_jcs" width="40" headerAlign="center" align="center" summaryType="sum">检查任务数</div>
+				<div field="qys_gss" width="40" headerAlign="center" align="center" summaryType="sum">已公示数</div>
 				<div header="抽查企业数" headerAlign="center">
 	                <div property="columns">
 	                    <div field="qys_uf" width="50" headerAlign="center" summaryType="sum">未发现问题</div>
@@ -44,7 +45,6 @@
 	                    <div field="qys_upro"  width="60" headerAlign="center" align="center" summaryType="sum">企业停产停业</div>
 	                </div>
 				</div>
-				<div field="qys_gss" width="40" headerAlign="center" align="center" summaryType="sum">已公示数</div>
 			</div>
 		</div>
 	</div>

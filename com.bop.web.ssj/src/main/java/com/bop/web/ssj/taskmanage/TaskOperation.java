@@ -24,7 +24,6 @@ import com.bop.json.ExtResultObject;
 import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
-import com.bop.web.ssj.powerlist.ImportData;
 
 public class TaskOperation {
 	private JdbcOperations jdbcTemplate;
@@ -43,7 +42,7 @@ public class TaskOperation {
 		this.recordDao = recordDao;
 	}
 	
-	private static final Logger log = LoggerFactory.getLogger(ImportData.class);
+	private static final Logger log = LoggerFactory.getLogger(TaskOperation.class);
 	
 	/**
 	 * 创建任务方法
@@ -188,11 +187,11 @@ public class TaskOperation {
 			ird.put("PLAN0105", 1);
 			this.recordDao.saveObject(ird);
 			//方案启动生成一条记录状态的记录，复制人员信息到plan02,复制企业信息到plan04后两步用触发器实现
-			//v3版本需要复制items01的信息到plan0401中去,这个在触发其中不能同步的做
-			String insertSql = "insert into plan0401 select get_uuid,get_uuid,t.recordid,1,t4.org0401,t4.org0402,i.item0101,dm.caption"+
+			//v3版本需要复制items01的信息到plan0401中去,这个在触发其中不能同步的做 row_number() over(partition by t4.org0409,t4.org0401 order by org0401) as num
+			String insertSql = "insert into plan0401 select get_uuid,get_uuid,tt.recordid,1,tt.org0401,tt.org0402,tt.item0101,tt.caption from ( select t.recordid,1,t4.org0401,t4.org0402,i.item0101,dm.caption ,row_number() over(partition by t4.org0409,t4.org0401 order by org0401) as num"+
 					" from plan04 t left join org04 t4 on t4.parentid = t.plan0401 left join item01 i on i.item00=t4.org0401  left join dm_codetable_data dm on dm.codetablename = 'ZDY02' and dm.cid = i.item0102"+
-					" where t.parentid = '"+faid+"'";
-			
+					" where t.parentid = '"+faid+"') tt where tt.num = 1";
+
 			this.jdbcTemplate.execute(insertSql);
 			this.insertPlan3(faid);
 		}
@@ -336,13 +335,39 @@ public class TaskOperation {
 		String cjxy = request.getParameter("cjxy").toString();
 		String djxy = request.getParameter("djxy").toString();
 		
-		
 		this.jdbcTemplate.execute("update xy01 set xy0102 = "+ajxy +" where xy0101 = 'A'");
 		this.jdbcTemplate.execute("update xy01 set xy0102 = "+bjxy +" where xy0101 = 'B'");
 		this.jdbcTemplate.execute("update xy01 set xy0102 = "+cjxy +" where xy0101 = 'C'");
 		this.jdbcTemplate.execute("update xy01 set xy0102 = "+djxy +" where xy0101 = 'D'");
 
+		eor.add("inf", true);
+		
 		return eor.toString();
 		
+	}
+	
+	
+	/**
+	 * 得到时间年份列表
+	 * @return
+	 * @author lh
+	 */
+	@Action
+	public String getyearData(){
+		ExtObjectCollection eoc = new ExtObjectCollection();
+		List<Map<String,Object>> list  = this.jdbcTemplate.queryForList("select distinct plan0101  from plan01 t order by plan0101 ");
+		for(Map<String, Object> rd :list){
+			ExtObject eo = new ExtObject();
+			eo.add("id", rd.get("PLAN0101"));
+			eo.add("text", rd.get("PLAN0101")+"年");
+			eoc.add(eo);
+		}
+		int tt = this.jdbcTemplate.queryForInt("select max(plan0101) as nf  from plan01 t ");
+
+		ExtObject ee = new ExtObject();
+		ee.add("id", tt+1);
+		ee.add("text", (tt+1)+"年");
+		eoc.add(ee);
+		return eoc.toString();
 	}
 }

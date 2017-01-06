@@ -302,7 +302,7 @@ function goon(){
 	 }else{
 		 var s=new Date();
 		 $.ajax({
-			 url : "/ssj/powerlist/PowerList/impOrgInfo/"+encodeURI(fileName)+"/"+flag+"/"+selectedId+"?theme=none",
+			 url : "/ssj/powerlist/ImportData/impOrgInfo/"+sxid11+"/"+flag+"/"+selectedId+"?theme=none",
 	         type: 'POST',
 	         data: formData,
 	         async: false,
