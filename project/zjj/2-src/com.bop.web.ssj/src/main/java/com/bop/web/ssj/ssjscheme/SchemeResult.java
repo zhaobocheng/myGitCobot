@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
 import com.bop.domain.IRecordDao;
 import com.bop.domain.Records;
@@ -18,6 +21,7 @@ import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
 import com.bop.web.rest.Controller;
+import com.bop.web.ssj.taskmanage.TaskOperation;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -28,6 +32,8 @@ public class SchemeResult {
 	private IRecordDao recordDao;
 	private UserSession userSession;
 
+	private static final Logger log = LoggerFactory.getLogger(TaskOperation.class);
+	
 	public void setUserSession(UserSession userSession) {
 		this.userSession = userSession;
 	}
@@ -291,7 +297,7 @@ public class SchemeResult {
 			wheresql += " and plan0107 like '%"+rwmc+"%'";
 			sql1+= " and plan0107 like '%"+rwmc+"%'";
 		}
-		
+
 		//List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" order by t.plan0102 desc");
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(sql+wheresql+" UNION ALL "+sql1+" order by yf desc,qxid ");
 		SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
@@ -390,7 +396,7 @@ public class SchemeResult {
 		ExtObjectCollection eoc = new ExtObjectCollection();
 
 		String querySql = null;
-		querySql = "select t.cid,t.caption from dm_codetable_data t  where t.codetablename = '"+tableName+"'";
+		querySql = "select t.item00 as cid,t.ITEM0101 as caption from item01 t  ";
 		List<Map<String,Object>> resultList = this.jdbcTemplate.queryForList(querySql);
 
 		if(resultList.size()>0){
@@ -640,6 +646,58 @@ public class SchemeResult {
 		return eoc.toString();
 	}
 
+	
+	
+
+	/**
+	 * 升级旧数据
+	 * @return
+	 */
+	@Action
+	public String chengeAll(){
+		
+		String sql = "select recordid,plan1222 from plan12 where plan1222 is not null ";
+		List<Map<String,Object>> list = this.jdbcTemplate.queryForList(sql);
+		for(Map<String,Object> pir:list){
+			List<Map<String,Object>>  listMap  = this.jdbcTemplate.queryForList("select column_value from table(strsplit("+pir.get("plan1222")+"))  order by column_value ");
+			String recordid = pir.get("recordid").toString();
+			log.error("开始导入数据，导入的plan12 recordid是"+recordid);
+			String insertSql = "";
+
+			for(Map<String,Object> map:listMap){
+				String str = map.get("column_value").toString();
+				switch(str){
+					case "1":
+						insertSql += "bd0c1da9-251a-4c93-8f32-ee02e3988cb8,";
+						break;
+					case "2":
+						insertSql += "ed700f4d-a28e-42bf-a91f-e1716a3691bb,";
+						break;
+					case "3":
+						insertSql += "d341ba8b-0063-4979-bbac-013035e3b1b4,";
+						break;
+					case "4":
+						insertSql += "adca2274-5579-4718-ae90-5589e662bb7c,";
+						break;
+					case "5":
+						insertSql += "15bf5655-53cb-4b0a-83ad-0babf8c2eb35";
+						break;
+					default:
+						insertSql += "";
+						break;
+				} 
+			}
+			
+			this.jdbcTemplate.execute("update  plan12 t set t.plan1222 = '"+insertSql+"' where t.recordid = '"+recordid+"'");
+			log.error("导入数据结束，导入的plan12 recordid是"+recordid);
+		}
+		return "success";
+	}
+	
+	
+	
+	
+	
 	/**
 	 * 得到下拉框数据
 	 * @return

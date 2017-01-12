@@ -341,12 +341,11 @@ public class TaskOperation {
 		this.jdbcTemplate.execute("update xy01 set xy0102 = "+djxy +" where xy0101 = 'D'");
 
 		eor.add("inf", true);
-		
 		return eor.toString();
 		
 	}
-	
-	
+
+
 	/**
 	 * 得到时间年份列表
 	 * @return
