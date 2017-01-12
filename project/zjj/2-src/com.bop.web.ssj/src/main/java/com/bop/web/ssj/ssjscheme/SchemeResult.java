@@ -680,7 +680,7 @@ public class SchemeResult {
 						insertSql += "adca2274-5579-4718-ae90-5589e662bb7c,";
 						break;
 					case "5":
-						insertSql += "15bf5655-53cb-4b0a-83ad-0babf8c2eb35";
+						insertSql += "15bf5655-53cb-4b0a-83ad-0babf8c2eb35,";
 						break;
 					default:
 						insertSql += "";
@@ -688,7 +688,7 @@ public class SchemeResult {
 				} 
 			}
 			
-			this.jdbcTemplate.execute("update  plan12 t set t.plan1222 = '"+insertSql+"' where t.recordid = '"+recordid+"'");
+			this.jdbcTemplate.execute("update  plan12 t set t.plan1222 = '"+insertSql.substring(0,insertSql.length()-1)+"' where t.recordid = '"+recordid+"'");
 			log.error("导入数据结束，导入的plan12 recordid是"+recordid);
 		}
 		return "success";
