@@ -57,8 +57,7 @@
 	         </div>       
 			<div field="PLAN1227"  width="120" headerAlign="center" allowSort="true">实际生产地
 	               <input property="editor" class="mini-textarea" style="width:100%;" minHeight="80"/>
-	        </div> 
-	        
+	        </div>  
 	    </div>
 	</div>
 </div>

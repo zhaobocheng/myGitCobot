@@ -44,9 +44,9 @@ public class SchemeInfoShow {
 	public String getFALBData(String zfnd,String zfzt){
 
 		ExtObjectCollection eoc = new ExtObjectCollection();
-		String sql = "select  t.plan00,t.plan0107 as mc,t.plan0101||t.plan0102 as zfyf, decode(counorg.qys,null,0,counorg.qys) as cycczs , case when p6.plan0602 is null then round(counorg.qys*0.01)  else p6.plan0602  end as ccqys ,  "+
+		String sql = "select  t.plan00,t.plan0107 as mc,t.plan0101||t.plan0102 as zfyf, decode(counorg.qys,null,0,counorg.qys) as cycczs , case when p6.plan0602 is null then 0  else p6.plan0602  end as ccqys ,  "+
 					 " counp2.zrs as zfryzs,  counp2.cqrs as cyzfrs , decode(p21.fqs,null,0,p21.fqs) as fqs,tt.plan0302 from plan01 t  left join plan03 tt on tt.parentid = t.plan00 "+
-					" left join (select count(*) qys,org.parentid, org.plan0404  from plan04 org group by org.parentid,org.plan0404) counorg on counorg.plan0404 =  tt.plan0301 and tt.parentid = counorg.parentid"+
+					" left join (select count(*) qys,org.parentid, org.plan0417  from plan04 org group by org.parentid,org.plan0417) counorg on counorg.plan0417 =  tt.plan0301 and tt.parentid = counorg.parentid"+
 					" left join (select count(*) zrs ,sum(decode(p2.plan0204,2,1,0)) as cqrs, p2.plan0205,p2.parentid from plan02 p2 group by p2.plan0205 ,p2.parentid) counp2 on counp2.parentid = t.plan00 and counp2.plan0205=tt.plan0301 "+
 					" left join  plan06 p6  on p6.parentid = t.plan00 and p6.plan0601 = tt.plan0301    left join (select count(*) as fqs, pp.fq0105, pp.fq0103 from fq01 pp group by pp.fq0105, pp.fq0103) p21 on p21.fq0105 = t.plan00 and p21.fq0103 = tt.plan0301 where ";
 		String wheresql = " t.PLAN0105 = 1 and tt.plan0301='"+this.userSession.getCurrentUserZone()+"' ";
