@@ -514,30 +514,28 @@ public class SchemeResult {
 	@Action
 	public String saveGridData(){
 		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
-		String data = request.getParameter("data");
+	/*	String data = request.getParameter("data");
 		JSONArray array = JSONArray.fromObject(data);
 		for(int i=0;i<array.size();i++){
-			JSONObject jsonObject = (JSONObject) array.get(i);
-			String faid = jsonObject.get("id").toString();
+			JSONObject jsonObject = (JSONObject) array.get(i);*/
+			String faid = request.getParameter("id").toString();
 			String whereSql=" RECORDID='"+faid+"'";
 			Records ires  = this.recordDao.queryRecord("PLAN12", whereSql);
-			//IRecord ire = this.recordDao.getRecord("PLAN12", UUID.fromString(faid));
 			if (ires.size()>0){
 				IRecord ire =ires.get(0);
-				ire.put("PLAN1221", jsonObject.get("PLAN1221"));
-				ire.put("PLAN1222", jsonObject.get("PLAN1222"));
-				ire.put("PLAN1223", jsonObject.get("PLAN1223"));
-				ire.put("PLAN1224", jsonObject.get("PLAN1224"));
-				ire.put("PLAN1225", jsonObject.get("PLAN1225"));
-				ire.put("PLAN1226", jsonObject.get("PLAN1226"));
-				ire.put("PLAN1227", jsonObject.get("PLAN1227"));
+				ire.put("PLAN1221", request.getParameter("PLAN1221"));
+				ire.put("PLAN1222", request.getParameter("PLAN1222"));
+				ire.put("PLAN1223", request.getParameter("PLAN1223"));
+				ire.put("PLAN1224", request.getParameter("PLAN1224"));
+				ire.put("PLAN1225", request.getParameter("PLAN1225"));
+				ire.put("PLAN1226", request.getParameter("PLAN1226"));
+				ire.put("PLAN1227", request.getParameter("PLAN1227"));
 				ire.put("PLAN1210", 3);
-				ire.put("PLAN1229", jsonObject.get("PLAN1229").toString());
+				ire.put("PLAN1229", new Date(request.getParameter("PLAN1229")));
 				//ire.put("PLAN1210", "保存");
 				
 				this.recordDao.saveObject(ire);
 			}
-		}	
 		return "success";
 	}
 	/**

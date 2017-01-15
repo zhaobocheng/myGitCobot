@@ -13,14 +13,14 @@
 	 <a class="mini-button" id="find" iconCls = "icon-find"  onclick="search()">查找</a>
 </div>
 <div style="padding:5px;10px;5px;0">
-	<a class="mini-button" id="createBut" iconCls = "icon-save"  onclick="saveData()" >保存</a>
+	<!-- <a class="mini-button" id="createBut" iconCls = "icon-save"  onclick="saveData()" >保存</a> -->
 	<a class="mini-button" id="commitBut" iconCls = "icon-ok" onclick="commitFa()" >提交结果</a>
 	<a class="mini-button" id="commitGS" iconCls = "icon-node"  onclick="onCommitGS()" >公示</a>	
 	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
 </div>
 <div class="mini-fit">
-<div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;" showPager="false" 
-        url="" idField="id" allowResize="true" allowCellEdit="true" allowCellSelect="true" multiSelect="true"
+<div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;" showPager="false" onrowdblclick="rowthing"
+        url="" idField="id" allowResize="true" allowCellEdit="false" allowCellSelect="true" multiSelect="true"
         allowCellValid="true"  oncellbeginedit="OnCellBeginEdit"  >
     <div property="columns">
      <div type="checkcolumn"></div>
@@ -37,26 +37,141 @@
         <div field="PLAN1221" name="PLAN1221" vtype="required" width="100"   headerAlign="center"    type="comboboxcolumn">是否发现问题
             <input property="editor" class="mini-combobox"  style="width:100%;" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY06&isSync=1"/>  
         </div>
-         <div field="PLAN1222" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">问题涉及事项
-            <input property="editor" class="mini-combobox" multiSelect="true" style="width:100%;"   minWidth="240" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY01?theme=none"/>                
+         <div field="PLAN1222" name="PLAN1222" vtype="required" width="100"   align="center" headerAlign="center" type="comboboxcolumn" >问题涉及事项
+             <input property="editor" class="mini-combobox"   style="width:100%;"  url="/ssj/ssjScheme/SchemeResult/getCode/ZDY08?theme=none"  minWidth="100" />
         </div> 
   		<div field="PLAN1223"  vtype="required" width="120" headerAlign="center" allowSort="true">问题描述
                <input property="editor" class="mini-textarea" style="width:100%;"  minWidth="240" minHeight="80"/>
         </div> 
          <div field="PLAN1224" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">立案情况
-             <input property="editor" class="mini-combobox" style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY08?theme=none"/>                
+             <input property="editor" class="mini-combobox" style="width:100%;" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY08&isSync=1"/>                
          </div> 
          <div field="PLAN1225" vtype="required" width="60" type="comboboxcolumn" align="center" headerAlign="center">企业是否变化
              <input property="editor" class="mini-combobox" style="width:100%;" data="Bits"/>        
          </div>
          <div field="PLAN1226" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">企业变化情况
-             <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY09?theme=none"/>                
+             <input property="editor" class="mini-combobox"  style="width:100%;" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY09&isSync=1"/>                
          </div>
 		<div field="PLAN1227"  vtype="required" width="120" headerAlign="center" allowSort="true">实际生产地
                <input property="editor" class="mini-textarea" style="width:100%;" minWidth="200" minHeight="80"/>
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+<div  id="addwindow" class="mini-window" title="填写结果" style="width:670px;height:380px;" showToolbar="true" showFooter="true">
+	<div class = "input_form" id = "winform"  style="width:100%;">
+	
+		 <table style="width:100%;"> 
+			     <tr>
+			        <th width="15%"><label>机构代码：</label></th>
+			        <td width="35%"><input style="width: 100%" id="PLAN1202"
+			            name="PLAN1202" class="mini-textbox" allowInput="false" required = "true"/>
+			            <input class="mini-hidden" name="id" id="id" />
+			        </td>
+			        <th width="15%"><label>机构名称：</label></th>
+			        <td width="35%"><input style="width: 100%" id="PLAN1203" required = "true"
+			            name="PLAN1203" class="mini-textbox" allowInput="false" /></td>
+			    </tr>
+			    <tr>
+			        <th width="15%"><label>检查时间<font color = "red">*</font>：</label></th>
+			        <td width="35%"><input style="width: 100%" id="PLAN1229" required = "true"
+			             format="yyyy-MM-dd"   name="PLAN1229" class="mini-datepicker" allowInput="false" /></td>
+			        <th width="15%"><label>是否发现问题<font color = "red">*</font>：</label></th>
+			        <td width="35%"><input style="width: 100%" id="PLAN1221" required = "true" 
+			            name="PLAN1221" class="mini-combobox" allowInput="false" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY06&isSync=1" /></td>
+			    </tr>
+			    <tr>
+			        <th width="15%"><label>问题涉及事项：</label></th>
+			        <td colspan="3">
+				        <input style="width: 100%" id="PLAN1222" name="PLAN1222"  class="mini-combobox" required = "false" multiSelect="true" allowInput = "false"
+				        textField="text" valueField="id"  url="/ssj/ssjScheme/SchemeResult/getCode/ZDY08?theme=none"  />
+			   		</td>
+			    </tr>
+			    
+			    <tr>
+			        <th width="15%"><label>问题描述：</label></th>
+			        <td colspan="3">
+				        <input style="width: 100%" id="PLAN1223" name="PLAN1223"  class="mini-textarea" required = "false"
+				        textField="text" valueField="id"    />
+			   		</td>
+			    </tr>
+			    
+			    <tr >
+				     <th width="15%"><label>立案情况<font color = "red">*</font>：</label></th>
+				     <td width="35%"><input style="width: 100%;" id="PLAN1224" required = "true"
+				            name="PLAN1224" class="mini-combobox" allowInput="false" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY08&isSync=1" />
+				     </td>
+				     <th width="15%"><label>企业是否变化<font color = "red">*</font>：</label></th>
+				     <td width="35%"><input style="width: 100%;" id="PLAN1225" required = "true" 
+				            name="PLAN1225" class="mini-combobox" allowInput="false"  data="[{id:0,text:'否'},{id:1,text:'是'}]"/>
+				     </td>
+			    </tr>
+			    <tr >
+				     <th width="15%"><label>企业变化情况：</label></th>
+				     <td colspan="3"><input style="width: 100%;" id="PLAN1226" required = "false"
+				            name="PLAN1226" class="mini-combobox"  url="/Domain/DMDefineTreeAjax.do?tableName=ZDY09&isSync=1"  />
+				     </td>
+			    </tr>
+			    <tr >
+				     <th width="15%"><label>实际生产情况：</label></th>
+				     <td colspan="3"><input style="width: 100%;" id="PLAN1227" required = "false"
+				            name="PLAN1227" class="mini-textArea" allowInput="true" />
+				     </td>
+			    </tr>
+		   </table>
+		   
+		   <div property = "footer" id = "hysubminButtondiv"  Align = "right" > 
+       			<a class = "mini-button" iconCls="mini-save" id = "hysubminButton" onclick = "onSubmit()">保存</a>
+       			<a class = "mini-button" iconCls="mini-consel" id = "hyconcleButton" onclick = "onConcle()">取消</a> &nbsp;&nbsp;
+       		</div>
+     </div>
+	</div>
+
+</div>
+
+
+
+
+
+<!-- 选择检查事项窗口-->
+<div id="chooseItemWin" class="mini-window" title="选择检查事项" style="width:870px;height:580px;" showToolbar="true" showFooter="true" >
+	<div style="padding-top: 10px;padding-bottom: 10px;padding-left:15px">
+		<table>
+			<tr>
+				<td>检查事项名称：</td>
+				<td><input class="mini-textbox" id="itemmc" name="itemmc" style="width:220px;" onvaluechanged="findRow()"/></td>
+				<td>检查事项对象：</td>
+				<td><input class="mini-combobox" id="itemdx" name="itemdx" style="width:220px;" onvaluechanged="findRow()" textField="text" valueField="id" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY04&isSync=1"/></td>
+			</tr>
+			<tr>
+				<td>检查事项业务分类：</td>
+				<td colspan="3"><input class="mini-combobox" id="itemfl" name="itemfl" style="width:220px;" onvaluechanged="findRow()" textField="text" valueField="id" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY02&isSync=1"/>&nbsp;&nbsp;
+					<a class="mini-button" id="find" iconCls = "icon-save"  onclick="savePowerList()">保存</a>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="mini-fit">
+		<div class="mini-datagrid" id="powerDatagrid" style="width:100%;height:100%;" url="/ssj/taskmanage/taskOperation/getitemsData?theme=none" showFooter="true" idField="id" multiSelect="true"
+			pageSize="30" sizeList="[20,30,50,100]">
+			<div property="columns">
+				<div type="checkcolumn"></div>
+				<div type="indexcolumn" width="20" headerAlign="center">序号</div>
+				<div field=itemmc width="80" headerAlign="center">检查事项名称</div>
+				<div field="itemdx" width="120" headerAlign="center">检查事项对象</div>
+				<div field="itemfl" width="80" headerAlign="center">检查事项业务分类</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 </div>
 
 <script >
@@ -71,6 +186,7 @@ var yf=mini.get("month").value;
 var url = '/ssj/ssjScheme/SchemeResult/getSchemeDate?theme=none';
 grid.setUrl(url);
 //grid.load({month:mc.value});
+var powerDatagrid=mini.get("powerDatagrid");
 
 valueChangeYear = function(){
 	 var id = mini.get("year").getValue();
@@ -168,7 +284,7 @@ function onCommitGS(){
 	var data = grid.getSelecteds();
 	
 	for (var i = data.length - 1; i >= 0; i--) {
-		if (data[i].PLAN1210<'2'){
+		if (data[i].PLAN1210<'4'){
 			alert("有未提交结果的录入，请先确保录入结果已经提交再进行公示！");
 			return;
 		}
@@ -194,9 +310,9 @@ function onCommitGS(){
 }
 
 function commitFa(){
-    if (grid.isChanged() == true) {
+/*     if (grid.isChanged() == true) {
     	saveData();
-    }
+    } */
 	var rows = grid.getSelecteds();
 
     if (rows.length > 0) {
@@ -265,7 +381,6 @@ function saveData() {
     	}
     }
     
-    debugger;
     
     
     grid.loading("保存中，请稍后......");
@@ -277,6 +392,7 @@ function saveData() {
         success: function (e) {
 			if(e=="success"){
 				alert("保存成功！");
+				
 				grid.reload();
 			}else{
 				alert("保存失败！");
@@ -326,6 +442,82 @@ importExc = function(){
 			grid.reload();
 		}
 	});
+}
+
+
+
+
+rowthing= function(e){
+	//alert("rowthing");
+	if(e.row.zf == "已提交"){
+		alert("本条记录已经提交不可再修改！");
+		return ;
+	}
+	var win = mini.get("addwindow");
+	win.show();
+	
+	mini.get("PLAN1202").setValue(e.row.PLAN1202);
+	mini.get("PLAN1203").setValue(e.row.PLAN1203);
+	mini.get("id").setValue(e.row.id);
+}
+
+onConcle = function(e){
+	var win = mini.get("addwindow");
+	win.hide();
+	
+}
+
+function onSubmit(){
+	var hyform = new mini.Form("#winform");
+	hyform.validate();	 
+	 
+	
+	 var p21 = mini.get("PLAN1221").getValue();
+	 var p22 = mini.get("PLAN1222").getValue();
+	 var p23 = mini.get("PLAN1223").getValue();
+	 if((p21 == 1 && p22 =="")||(p21 == 1 && p23 =="")){
+		 alert("请填写问题涉及事项以及问题描述!");
+	 }
+
+	 var p25 = mini.get("PLAN1225").getValue();
+	 var p26 = mini.get("PLAN1226").getValue();
+	 if(p25==1 && p26==null){
+		 alert("请选择企业变化情况！");
+	 }
+	 
+	 var p27 = mini.get("PLAN1226").getValue();
+	 if(p26==2 && p26==null){
+		 alert("请填写实际生产地！");
+	 }
+	 
+	 
+	var json = hyform.getData();
+	 
+    $.ajax({
+        url: "/ssj/ssjScheme/SchemeResult/saveGridData?theme=none",
+        data: json,
+        type: "post",
+        success: function (e) {
+			if(e=="success"){
+				alert("保存成功！");
+				mini.get("addwindow").hide();
+				grid.reload();
+			}else{
+				alert("保存失败！");
+			}            
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert(jqXHR.responseText);
+        }
+    });
+}
+
+
+
+chooseItem=function(){
+	var chooseItemWin=mini.get("chooseItemWin");
+	powerDatagrid.load();
+	chooseItemWin.show();
 }
 
 </script>
