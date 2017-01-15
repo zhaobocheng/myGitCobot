@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -353,6 +354,10 @@ public class TaskOperation {
 	 */
 	@Action
 	public String getyearData(){
+		HttpServletResponse response = ActionContext.getActionContext().getHttpServletResponse();
+		response.setHeader("X-Content-Type-Options", "nosniff");
+		
+		
 		ExtObjectCollection eoc = new ExtObjectCollection();
 		List<Map<String,Object>> list  = this.jdbcTemplate.queryForList("select distinct plan0101  from plan01 t order by plan0101 ");
 		for(Map<String, Object> rd :list){

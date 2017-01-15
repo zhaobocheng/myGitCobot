@@ -44,7 +44,7 @@
         <property name="jdbcTemplate" ref="JdbcTemplate" />
         <property name="recordDao" ref="recordDao" />
         <property name="userSession" ref="UserSession" />
-    </bean> 
+    </bean>
     <bean id="count" class="com.bop.web.ssj.count.CountPage">
         <property name="jdbcTemplate" ref="JdbcTemplate" />
         <property name="recordDao" ref="recordDao" />
