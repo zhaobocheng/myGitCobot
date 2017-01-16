@@ -65,7 +65,7 @@
 
 
 
-<div  id="addwindow" class="mini-window" title="填写结果" style="width:670px;height:380px;" showToolbar="true" showFooter="true">
+<div  id="addwindow" class="mini-window" title="填写结果" style="width:720px;height:400px;" showToolbar="true" showFooter="true">
 	<div class = "input_form" id = "winform"  style="width:100%;">
 	
 		 <table style="width:100%;"> 
@@ -75,16 +75,16 @@
 			            name="PLAN1202" class="mini-textbox" allowInput="false" required = "true"/>
 			            <input class="mini-hidden" name="id" id="id" />
 			        </td>
-			        <th width="15%"><label>机构名称：</label></th>
-			        <td width="35%"><input style="width: 100%" id="PLAN1203" required = "true"
+			        <th width="17%"><label>机构名称：</label></th>
+			        <td width="33%"><input style="width: 100%" id="PLAN1203" required = "true"
 			            name="PLAN1203" class="mini-textbox" allowInput="false" /></td>
 			    </tr>
 			    <tr>
 			        <th width="15%"><label>检查时间<font color = "red">*</font>：</label></th>
 			        <td width="35%"><input style="width: 100%" id="PLAN1229" required = "true"
 			             format="yyyy-MM-dd"   name="PLAN1229" class="mini-datepicker" allowInput="false" /></td>
-			        <th width="15%"><label>是否发现问题<font color = "red">*</font>：</label></th>
-			        <td width="35%"><input style="width: 100%" id="PLAN1221" required = "true" 
+			        <th width="17%"><label>是否发现问题<font color = "red">*</font>：</label></th>
+			        <td width="33%"><input style="width: 100%" id="PLAN1221" required = "true" 
 			            name="PLAN1221" class="mini-combobox" allowInput="false" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY06&isSync=1" /></td>
 			    </tr>
 			    <tr>
@@ -108,8 +108,8 @@
 				     <td width="35%"><input style="width: 100%;" id="PLAN1224" required = "true"
 				            name="PLAN1224" class="mini-combobox" allowInput="false" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY08&isSync=1" />
 				     </td>
-				     <th width="15%"><label>企业是否变化<font color = "red">*</font>：</label></th>
-				     <td width="35%"><input style="width: 100%;" id="PLAN1225" required = "true" 
+				     <th width="17%"><label>企业是否变化<font color = "red">*</font>：</label></th>
+				     <td width="33%"><input style="width: 100%;" id="PLAN1225" required = "true" 
 				            name="PLAN1225" class="mini-combobox" allowInput="false"  data="[{id:0,text:'否'},{id:1,text:'是'}]"/>
 				     </td>
 			    </tr>
