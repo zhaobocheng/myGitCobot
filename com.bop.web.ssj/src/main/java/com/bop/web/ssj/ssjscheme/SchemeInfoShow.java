@@ -321,9 +321,8 @@ public class SchemeInfoShow {
 		String sql = null;
 		
 		if("zs".equals(flag)){
-			
 			sql = "select t.org_code as jgdm,t.org_name as dwmc,t.reg_addr dz,t.legal_repre as lxr ,t.legal_repre_tel phone "+
-						  " from plan04 tt left join org01 t on t.org_code = tt.plan0402 where tt.parentid = '"+faid+"' and tt.plan0404 = '"+zone+"' ";
+						  " from plan04 tt left join org01 t on t.org_code = tt.plan0402 where tt.parentid = '"+faid+"' and tt.plan0417 = '"+zone+"' ";
 			
 			/*sql = "select  t.org_code as jgdm,t.org_name as dwmc,t.reg_addr dz,t.legal_repre as lxr ,t.legal_repre_tel phone "+
 					" from org01 t where t.reg_district_dic = '"+zone+"' ";*/

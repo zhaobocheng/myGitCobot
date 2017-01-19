@@ -38,12 +38,12 @@ public class CountPage {
 		HttpServletRequest request =  ActionContext.getActionContext().getHttpServletRequest();
 		String id = request.getParameter("id");
 
-		String querysql = "select * from (select t.plan0404,tt.caption, count(t.plan0402) zj, sum(case when t.PLAN0405 = 1 then 1 else 0 end ) ts,"+
+		String querysql = "select * from (select t.plan0417,tt.caption, count(t.plan0402) zj, sum(case when t.PLAN0405 = 1 then 1 else 0 end ) ts,"+
 		" sum(decode(t.PLAN0406,1,1,0)) jl, sum(decode(t.PLAN0407,1,1,0)) xk, sum(decode(t.PLAN0408,1,1,0)) bz,"+
 		" sum(decode(t.PLAN0409,1,1,0)) cp from plan04 t "+
-		" left join dm_codetable_data tt on tt.cid = t.plan0404 and tt.codetablename = 'DB064' where t.parentid = '"+id+
-		"' group by t.plan0404,tt.caption  order by t.plan0404 ) qy  left join (select p2.plan0205 ,count(*) zrs , sum(decode(p2.plan0204,2,1,0)) as ccrs from plan02 p2 where p2.parentid = '"+id+"'"+ 
-		"  group by p2.plan0205,p2.parentid) pp on  pp.plan0205 = qy.plan0404 ";
+		" left join dm_codetable_data tt on tt.cid = t.plan0417 and tt.codetablename = 'DB064' where t.parentid = '"+id+
+		"' group by t.plan0417,tt.caption  order by t.plan0417 ) qy  left join (select p2.plan0205 ,count(*) zrs , sum(decode(p2.plan0204,2,1,0)) as ccrs from plan02 p2 where p2.parentid = '"+id+"'"+ 
+		"  group by p2.plan0205,p2.parentid) pp on  pp.plan0205 = qy.plan0417 ";
 
 		ExtObjectCollection exc = new ExtObjectCollection();
 		List<Map<String,Object>> list = this.jdbcTemplate.queryForList(querysql);
@@ -104,7 +104,7 @@ public class CountPage {
 	    " from plan12 t "+
 	    " left join dm_codetable_data dm on dm.codetablename = 'DB064' and dm.cid = t.plan1204   where t.parentid in ("+faidQuery+")  and t.plan1204 in ("+qxidQuery+") group by t.plan1204,dm.caption) qy on qy.plan1204 = cp.cid"+ 
 	    " left join (select count(distinct p2.plan0201) as cyrys ,p2.plan0205  from plan02 p2  where p2.plan0204 = 2 and p2.parentid in ("+faidQuery+")  and p2.plan0205 in ("+qxidQuery+") group by p2.plan0205) cyry on cyry.plan0205 = qy.plan1204 "+
-	    " left join (select count(*) zs,t.plan0404 from plan04 t where t.parentid = ("+lasttQuery+") group by t.plan0404) zqys on zqys.plan0404 = qy.plan1204 "+
+	    " left join (select count(*) zs,t.plan0417 from plan04 t where t.parentid = ("+lasttQuery+") group by t.plan0417) zqys on zqys.plan0417 = qy.plan1204 "+
 	    " left join (select count(*) zs,t.plan0205 from plan02 t where t.parentid = ("+lasttQuery+") group by t.plan0205) zrys on zrys.plan0205 = qy.plan1204 "+
 	    " where cp.codetablename = 'DB064' and cp.cid in ("+qxidQuery+") order by cp.cid ";
 

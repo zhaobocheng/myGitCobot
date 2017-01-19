@@ -37,7 +37,7 @@
 	         <div field="jcrid" width="80" visible="false" >检查人id</div> 
 	        <div field="sjly"  width="80" >对象数据来源 </div>
 	        <div field="PLAN1221" vtype="required" width="100"   align="center" headerAlign="center" type="comboboxcolumn">是否发现问题
-	            <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY06?theme=none"/>                
+	            <input property="editor" class="mini-combobox"  style="width:100%;" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY06&isSync=1"/>                
 	        </div>  
 	         <div field="PLAN1222" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">问题涉及事项
 	            <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY01?theme=none"/>                
@@ -47,13 +47,13 @@
 	               <input property="editor" class="mini-textarea" style="width:100%;" minHeight="80"/>
 	        </div>
 	         <div field="PLAN1224" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">立案情况
-	             <input property="editor" class="mini-combobox" style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY08?theme=none"/>                
+	             <input property="editor" class="mini-combobox" style="width:100%;" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY08&isSync=1"/>                
 	         </div>       
 	         <div field="PLAN1225" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">企业是否变化
 	             <input property="editor" class="mini-combobox" style="width:100%;" data="Bits"/>                
 	         </div>        
 	         <div field="PLAN1226" vtype="required" width="100" type="comboboxcolumn" align="center" headerAlign="center">企业变化情况
-	             <input property="editor" class="mini-combobox"  style="width:100%;" url="/ssj/ssjScheme/SchemeResult/getCode/ZDY09?theme=none"/>                
+	             <input property="editor" class="mini-combobox"  style="width:100%;" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY09?theme=none"/>                
 	         </div>       
 			<div field="PLAN1227"  width="120" headerAlign="center" allowSort="true">实际生产地
 	               <input property="editor" class="mini-textarea" style="width:100%;" minHeight="80"/>

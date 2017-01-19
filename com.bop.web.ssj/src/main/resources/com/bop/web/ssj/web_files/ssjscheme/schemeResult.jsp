@@ -14,6 +14,7 @@
 </div>
 <div style="padding:5px;10px;5px;0">
 	<!-- <a class="mini-button" id="createBut" iconCls = "icon-save"  onclick="saveData()" >保存</a> -->
+	<a class="mini-button" id="createBut" iconCls = "icon-save"  onclick="rowthing()" >填写结果</a>
 	<a class="mini-button" id="commitBut" iconCls = "icon-ok" onclick="commitFa()" >提交结果</a>
 	<a class="mini-button" id="commitGS" iconCls = "icon-node"  onclick="onCommitGS()" >公示</a>	
 	<a class="mini-button" iconCls = "icon-new" onclick="importExc()" >导出Excel</a>
@@ -65,7 +66,7 @@
 
 
 
-<div  id="addwindow" class="mini-window" title="填写结果" style="width:720px;height:400px;" showToolbar="true" showFooter="true">
+<div  id="addwindow" class="mini-window" title="填写结果" style="width:800px;height:500px;" showToolbar="true" showFooter="true">
 	<div class = "input_form" id = "winform"  style="width:100%;">
 	
 		 <table style="width:100%;"> 
@@ -75,16 +76,16 @@
 			            name="PLAN1202" class="mini-textbox" allowInput="false" required = "true"/>
 			            <input class="mini-hidden" name="id" id="id" />
 			        </td>
-			        <th width="17%"><label>机构名称：</label></th>
-			        <td width="33%"><input style="width: 100%" id="PLAN1203" required = "true"
+			        <th width="15%"><label>机构名称：</label></th>
+			        <td width="35%"><input style="width: 100%" id="PLAN1203" required = "true"
 			            name="PLAN1203" class="mini-textbox" allowInput="false" /></td>
 			    </tr>
 			    <tr>
 			        <th width="15%"><label>检查时间<font color = "red">*</font>：</label></th>
 			        <td width="35%"><input style="width: 100%" id="PLAN1229" required = "true"
 			             format="yyyy-MM-dd"   name="PLAN1229" class="mini-datepicker" allowInput="false" /></td>
-			        <th width="17%"><label>是否发现问题<font color = "red">*</font>：</label></th>
-			        <td width="33%"><input style="width: 100%" id="PLAN1221" required = "true" 
+			        <th width="15%"><label>是否发现问题<font color = "red">*</font>：</label></th>
+			        <td width="35%"><input style="width: 100%" id="PLAN1221" required = "true" 
 			            name="PLAN1221" class="mini-combobox" allowInput="false" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY06&isSync=1" /></td>
 			    </tr>
 			    <tr>
@@ -95,10 +96,10 @@
 			   		</td>
 			    </tr>
 			    
-			    <tr>
+			    <tr height="120px">
 			        <th width="15%"><label>问题描述：</label></th>
 			        <td colspan="3">
-				        <input style="width: 100%" id="PLAN1223" name="PLAN1223"  class="mini-textarea" required = "false"
+				        <input style="width: 100%;height:100%" id="PLAN1223" name="PLAN1223"  class="mini-textarea" required = "false"
 				        textField="text" valueField="id"    />
 			   		</td>
 			    </tr>
@@ -108,8 +109,8 @@
 				     <td width="35%"><input style="width: 100%;" id="PLAN1224" required = "true"
 				            name="PLAN1224" class="mini-combobox" allowInput="false" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY08&isSync=1" />
 				     </td>
-				     <th width="17%"><label>企业是否变化<font color = "red">*</font>：</label></th>
-				     <td width="33%"><input style="width: 100%;" id="PLAN1225" required = "true" 
+				     <th width="15%"><label>企业是否变化<font color = "red">*</font>：</label></th>
+				     <td width="35%"><input style="width: 100%;" id="PLAN1225" required = "true" 
 				            name="PLAN1225" class="mini-combobox" allowInput="false"  data="[{id:0,text:'否'},{id:1,text:'是'}]"/>
 				     </td>
 			    </tr>
@@ -119,9 +120,9 @@
 				            name="PLAN1226" class="mini-combobox"  url="/Domain/DMDefineTreeAjax.do?tableName=ZDY09&isSync=1"  />
 				     </td>
 			    </tr>
-			    <tr >
+			    <tr height="120px">
 				     <th width="15%"><label>实际生产情况：</label></th>
-				     <td colspan="3"><input style="width: 100%;" id="PLAN1227" required = "false"
+				     <td colspan="3"><input style="width: 100%;height:100%;" id="PLAN1227" required = "false"
 				            name="PLAN1227" class="mini-textArea" allowInput="true" />
 				     </td>
 			    </tr>
@@ -446,19 +447,37 @@ importExc = function(){
 
 
 
-
 rowthing= function(e){
-	//alert("rowthing");
-	if(e.row.zf == "已提交"){
+	
+	var selectrow = grid.getSelecteds();
+	if(selectrow.length !=1){
+		alert("请选择一条记录进行填写！");
+	}else{
+		var row = selectrow[0];
+	}
+	
+	if(row.zf == "已提交"){
 		alert("本条记录已经提交不可再修改！");
 		return ;
 	}
 	var win = mini.get("addwindow");
 	win.show();
 	
-	mini.get("PLAN1202").setValue(e.row.PLAN1202);
-	mini.get("PLAN1203").setValue(e.row.PLAN1203);
-	mini.get("id").setValue(e.row.id);
+	mini.get("PLAN1202").setValue(row.PLAN1202);
+	mini.get("PLAN1203").setValue(row.PLAN1203);
+	
+	mini.get("PLAN1221").setValue(row.PLAN1221);
+	mini.get("PLAN1222").setValue(row.PLAN1222);
+	mini.get("PLAN1223").setValue(row.PLAN1223);
+	mini.get("PLAN1224").setValue(row.PLAN1224);
+	mini.get("PLAN1225").setValue(row.PLAN1225);
+	mini.get("PLAN1226").setValue(row.PLAN1226);
+	mini.get("PLAN1227").setValue(row.PLAN1227);
+	mini.get("PLAN1229").setValue(row.PLAN1229);
+	
+	
+	
+	mini.get("id").setValue(row.id);
 }
 
 onConcle = function(e){
