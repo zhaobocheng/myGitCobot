@@ -275,7 +275,7 @@ public class CompanyManage {
 			this.jdbcTemplate.execute(exeSql);
 			return "true";
 			*/
-		
+
 				//生成对应的rand02记录，随机基础数据
 				Records orgRec = this.recordDao.queryRecord("PLAN04", " parentid = '"+fzid+"' and PLAN0417='"+zone+"'");//得到该地区所有的企业记录
 				   for(IRecord org:orgRec){
