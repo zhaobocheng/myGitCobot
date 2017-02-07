@@ -117,7 +117,7 @@
 			    <tr >
 				     <th width="15%"><label>企业变化情况：</label></th>
 				     <td colspan="3"><input style="width: 100%;" id="PLAN1226" required = "false"
-				            name="PLAN1226" class="mini-combobox"  url="/Domain/DMDefineTreeAjax.do?tableName=ZDY09&isSync=1"  />
+				            name="PLAN1226" class="mini-combobox"  showNullItem="true" url="/Domain/DMDefineTreeAjax.do?tableName=ZDY09&isSync=1"  />
 				     </td>
 			    </tr>
 			    <tr height="120px">
