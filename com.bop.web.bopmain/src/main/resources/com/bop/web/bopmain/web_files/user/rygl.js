@@ -260,7 +260,7 @@ function addRow(){
 		return;
 	}
 	userwin.show();
-	userform = new mini.Form("#userform")
+	userform = new mini.Form("#userform");
 }
 
 function addRowYes(){
@@ -370,7 +370,6 @@ function showAll(){
 	grid.load( {departmentId : '0'});
 }
 
-
 //----------------人员修改-----------------
 function editRowYes(){
 	checkLoginName("edit");
@@ -395,6 +394,7 @@ function editRowYes(){
 	    success: function (text) {
 	    	var data = mini.decode(text);
 	    	if (data.success) {
+	    		debugger;
 				userform.reset();
 				grid.load({flag:'queryUserDataOrderNew',departmentId:node.id})
 				if (confirm("添加成功，是否继续添加")) {

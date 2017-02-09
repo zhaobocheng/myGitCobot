@@ -246,7 +246,7 @@ public class Rygl implements UserProvider {
 			 IP = req.getParameter("IP");
 			 MAC = req.getParameter("MAC");
 		}
-		
+
 		Person psr = new Person();
 		Dept dept = this.deptDao.findById(id);
 		psr.setLoginName(loginName);
