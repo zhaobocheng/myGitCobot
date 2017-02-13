@@ -67,13 +67,14 @@
 	 	</div> 
  </div>
  
-
-<div  id="errorData" class="mini-window" title="错误信息" style="width:1080px;height:550px;padding-left:15px" showFooter="true" showToolbar="true">
-			<div property="toolbar" style="padding:5px;"><p id="first" style="font-size:15px;color: red"></p></div>
+<div  id="errorData" class="mini-window" title="错误信息" style="width:1080px; height:750px;padding-left:15px" showFooter="true" showToolbar="true">
+			<div property="toolbar" style="padding:5px;">
+				<p id="first" style="font-size:15px;color: red"></p>
+			</div>
 			<div style="height:80%">
-				<div class="mini-datagrid" id="errorGrid"  showPager="true" idField="id">
+				<div class="mini-datagrid" id="errorGrid" showFooter="true" idField="id" multiSelect="true" pageSize="20" sizeList="[20,30,50,100]">
 					<div property="columns">
-						<div field="errorIndex" width="70px"  headerAlign="center"  align="center">序号</div>
+						<div type="indexcolumn" width="30" headerAlign="center">序号</div>
 						<div field="code" width="90px"  headerAlign="center"  align="center">组织机构代码</div>
 						<div field="orgName"    headerAlign="center"  align="center">企业名称</div>
 						<div field="orgAddressCode"  width="90px"  headerAlign="center"  align="center">注册地区划代码</div>
@@ -115,6 +116,7 @@ var sxid11 = null;
 function selectName(){
 	mini.get("selectItemName").show();
 }
+
 //保存事项名称
 function saveItemName(){
 	var tree = mini.get("itemTree");
@@ -186,7 +188,6 @@ function uploadSave(){
 			    		  mini.get("errorData").show();
 				    	  var json=eval("("+returndata+")").content;
 				    	  var sub = eval("("+json+")");
-				    	  mini.get("errorGrid").setData(sub);
 				    	  if(sub!=null&&sub!=""){
 				    		  $("#temp").val(1);     //标记为含有错误
 				    	  }
@@ -196,8 +197,11 @@ function uploadSave(){
 				    		  var hehe = document.getElementById("first");
 					    	  hehe.innerText = "含有错误！ 错误数为："+errorNum+";    错误率为："+percent+";  建议修正后再导入!";
 				    	  }
-				    	  var ItemJson=eval("("+returndata+")").itemId;
-				    	  mini.get("itemIdTemp").setValue(ItemJson);
+				    	  mini.parse();
+				    	  var errorGrid = mini.get("errorGrid");
+				    	  var  url="/ssj/powerlist/ImportData/errorInfo?cuid="+sxid11+"&theme=none";
+						  errorGrid.setUrl(url);
+						  errorGrid.load();
 			    	  }
 			      }
 			  });

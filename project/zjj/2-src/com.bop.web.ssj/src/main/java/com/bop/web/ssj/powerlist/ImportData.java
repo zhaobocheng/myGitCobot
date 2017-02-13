@@ -10,14 +10,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.management.StringValueExp;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
 
 import com.aspose.cells.Cells;
 import com.aspose.cells.Workbook;
+import com.bop.common.StringUtility;
 import com.bop.domain.IRecordDao;
 import com.bop.domain.dao.IRecord;
+import com.bop.json.ExtGrid;
+import com.bop.json.ExtObject;
 import com.bop.web.bopmain.UserSession;
 import com.bop.web.rest.Action;
 import com.bop.web.rest.ActionContext;
@@ -41,6 +48,93 @@ public class ImportData {
 
 	private static final Logger log = LoggerFactory.getLogger(ImportData.class);
 	
+	
+	
+	/**
+	 * 按分页的形式获取错误信息
+	 */
+	@Action
+	public String errorInfo(){
+		HttpServletRequest request = ActionContext.getActionContext().getHttpServletRequest();
+		ArrayList<JSONObject> errorLs =new ArrayList<JSONObject>(); 
+		int pageIndex =Integer.parseInt(request.getParameter("pageIndex").toString());
+		int pageSize = Integer.parseInt(request.getParameter("pageSize").toString());
+		String cuid=request.getParameter("cuid")==null?"":request.getParameter("cuid").toString();
+		ExtGrid eg = new ExtGrid();
+		if(StringUtils.isNotBlank(cuid)){
+			int start=pageIndex*pageSize+1;
+			int end=pageIndex*pageSize+pageSize;
+			int total=this.getTotal(cuid);
+			//校验对应的数据,找不到机构的代码
+					String noOrgCodeSql = "select ttt.* from ( select outsql.orgcode,outsql.orgname,outsql.regAddrName,outsql.regAddrCode,outsql.procAddrCode,outsql.notorg01 + outsql.notcity + outsql.notyield as flag ,rownum as rn "+
+							" from (select t.orgcode,t.orgname,t.regAddrName,t.regAddrCode,t.procAddrCode, decode(org1.org_code,null,1,0) as notorg01,"+
+							" case when dm.caption = t.regAddrName then 0 else 3 end as notcity,"+
+							" case when dm2.caption is null then 5 else 0 end as notyield "+
+							" from log03 t left join dm_codetable_data dm on dm.codetablename = 'DB064' and dm.cid = t.regAddrCode "+
+							" left join dm_codetable_data dm2 on dm2.codetablename = 'DB064' and dm2.cid = t.procAddrCode "+
+							" left join org01 org1 on  org1.org_code = t.orgcode where t.parentid in (select log02.recordid from log02 where log02.parentid  = '"+cuid+"') order by t.orgcode ) outsql "+
+							" where outsql.notorg01 + outsql.notcity + outsql.notyield > 0 ) ttt where ttt.rn between "+ start+" and "+ end;
+					List<Map<String,Object>> listmap = this.jdbcTemplate.queryForList(noOrgCodeSql);
+					for(Map<String,Object> map:listmap){
+						String flag = map.get("flag").toString();
+						String error="";
+						//HashMap<String,String> sub=new HashMap<String,String>();
+						ExtObject eo = new ExtObject();
+						eo.add("orgName", map.get("orgname").toString());
+						eo.add("city", map.get("regAddrName").toString());
+						eo.add("code", map.get("orgcode")==null?"":map.get("orgcode").toString());
+						eo.add("orgAddressCode",map.get("regAddrCode")==null?"":map.get("regAddrCode").toString());
+						eo.add("yieldlyCode",map.get("procAddrCode")==null?"":map.get("procAddrCode").toString());
+
+						if("1".equals(flag)){
+							eo.add("code", "<label style=\"color:red\";>"+map.get("orgcode")+"</label>");
+							error="组织机构代码错误;";
+						}else if("3".equals(flag)){
+							eo.add("orgAddressCode", "<label style=\"color:red\";>"+map.get("regAddrCode")+"</label>");
+							error="注册地区划代码错误;";
+						}else if("5".equals(flag)){
+							eo.add("yieldlyCode", "<label style=\"color:red\";>"+map.get("procAddrCode")+"</label>");
+							error="生产地区划代码错误;";
+						}else if("4".equals(flag)){
+							eo.add("code", "<label style=\"color:red\";>"+map.get("orgcode")+"</label>");
+							eo.add("orgAddressCode", "<label style=\"color:red\";>"+map.get("regAddrCode")+"</label>");
+							error="组织机构代码错误;注册地区划代码错误;";
+						}else if("6".equals(flag)){
+							eo.add("code", "<label style=\"color:red\";>"+map.get("orgcode")+"</label>");
+							eo.add("yieldlyCode", "<label style=\"color:red\";>"+map.get("procAddrCode")+"</label>");
+							error="组织机构代码错误;生产地区划代码错误;";
+						}else if("8".equals(flag)){
+							eo.add("orgAddressCode", "<label style=\"color:red\";>"+map.get("regAddrCode")+"</label>");
+							eo.add("yieldlyCode", "<label style=\"color:red\";>"+map.get("procAddrCode")+"</label>");
+							error="注册地区划代码错误;生产地区划代码错误;";
+						}else if("9".equals(flag)){
+							eo.add("orgAddressCode", "<label style=\"color:red\";>"+map.get("regAddrCode")+"</label>");
+							eo.add("yieldlyCode", "<label style=\"color:red\";>"+map.get("procAddrCode")+"</label>");
+							eo.add("code", "<label style=\"color:red\";>"+map.get("orgcode")+"</label>");
+							error="组织机构代码错误;注册地区划代码错误;生产地区划代码错误;";
+						}else {
+							error = flag;
+						}
+						eo.add("errorInfo", error);
+						eg.rows.add(eo);
+					}
+					eg.setTotal(total);
+		} 
+		return eg.toString();
+	}
+	
+	private int getTotal(String cuid) {
+		String noOrgCodeSql = "select ttt.* from ( select outsql.orgcode,outsql.orgname,outsql.regAddrName,outsql.regAddrCode,outsql.procAddrCode,outsql.notorg01 + outsql.notcity + outsql.notyield as flag ,rownum as rn "+
+				" from (select t.orgcode,t.orgname,t.regAddrName,t.regAddrCode,t.procAddrCode, decode(org1.org_code,null,1,0) as notorg01,"+
+				" case when dm.caption = t.regAddrName then 0 else 3 end as notcity,"+
+				" case when dm2.caption is null then 5 else 0 end as notyield "+
+				" from log03 t left join dm_codetable_data dm on dm.codetablename = 'DB064' and dm.cid = t.regAddrCode "+
+				" left join dm_codetable_data dm2 on dm2.codetablename = 'DB064' and dm2.cid = t.procAddrCode "+
+				" left join org01 org1 on  org1.org_code = t.orgcode where t.parentid in (select log02.recordid from log02 where log02.parentid  = '"+cuid+"') order by t.orgcode ) outsql "+
+				" where outsql.notorg01 + outsql.notcity + outsql.notyield > 0 ) ttt ";
+		List<Map<String,Object>> listmap = this.jdbcTemplate.queryForList(noOrgCodeSql);
+		return listmap.size();
+	}
 	/**
 	 *只对文件的列数校验，将数据统一存到数据库中
 	 * @param selected
@@ -196,9 +290,9 @@ public class ImportData {
 				" from log03 t left join dm_codetable_data dm on dm.codetablename = 'DB064' and dm.cid = t.regAddrCode "+
 				" left join dm_codetable_data dm2 on dm2.codetablename = 'DB064' and dm2.cid = t.procAddrCode "+
 				" left join org01 org1 on  org1.org_code = t.orgcode where t.parentid in (select log02.recordid from log02 where log02.parentid  = '"+cuid+"') order by t.orgcode ) outsql "+
-				" where outsql.notorg01 + outsql.notcity + outsql.notyield > 0 ) ttt where ttt.rn <=20";
+				" where outsql.notorg01 + outsql.notcity + outsql.notyield > 0 ) ttt ";
 		List<Map<String,Object>> listmap = this.jdbcTemplate.queryForList(noOrgCodeSql);
-		for(Map<String,Object> map:listmap){
+		/*for(Map<String,Object> map:listmap){
 			String flag = map.get("flag").toString();
 			errorNum++;
 			String error="";
@@ -243,7 +337,8 @@ public class ImportData {
 			sub.put("errorInfo", error);
 			JSONObject jsonObject = JSONObject.fromObject(sub);
 			errorLs.add(jsonObject);
-		}
+		}*/
+		errorNum=listmap.size();
 		
 		Double s=Double.valueOf(errorNum)/Double.valueOf(rows-1);
 		DecimalFormat df=new DecimalFormat("0.00");
