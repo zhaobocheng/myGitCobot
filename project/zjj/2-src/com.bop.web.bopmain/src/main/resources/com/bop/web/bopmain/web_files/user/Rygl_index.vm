@@ -193,7 +193,7 @@ $PathUtil.jsLink("com.bop.module.form", "/DataGrid.js")
 
 <iframe name = "cs" id="cs" style="display:none"></iframe>
 
-<div id="win2" class="mini-window" title="修改人员信息" style="width:490px;height:400px;"  
+<div id="win2" class="mini-window" title="修改人员信息" style="width:490px;height:600px;"  
     showModal="true"  showFooter="true" allowDrag="true">
 	<div property="footer" align="center" >
 		

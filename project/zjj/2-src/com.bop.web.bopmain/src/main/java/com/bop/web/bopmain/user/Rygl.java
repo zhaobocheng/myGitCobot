@@ -219,60 +219,82 @@ public class Rygl implements UserProvider {
 	public String addUser(String id,String flag) {
 		HttpServletRequest req = ActionContext.getActionContext().getHttpServletRequest();
 		ExtResultObject obj = new ExtResultObject(true);
-
 		String userName;
 		String loginName;
 		String password;
 		String description;
 		String usetime;
-		
 		String IP;
 		String MAC;
-		
-		if("add".equals(flag)){
-			 userName = req.getParameter("RY0103");
-			 loginName = req.getParameter("RY0102");
-			 password = req.getParameter("password");
-			 description = req.getParameter("RY0104");
-			 usetime = req.getParameter("usetime");
-			 IP = req.getParameter("IP");
-			 MAC = req.getParameter("MAC");
+		String userId;
+		if ("add".equals(flag)) {
+			userName = req.getParameter("RY0103");
+			loginName = req.getParameter("RY0102");
+			password = req.getParameter("password");
+			description = req.getParameter("RY0104");
+			usetime = req.getParameter("usetime");
+			IP = req.getParameter("ip");
+			MAC = req.getParameter("mac");
+			Person psr = new Person();
+			Dept dept = this.deptDao.findById(id);
+			psr.setLoginName(loginName);
+			psr.setUserName(userName);
+			psr.setEnabled(true);
+			psr.setDeleted(false);
+			if(dept==null){
+				obj.add("info", "选择部门有误！");
+			}else{
+				psr.setDept(dept);
+			}
+			this.personDao.save(psr);
+			User01 user = new User01();
+			user.setLoginName(loginName);
+			user.setUserName(userName);
+			user.setValidate(true);
+			user.setPassword(password);
+			user.setDescription(description);
+			user.setUserforTime(Integer.parseInt(System.getProperty("activeTime","60")));
+			user.setMac(MAC);
+			user.setIp(IP);
+			user.setWpasswordTime(0);
+			this.UserDao.save(user);
+			return obj.toString();
 		}else{
+			 //编辑
 			 userName = req.getParameter("ERY0103");
 			 loginName = req.getParameter("ERY0102");
 			 password = req.getParameter("Epassword");
 			 description = req.getParameter("ERY0104");
 			 usetime = req.getParameter("Eusetime");
-			 IP = req.getParameter("IP");
-			 MAC = req.getParameter("MAC");
+			 IP = req.getParameter("Eip");
+			 MAC = req.getParameter("Emac");
+			 userId=req.getParameter("EuserId");
+			 //根据logName去ry01表里面去获取
+			 List<Person> perList = this.personDao.findBySql("select * from ry01 where RY0102 = '" + loginName + "'");
+			 Person per=null; 
+			 //保存ry01里面的信息
+			 if(perList.size()>0){
+				 per=perList.get(0);
+				 per.setUserName(userName);
+				 this.personDao.save(per);
+			 }
+			 //保存user信息
+			 List<User01> userList = this.UserDao.findBySql("select * from user01 where user00 = '"+userId+"'");
+			 if(userList.size()>0){
+			 	User01 user=userList.get(0);
+				user.setLoginName(loginName);
+				user.setUserName(userName);
+				user.setValidate(true);
+				user.setPassword(password);
+				user.setDescription(description);
+				user.setUserforTime(Integer.parseInt(System.getProperty("activeTime","60")));
+				user.setMac(MAC);
+				user.setIp(IP);
+				user.setWpasswordTime(0);
+				this.UserDao.save(user);
+			 }
+			 return obj.toString();
 		}
-
-		Person psr = new Person();
-		Dept dept = this.deptDao.findById(id);
-		psr.setLoginName(loginName);
-		psr.setUserName(userName);
-		psr.setEnabled(true);
-		psr.setDeleted(false);
-		if(dept==null){
-			obj.add("info", "选择部门有误！");
-		}else{
-			psr.setDept(dept);
-		}
-		this.personDao.save(psr);
-		User01 user = new User01();
-
-		user.setLoginName(loginName);
-		user.setUserName(userName);
-		user.setValidate(true);
-		user.setPassword(password);
-		user.setDescription(description);
-		user.setUserforTime(Integer.parseInt(System.getProperty("activeTime","60")));
-		user.setMac(MAC);
-		user.setIp(IP);
-		user.setWpasswordTime(0);
-
-		this.UserDao.save(user);
-		return obj.toString();
 	}
 
 	/**
@@ -427,12 +449,16 @@ public class Rygl implements UserProvider {
 			form.add("form", "信息获取错误！");
 		}
 		if (user != null)
-		{
+		{   
+			form.add("EuserId", user.getUser00());
 			form.add("ERY0102", user.getLoginName());
 			form.add("ERY0103", user.getUserName());
 			form.add("Epassword", user.getPassword());
+			form.add("Eip", user.getIp());
+			form.add("Emac", user.getMac());
 			form.add("Eusetime", user.getUserforTime());
 			form.add("ERY0104", user.getDescription()==null?"":user.getDescription());
+			
 		} 
 		return form.toString();
 	}

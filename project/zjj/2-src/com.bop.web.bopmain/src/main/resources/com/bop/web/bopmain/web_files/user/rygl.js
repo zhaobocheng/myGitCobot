@@ -25,14 +25,32 @@ function keyUp(event){
 	}
 
 //密码一致校验
-function checkPassword(){
-	var password = mini.get("password").getValue();
-	var rpassword = mini.get("rpassword").getValue();
-	if(password!=rpassword){
-		document.getElementById("RY0102ERROR").innerHTML="两次输入的密码必须一致!";
-		//mini.alert('两次输入的密码必须一致!');
-		return;
+function checkPassword(flag){
+	var password="";
+	var rpassword="";
+	if(flag=="add"){
+		var password = mini.get("password").getValue();
+		var rpassword = mini.get("rpassword").getValue();
+		if(password!=rpassword){
+			document.getElementById("RY0102ERROR").innerHTML="两次输入的密码必须一致!";
+			mini.get("rpassword").setValue("");
+			return;
+		}else{
+			document.getElementById("RY0102ERROR").innerHTML="";
+		}
+	}else{
+		var password = mini.get("Epassword").getValue();
+		var rpassword = mini.get("Erpassword").getValue();
+		if(password!=rpassword){
+			//清空
+			document.getElementById("ERY0102ERROR").innerHTML="两次输入的密码必须一致!";
+			mini.get("Erpassword").setValue("");
+			return;
+		}else{
+			document.getElementById("ERY0102ERROR").innerHTML="";
+		}
 	}
+	
 }
 
 //密码是否符合配置的规则校验
@@ -228,9 +246,10 @@ var edituserwin = mini.get("edituserwin");
 var userform;
 
 function checkLoginName(flag){
-	var value = addRowText.getValue();
+	var editRowText=mini.get("ERY0102");		//登录名文本框
 	var reqflag = true;
 	if(flag=="edit"){
+		var value = editRowText.getValue();
 		var loginname = grid.getSelected().loginname;
 		if(loginname==value){
 			reqflag = false;
@@ -279,6 +298,7 @@ function addRowYes(){
 	var data = userform.getData();
 	var json = mini.decode(data);
 	var node = tree.getSelectedNode();
+	
 	$.ajax({
 	    url: "/bopmain/user/rygl/adduser/"+node.id+"/add?theme=none",
 	    data: json,
@@ -373,38 +393,30 @@ function showAll(){
 //----------------人员修改-----------------
 function editRowYes(){
 	checkLoginName("edit");
-	var newPwd = mini.get("password").getValue();
+	var newPwd = mini.get("Epassword").getValue();
 	edituserform.validate();
     if (edituserform.isValid() == false) return false;
-    
-
     var prompt = checkConfigpassWord(newPwd);
     if(prompt!="yes"){
     	mini.alert(prompt);
     	return ;
     }
-
 	var data = edituserform.getData();
 	var json = mini.decode(data);
 	var node = tree.getSelectedNode();
+	var id=""
+	if(node){
+		id=node.id;
+	}
 	$.ajax({
-	    url: "/bopmain/user/rygl/adduser/"+node.id+"/edit?theme=none",
+	    url: "/bopmain/user/rygl/adduser/"+id+"/edit?theme=none",
 	    data: json,
 	    type: "post",
 	    success: function (text) {
 	    	var data = mini.decode(text);
 	    	if (data.success) {
-	    		debugger;
-				userform.reset();
-				grid.load({flag:'queryUserDataOrderNew',departmentId:node.id})
-				if (confirm("添加成功，是否继续添加")) {
-					addRow();
-					mini.get("RY01011").focus();
-				}else {
-					edituserform.reset();
 					edituserwin.hide();
 		    		grid.reload();
-				}
 			} else {
 				return;
 			}
